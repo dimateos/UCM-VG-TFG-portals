@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Src\PC\Platform_PC.cpp">
+      <Filter>PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PC\Renderer_PC.cpp">
+      <Filter>PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PS4\Platform_PS4.cpp">
+      <Filter>PS4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PS4\Renderer_PS4.cpp">
+      <Filter>PS4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\main.cpp" />
+    <ClCompile Include="..\Src\Threads\RenderThread.cpp">
+      <Filter>Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PC\Input_PC.cpp">
+      <Filter>PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PS4\Input_PS4.cpp">
+      <Filter>PS4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Logic\Game.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Graphics\Sprite.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Graphics\Color.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Graphics\Image.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\General\Config.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Logic\InputLogicState.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Graphics\SpriteAnim.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Threads\DeltaTimer.cpp">
+      <Filter>Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Threads\PlatSleeping.cpp">
+      <Filter>Threads</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\PS4\Platform_PS4.h">
+      <Filter>PS4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PS4\Renderer_PS4.h">
+      <Filter>PS4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PS4\PS4_memory.hpp">
+      <Filter>PS4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PC\Platform_PC.h">
+      <Filter>PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PC\Renderer_PC.h">
+      <Filter>PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\RenderThread.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\concurrentqueue.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\RenderCommands.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\blockingconcurrentqueue.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PC\Input_PC.h">
+      <Filter>PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PS4\Input_PS4.h">
+      <Filter>PS4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\Input.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\InputState.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\Platform.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\Renderer.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\Game.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\Config.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\PS4\PS4_videoUtils.hpp">
+      <Filter>PS4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\Image.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\Rect.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\Sprite.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\Color.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\InputLogicState.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\Activable.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\SpriteAnim.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\Listening.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Graphics\SpriteAnimEvent.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\General\ConfigCore.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\DeltaTimer.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\PlatSleeping.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threads\Timer.h">
+      <Filter>Threads</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="PC">
+      <UniqueIdentifier>{a2da7767-8046-4288-80e2-2366addb64df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PS4">
+      <UniqueIdentifier>{e70343f5-2e3e-47bb-a380-fa4f3e6e7a32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{bddaa01b-260a-40ab-9f02-2f25ef3f298f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threads">
+      <UniqueIdentifier>{dd1ec0c8-329e-465d-b0b9-fdfe39aca72a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="General">
+      <UniqueIdentifier>{a4dca68b-a9e4-47a1-8370-7304ed5f0d6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{051cb9d0-3934-4035-9042-7d2d57782f59}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,4 @@
+# Allow shred assets here
+
+*.exe
+*.dll
