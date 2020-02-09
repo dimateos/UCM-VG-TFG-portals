@@ -60,7 +60,7 @@ unsigned int indices[] = {  // note that we start from 0
 ///////////////////////////////////////////////////////////////////////////////
 //texturing
 
-unsigned int texture;
+unsigned int texture1, texture2;
 
 unsigned int st_VAO, st_VBO, st_EBO;
 float st_l = 0.6f;
@@ -75,31 +75,33 @@ float square_tex_vertices[] = {
 ///////////////////////////////////////////////////////////////////////////////
 //setups
 
-void setupTexture() {
+bool loadTexture(const std::string &path, unsigned int &texture, int colorMode = GL_RGB, int textureType = GL_TEXTURE_2D) {
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(textureType, texture);
 
 	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_LINEAR_MIPMAP_LINEAR
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_LINEAR_MIPMAP_LINEAR
+	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//unused border color
 	float borderColor[] = { 0.9f, 0.6f, 0.3f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glTexParameterfv(textureType, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("Assets/_basic/container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexImage2D(textureType, 0, colorMode, width, height, 0, colorMode, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(textureType);
 	}
 	else {
 		std::cout << "Failed to load texture" << std::endl;
+		return false;
 	}
 	stbi_image_free(data);
+	return true;
 }
 
 void setupVAOsquare() {
@@ -200,19 +202,21 @@ void setup() {
 	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
 	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
 	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
-	squareTextShader.build("Shaders/_basic/V_texture.glsl", "Shaders/_basic/F_texture.glsl");
+	squareTextShader.build("Shaders/_basic/V_texture.glsl", "Shaders/_basic/F_texture2.glsl");
 
-	//loading textured
-	setupTexture();
+	//loading texturedç
+	stbi_set_flip_vertically_on_load(true);
+	loadTexture("Assets/_basic/container.jpg", texture1);
+	loadTexture("Assets/_basic/awesomeface.png", texture2, GL_RGBA);
+	squareTextShader.bind(); // don't forget to activate the shader before setting uniforms
+	squareTextShader.setInt("texture1", 0);
+	squareTextShader.setInt("texture2", 1);
 
 	//creating the VAOs
 	setupVAOsquare();
 	setupVAOtriangle();
 	setupVAOtriangleRGB();
 	setupVAOsquareTex();
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 }
 
 void render(float timish) {
@@ -229,14 +233,19 @@ void render(float timish) {
 
 	//textured square
 	squareTextShader.bind();
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0); // activate the texture unit (0 is default so no need if only 1 unit)
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
 	glBindVertexArray(st_VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	//triangle
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	triangleShader.bind();
 	glBindVertexArray(t_VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	//triangleRGB
 	triangleRGBShader.bind();
@@ -319,6 +328,8 @@ int run () {
 	glDeleteBuffers(1, &st_EBO);
 	glDeleteBuffers(1, &t_VBO);
 	glDeleteBuffers(1, &trgb_VBO);
+
+	//glDeleteTextures
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
