@@ -22,7 +22,7 @@ const int RES_W = RES_H * RES;
 //shaders
 
 #include "Shader.h"
-Shader squareShader, squareTextShader, triangleShader, triangleRGBShader;
+Shader squareShader, squareTexShader, triangleShader, triangleRGBShader;
 
 ///////////////////////////////////////////////////////////////////////////////
 //objects
@@ -65,12 +65,39 @@ unsigned int texture1, texture2;
 unsigned int st_VAO, st_VBO, st_EBO;
 float st_l = 0.6f;
 float square_tex_vertices[] = {
+	// positions          // texture coords
+	 st_l,  st_l, 0.0f,   1.0f, 1.0f,   // top right
+	 st_l, -st_l, 0.0f,   1.0f, 0.0f,   // bottom right
+	-st_l, -st_l, 0.0f,   0.0f, 0.0f,   // bottom left
+	-st_l,  st_l, 0.0f,   0.0f, 1.0f    // top left
+};
+float square_tex_color_vertices[] = {
 	// positions          // colors           // texture coords
 	 st_l,  st_l, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
 	 st_l, -st_l, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
 	-st_l, -st_l, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
 	-st_l,  st_l, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
 };
+
+///////////////////////////////////////////////////////////////////////////////
+//transformations
+
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
+unsigned int transformLoc;
+glm::mat4 trans = glm::mat4(1.0f);
+
+void doSomeTransformations() {
+	//trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+	trans = glm::scale(trans, glm::vec3(0.75f));
+
+	glm::vec4 vec(0.0f, 0.0f, 0.0f, 1.0f);
+	std::cout << "x:" << vec.x << " y:" << vec.y << " z:" << vec.z << std::endl;
+	vec = trans * vec;
+	std::cout << "x:" << vec.x << " y:" << vec.y << " z:" << vec.z << std::endl;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //setups
@@ -154,7 +181,7 @@ void setupVAOsquareTex() {
 	glBindVertexArray(st_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
 	glBindBuffer(GL_ARRAY_BUFFER, st_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(square_tex_vertices), square_tex_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(square_tex_color_vertices), square_tex_color_vertices, GL_STATIC_DRAW);
 	// 2.5. set index orders
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, st_EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -166,7 +193,7 @@ void setupVAOsquareTex() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	// texture attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6	 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -202,15 +229,20 @@ void setup() {
 	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
 	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
 	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
-	squareTextShader.build("Shaders/_basic/V_texture.glsl", "Shaders/_basic/F_texture2.glsl");
+	squareTexShader.build("Shaders/_basic/V_transform_c.glsl", "Shaders/_basic/F_texture_c.glsl");
 
-	//loading texturedç
+	//some transforms
+	doSomeTransformations();
+
+	//loading textured
 	stbi_set_flip_vertically_on_load(true);
 	loadTexture("Assets/_basic/container.jpg", texture1);
 	loadTexture("Assets/_basic/awesomeface.png", texture2, GL_RGBA);
-	squareTextShader.bind(); // don't forget to activate the shader before setting uniforms
-	squareTextShader.setInt("texture1", 0);
-	squareTextShader.setInt("texture2", 1);
+	squareTexShader.bind(); // don't forget to activate the shader before setting uniforms
+	squareTexShader.setInt("texture1", 0);
+	squareTexShader.setInt("texture2", 1);
+	transformLoc = squareTexShader.getUniformLocation("transform");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 	//creating the VAOs
 	setupVAOsquare();
@@ -232,7 +264,9 @@ void render(float timish) {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	//textured square
-	squareTextShader.bind();
+	squareTexShader.bind();
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE,
+		glm::value_ptr(glm::rotate(trans, glm::radians(timish*25), glm::vec3(0.0, 0.0, 1.0))));
 	glActiveTexture(GL_TEXTURE0); // activate the texture unit (0 is default so no need if only 1 unit)
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glActiveTexture(GL_TEXTURE1);

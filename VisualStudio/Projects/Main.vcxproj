@@ -59,7 +59,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Exes\$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glm-stable\glm;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\SDL2-2.0.10\lib\$(Platform);$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Inter\$(Platform)\$(Configuration)\</IntDir>
     <SourcePath>$(VC_SourcePath);$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glad\src;$(SourcePath)</SourcePath>
@@ -67,7 +67,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Exes\$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glm-stable\glm;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Inter\$(Platform)\$(Configuration)\</IntDir>
     <SourcePath>$(VC_SourcePath);$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glad\src;$(SourcePath)</SourcePath>
@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Exes\$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glm-stable\glm;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\SDL2-2.0.10\lib\$(Platform);$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Inter\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -83,7 +83,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Exes\$(Platform)\</OutDir>
-    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\SDL2-2.0.10\include;$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\glm-stable\glm;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Inter\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>

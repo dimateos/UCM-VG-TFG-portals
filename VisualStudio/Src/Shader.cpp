@@ -28,15 +28,15 @@ bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 
 	// 1. retrieve the vertex/fragment source code from filePath
 	std::string vShaderCode = loadFileContent(vertexPath);
-	if (vShaderCode == "") return false;
+	if (vShaderCode == "") return buildError(vertexPath);
 	std::string fShaderCode = loadFileContent(fragmentPath);
-	if (fShaderCode == "") return false;
+	if (fShaderCode == "") return buildError(fragmentPath);
 
 	// 2. compile shaders
 	unsigned int vertex = compileShader(vShaderCode.c_str(), GL_VERTEX_SHADER);
-	if (vertex == -1) return false;
+	if (vertex == -1) return buildError(vertexPath);;
 	unsigned int fragment = compileShader(fShaderCode.c_str(), GL_FRAGMENT_SHADER);
-	if (fragment == -1) return false;
+	if (fragment == -1) return buildError(fragmentPath);;
 
 	// 3. link shader program
 	ID = glCreateProgram();
@@ -61,31 +61,44 @@ bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 	glDeleteShader(fragment);
 	return true;
 }
+bool Shader::buildError(const std::string & path) const {
+	std::cout << path << std::endl;
+	std::cout << "/////////////////////////////////////////////////////////////" << std::endl << std::endl;
+	return false;
+}
 
 void Shader::bind() {
 	glUseProgram(ID);
 }
 
 int Shader::getUniformLocation(const std::string & name) const {
-	return glGetUniformLocation(ID, name.c_str());
+	int pos = glGetUniformLocation(ID, name.c_str());
+	if (pos == -1) setError(name);
+	return pos;
 }
 bool Shader::setBool(const std::string & name, bool value) const {
 	int pos = glGetUniformLocation(ID, name.c_str());
-	if (pos == -1) return false;
+	if (pos == -1) return setError(name);
 	glUniform1i(pos, (int)value);
 	return true;
 }
 bool Shader::setInt(const std::string & name, int value) const {
 	int pos = glGetUniformLocation(ID, name.c_str());
-	if (pos == -1) return false;
+	if (pos == -1) return setError(name);
 	glUniform1i(pos, value);
 	return true;
 }
 bool Shader::setFloat(const std::string & name, float value) const {
 	int pos = glGetUniformLocation(ID, name.c_str());
-	if (pos == -1) return false;
+	if (pos == -1) return setError(name);
 	glUniform1f(pos, value);
 	return true;
+}
+bool Shader::setError(const std::string & name) const {
+	std::cout << "ERROR::SHADER::UNIFORM_NOT_FOUND" << std::endl;
+	std::cout << name << std::endl;
+	std::cout << "/////////////////////////////////////////////////////////////" << std::endl << std::endl;
+	return false;
 }
 
 std::string Shader::loadFileContent(const char * path) {

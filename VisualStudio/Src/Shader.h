@@ -28,4 +28,8 @@ protected:
 	//could go to some utils
 	static std::string loadFileContent(const char* path);
 	static unsigned int compileShader(const char* code, int shaderType);
+
+	//informative errors
+	bool buildError(const std::string & path) const;
+	bool setError(const std::string & name) const;
 };
