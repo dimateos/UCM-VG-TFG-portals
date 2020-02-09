@@ -23,6 +23,7 @@ const int RES_W = RES_H * RES;
 
 #include "Shader.h"
 Shader squareShader, squareTexShader, triangleShader, triangleRGBShader;
+Shader cubeShader;
 
 ///////////////////////////////////////////////////////////////////////////////
 //objects
@@ -82,6 +83,51 @@ float square_tex_color_vertices[] = {
 ///////////////////////////////////////////////////////////////////////////////
 //transformations
 
+unsigned int cube_VAO, cube_VBO;
+float cube_vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -89,9 +135,26 @@ float square_tex_color_vertices[] = {
 unsigned int transformLoc;
 glm::mat4 trans = glm::mat4(1.0f);
 
+unsigned int modelLoc;
+glm::mat4 model = glm::mat4(1.0f);
+// note that we're translating the scene in the reverse direction of where we want to move
+glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)RES_W / (float)RES_H, 0.1f, 100.0f);
+
+glm::vec3 cubePositions[] = {
+  glm::vec3(2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3(2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3(1.3f, -2.0f, -2.5f),
+  glm::vec3(1.5f,  2.0f, -2.5f),
+  glm::vec3(1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 void doSomeTransformations() {
-	//trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-	trans = glm::scale(trans, glm::vec3(0.75f));
+	glm::mat4 trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
 
 	glm::vec4 vec(0.0f, 0.0f, 0.0f, 1.0f);
 	std::cout << "x:" << vec.x << " y:" << vec.y << " z:" << vec.z << std::endl;
@@ -132,6 +195,10 @@ bool loadTexture(const std::string &path, unsigned int &texture, int colorMode =
 }
 
 void setupVAOsquare() {
+	glGenBuffers(1, &s_VBO);
+	glGenBuffers(1, &s_EBO);
+	glGenVertexArrays(1, &s_VAO);
+
 	// 1. bind Vertex Array Object
 	glBindVertexArray(s_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
@@ -152,6 +219,9 @@ void setupVAOsquare() {
 	glBindVertexArray(UNBIND);
 }
 void setupVAOtriangle() {
+	glGenBuffers(1, &t_VBO);
+	glGenVertexArrays(1, &t_VAO);
+
 	// 1. bind Vertex Array Object
 	glBindVertexArray(t_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
@@ -163,6 +233,9 @@ void setupVAOtriangle() {
 	glEnableVertexAttribArray(0);
 }
 void setupVAOtriangleRGB() {
+	glGenBuffers(1, &trgb_VBO);
+	glGenVertexArrays(1, &trgb_VAO);
+
 	// 1. bind Vertex Array Object
 	glBindVertexArray(trgb_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
@@ -177,6 +250,10 @@ void setupVAOtriangleRGB() {
 	glEnableVertexAttribArray(1);
 }
 void setupVAOsquareTex() {
+	glGenBuffers(1, &st_VBO);
+	glGenBuffers(1, &st_EBO);
+	glGenVertexArrays(1, &st_VAO);
+
 	// 1. bind Vertex Array Object
 	glBindVertexArray(st_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
@@ -203,6 +280,30 @@ void setupVAOsquareTex() {
 	glBindVertexArray(UNBIND);
 }
 
+void setupVAOcube() {
+	glGenBuffers(1, &cube_VBO);
+	glGenVertexArrays(1, &cube_VAO);
+
+	// 1. bind Vertex Array Object
+	glBindVertexArray(cube_VAO);
+	// 2. copy our vertices array in a buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER, cube_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+
+	// 3. then set our vertex attributes pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, UNBIND);
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(UNBIND);
+}
+
 void setup() {
 	//logging info
 	printf("GL VERSION: %s\n", glGetString(GL_VERSION));
@@ -212,50 +313,41 @@ void setup() {
 	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
 	std::cout << std::endl;
 
-	//creating the objects
-	glGenBuffers(1, &s_VBO);
-	glGenBuffers(1, &st_VBO);
-	glGenBuffers(1, &s_EBO);
-	glGenBuffers(1, &st_EBO);
-	glGenBuffers(1, &t_VBO);
-	glGenBuffers(1, &trgb_VBO);
-
-	glGenVertexArrays(1, &s_VAO);
-	glGenVertexArrays(1, &st_VAO);
-	glGenVertexArrays(1, &t_VAO);
-	glGenVertexArrays(1, &trgb_VAO);
-
-	//creating the shaders
-	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
-	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
-	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
-	squareTexShader.build("Shaders/_basic/V_transform_c.glsl", "Shaders/_basic/F_texture_c.glsl");
-
-	//some transforms
-	doSomeTransformations();
-
-	//loading textured
+	//loading textures
 	stbi_set_flip_vertically_on_load(true);
 	loadTexture("Assets/_basic/container.jpg", texture1);
 	loadTexture("Assets/_basic/awesomeface.png", texture2, GL_RGBA);
+
+	//creating the VAOs and shaders
+	setupVAOsquare();
+	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
+	setupVAOtriangle();
+	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
+	setupVAOtriangleRGB();
+	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
+
+	setupVAOsquareTex();
+	squareTexShader.build("Shaders/_basic/V_transform_c.glsl", "Shaders/_basic/F_texture_c.glsl");
 	squareTexShader.bind(); // don't forget to activate the shader before setting uniforms
 	squareTexShader.setInt("texture1", 0);
 	squareTexShader.setInt("texture2", 1);
 	transformLoc = squareTexShader.getUniformLocation("transform");
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+	trans = glm::scale(trans, glm::vec3(0.75f));
 
-	//creating the VAOs
-	setupVAOsquare();
-	setupVAOtriangle();
-	setupVAOtriangleRGB();
-	setupVAOsquareTex();
+	setupVAOcube();
+	cubeShader.build("Shaders/_basic/V_3D.glsl", "Shaders/_basic/F_texture.glsl");
+	cubeShader.bind(); // don't forget to activate the shader before setting uniforms
+	cubeShader.setInt("texture1", 0);
+	cubeShader.setInt("texture2", 1);
+	modelLoc = cubeShader.getUniformLocation("model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f))));
+	glUniformMatrix4fv(cubeShader.getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(cubeShader.getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	glEnable(GL_DEPTH_TEST);
 }
 
-void render(float timish) {
-	//clear
-	glClearColor(0.1f, 0.1, 0.1, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
+void render2Dstuff(float timish) {
 	//animated square
 	squareShader.bind();
 	float light = (sin(timish) / 2.0f) + 0.5f;
@@ -266,7 +358,7 @@ void render(float timish) {
 	//textured square
 	squareTexShader.bind();
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE,
-		glm::value_ptr(glm::rotate(trans, glm::radians(timish*25), glm::vec3(0.0, 0.0, 1.0))));
+		glm::value_ptr(glm::rotate(trans, glm::radians(timish * 25), glm::vec3(0.0, 0.0, 1.0))));
 	glActiveTexture(GL_TEXTURE0); // activate the texture unit (0 is default so no need if only 1 unit)
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glActiveTexture(GL_TEXTURE1);
@@ -287,6 +379,33 @@ void render(float timish) {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	//glBindVertexArray(UNBIND); //no need to unbind every time
+}
+
+void render(float timish) {
+	//clear
+	glClearColor(0.1f, 0.1, 0.1, 1.0);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//render2Dstuff(timish);
+
+	cubeShader.bind();
+	glActiveTexture(GL_TEXTURE0); // activate the texture unit (0 is default so no need if only 1 unit)
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glBindVertexArray(cube_VAO);
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+		glm::value_ptr(glm::rotate(model, glm::radians(timish * 25), glm::vec3(0.5, 1.0, 0.0))));
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	for (unsigned int i = 0; i < 9; i++) {
+		glm::mat4 m = glm::translate(model, cubePositions[i]);
+		m = glm::rotate(m, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 }
 
 int run () {
@@ -320,6 +439,7 @@ int run () {
 
 	//do the scene setup
 	setup();
+	//doSomeTransformations();
 
 	// Main loop
 	printf("TFG - start loop\n");
@@ -355,6 +475,7 @@ int run () {
 	glDeleteVertexArrays(1, &st_VAO);
 	glDeleteVertexArrays(1, &t_VAO);
 	glDeleteVertexArrays(1, &trgb_VAO);
+	//...
 
 	glDeleteBuffers(1, &s_VBO);
 	glDeleteBuffers(1, &st_VBO);
@@ -362,6 +483,7 @@ int run () {
 	glDeleteBuffers(1, &st_EBO);
 	glDeleteBuffers(1, &t_VBO);
 	glDeleteBuffers(1, &trgb_VBO);
+	//...
 
 	//glDeleteTextures
 
