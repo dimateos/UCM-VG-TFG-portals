@@ -4,6 +4,7 @@
 // WINDOWS
 #include <SDL.h>
 #include <glad\glad.h>
+#include <stb.h>
 
 #include <stdio.h>
 #include <iostream>
@@ -21,18 +22,21 @@ const int RES_W = RES_H * RES;
 //shaders
 
 #include "Shader.h"
-Shader squareShader, triangleShader, triangleRGBShader;
+Shader squareShader, squareTextShader, triangleShader, triangleRGBShader;
 
 ///////////////////////////////////////////////////////////////////////////////
 //objects
 
-float t_rgb_l = 0.2f, t_l = 0.4f;
+unsigned int trgb_VAO, trgb_VBO;
+float t_rgb_l = 0.2f, t_l = 0.3f;
 float triangle_vertices_rgb[] = {
 	// positions				// colors
 	-t_rgb_l, -t_rgb_l, 0.0f,	1.0f, 0.0f, 0.0f,   // bottom right
 	t_rgb_l, -t_rgb_l, 0.0f,	0.0f, 1.0f, 0.0f,   // bottom left
 	0.0f,  t_rgb_l, 0.0f,		0.0f, 0.0f, 1.0f    // top
 };
+
+unsigned int t_VAO, t_VBO;
 float triangle_vertices[] = {
 	// positions
 	-t_l, -t_l, 0.0f,
@@ -40,7 +44,8 @@ float triangle_vertices[] = {
 	0.0f,  t_l, 0.0f,
 };
 
-float s_l = 0.8f;
+unsigned int s_VAO, s_VBO, s_EBO;
+float s_l = 0.9f;
 float square_vertices[] = {
 	 s_l,  s_l, 0.0f,  // top right
 	 s_l, -s_l, 0.0f,  // bottom right
@@ -52,9 +57,50 @@ unsigned int indices[] = {  // note that we start from 0
 	1, 2, 3    // second triangle
 };
 
-unsigned int s_VAO, s_VBO, s_EBO;
-unsigned int t_VAO, t_VBO;
-unsigned int trgb_VAO, trgb_VBO;
+///////////////////////////////////////////////////////////////////////////////
+//texturing
+
+unsigned int texture;
+
+unsigned int st_VAO, st_VBO, st_EBO;
+float st_l = 0.6f;
+float square_tex_vertices[] = {
+	// positions          // colors           // texture coords
+	 st_l,  st_l, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+	 st_l, -st_l, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+	-st_l, -st_l, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+	-st_l,  st_l, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//setups
+
+void setupTexture() {
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_LINEAR_MIPMAP_LINEAR
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//unused border color
+	float borderColor[] = { 0.9f, 0.6f, 0.3f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("Assets/_basic/container.jpg", &width, &height, &nrChannels, 0);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
 
 void setupVAOsquare() {
 	// 1. bind Vertex Array Object
@@ -101,6 +147,32 @@ void setupVAOtriangleRGB() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
+void setupVAOsquareTex() {
+	// 1. bind Vertex Array Object
+	glBindVertexArray(st_VAO);
+	// 2. copy our vertices array in a buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER, st_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(square_tex_vertices), square_tex_vertices, GL_STATIC_DRAW);
+	// 2.5. set index orders
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, st_EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// 3. then set our vertex attributes pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// texture attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6	 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, UNBIND);
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(UNBIND);
+}
 
 void setup() {
 	//logging info
@@ -113,11 +185,14 @@ void setup() {
 
 	//creating the objects
 	glGenBuffers(1, &s_VBO);
+	glGenBuffers(1, &st_VBO);
 	glGenBuffers(1, &s_EBO);
+	glGenBuffers(1, &st_EBO);
 	glGenBuffers(1, &t_VBO);
 	glGenBuffers(1, &trgb_VBO);
 
 	glGenVertexArrays(1, &s_VAO);
+	glGenVertexArrays(1, &st_VAO);
 	glGenVertexArrays(1, &t_VAO);
 	glGenVertexArrays(1, &trgb_VAO);
 
@@ -125,11 +200,16 @@ void setup() {
 	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
 	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
 	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
+	squareTextShader.build("Shaders/_basic/V_texture.glsl", "Shaders/_basic/F_texture.glsl");
+
+	//loading textured
+	setupTexture();
 
 	//creating the VAOs
 	setupVAOsquare();
 	setupVAOtriangle();
 	setupVAOtriangleRGB();
+	setupVAOsquareTex();
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -140,11 +220,17 @@ void render(float timish) {
 	glClearColor(0.1f, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//square
+	//animated square
 	squareShader.bind();
 	float light = (sin(timish) / 2.0f) + 0.5f;
 	glUniform4f(squareShader.getUniformLocation("ourColor"), light, light, light, 1.0f);
 	glBindVertexArray(s_VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	//textured square
+	squareTextShader.bind();
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindVertexArray(st_VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	//triangle
@@ -223,11 +309,14 @@ int run () {
 
 	// Release
 	glDeleteVertexArrays(1, &s_VAO);
+	glDeleteVertexArrays(1, &st_VAO);
 	glDeleteVertexArrays(1, &t_VAO);
 	glDeleteVertexArrays(1, &trgb_VAO);
 
 	glDeleteBuffers(1, &s_VBO);
+	glDeleteBuffers(1, &st_VBO);
 	glDeleteBuffers(1, &s_EBO);
+	glDeleteBuffers(1, &st_EBO);
 	glDeleteBuffers(1, &t_VBO);
 	glDeleteBuffers(1, &trgb_VBO);
 

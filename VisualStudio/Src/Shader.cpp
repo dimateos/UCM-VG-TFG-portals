@@ -22,6 +22,7 @@ bool Shader::build(const std::string & vertexPath, const std::string & fragmentP
 bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 	if (ID != -1) {
 		std::cout << "ERROR::SHADER::PROGRAM::ALREADYBUILT\n" << std::endl;
+		std::cout << vertexPath << fragmentPath << std::endl;
 		return false;
 	}
 
@@ -50,6 +51,7 @@ bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 	if (!success) {
 		glGetProgramInfoLog(ID, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		std::cout << vertexPath << fragmentPath << std::endl;
 		ID = -1;
 		return false;
 	}
@@ -106,6 +108,7 @@ std::string Shader::loadFileContent(const char * path) {
 	}
 	catch (std::ifstream::failure e) {
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		std::cout << path << std::endl;
 		s = "";
 	}
 
@@ -127,6 +130,7 @@ unsigned int Shader::compileShader(const char* code, int shaderType) {
 	if (!success) {
 		glGetShaderInfoLog(shId, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout << code << std::endl;
 		shId = -1;
 	};
 

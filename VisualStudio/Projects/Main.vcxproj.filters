@@ -2,17 +2,20 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\Dependencies\glad\src\glad.c">
-      <Filter>Dependencies</Filter>
+      <Filter>_Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\mainBasic.cpp" />
     <ClCompile Include="..\Src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Dependencies">
+    <Filter Include="_Dependencies">
       <UniqueIdentifier>{3c7fb900-ff10-495b-80c0-09b6b9a61cf3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\Shader.h" />
+    <ClInclude Include="..\Dependencies\stb\stb.h">
+      <Filter>_Dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
