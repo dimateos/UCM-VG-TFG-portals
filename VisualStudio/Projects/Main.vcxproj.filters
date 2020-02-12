@@ -5,17 +5,84 @@
       <Filter>_Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\mainBasic.cpp" />
-    <ClCompile Include="..\Src\Shader.cpp" />
+    <ClCompile Include="..\Src\Render\Camera.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Render\Mesh.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Render\Shader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\SceneLogic\Entity.cpp">
+      <Filter>SceneLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\SceneLogic\Scene.cpp">
+      <Filter>SceneLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\main.cpp" />
+    <ClCompile Include="..\Src\Render\Renderable.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\EntityLogic\FPScontroller.cpp">
+      <Filter>EntityLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\App.cpp" />
+    <ClCompile Include="..\Src\Platform\Platform_SDL.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Platform\Window_SDL_GL.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
       <UniqueIdentifier>{3c7fb900-ff10-495b-80c0-09b6b9a61cf3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{90dea084-eac4-4373-98fb-8befa08ac079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{c3ebe2b0-7558-44fa-9ac3-e9ffb21a8ef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntityLogic">
+      <UniqueIdentifier>{cb2926fb-aaba-4859-ba5d-c6ca3f6ff390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceneLogic">
+      <UniqueIdentifier>{98b63765-c1b6-4904-b4d3-648315d9404c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Src\Shader.h" />
     <ClInclude Include="..\Dependencies\stb\stb.h">
       <Filter>_Dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Camera.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Mesh.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Shader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\SceneLogic\Entity.h">
+      <Filter>SceneLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\SceneLogic\Scene.h">
+      <Filter>SceneLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Renderable.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\EntityLogic\FPScontroller.h">
+      <Filter>EntityLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\App.h" />
+    <ClInclude Include="..\Src\Platform\Platform_SDL.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Platform\Window_SDL_GL.h">
+      <Filter>Platform</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

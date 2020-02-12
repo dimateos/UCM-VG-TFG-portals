@@ -21,7 +21,7 @@ const int RES_W = RES_H * RES;
 ///////////////////////////////////////////////////////////////////////////////
 //shaders
 
-#include "Shader.h"
+#include "Render/Shader.h"
 Shader squareShader, squareTexShader, triangleShader, triangleRGBShader;
 Shader cubeShader;
 
@@ -315,19 +315,19 @@ void setup() {
 
 	//loading textures
 	stbi_set_flip_vertically_on_load(true);
-	loadTexture("Assets/_basic/container.jpg", texture1);
-	loadTexture("Assets/_basic/awesomeface.png", texture2, GL_RGBA);
+	loadTexture("../Assets/_basic/container.jpg", texture1);
+	loadTexture("../Assets/_basic/awesomeface.png", texture2, GL_RGBA);
 
 	//creating the VAOs and shaders
 	setupVAOsquare();
-	squareShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_uniform.glsl");
+	squareShader.build("../Shaders/_basic/V_base.glsl", "../Shaders/_basic/F_uniform.glsl");
 	setupVAOtriangle();
-	triangleShader.build("Shaders/_basic/V_base.glsl", "Shaders/_basic/F_base.glsl");
+	triangleShader.build("../Shaders/_basic/V_base.glsl", "../Shaders/_basic/F_base.glsl");
 	setupVAOtriangleRGB();
-	triangleRGBShader.build("Shaders/_basic/V_color.glsl", "Shaders/_basic/F_color.glsl");
+	triangleRGBShader.build("../Shaders/_basic/V_color.glsl", "../Shaders/_basic/F_color.glsl");
 
 	setupVAOsquareTex();
-	squareTexShader.build("Shaders/_basic/V_transform_c.glsl", "Shaders/_basic/F_texture_c.glsl");
+	squareTexShader.build("../Shaders/_basic/V_transform_c.glsl", "../Shaders/_basic/F_texture_c.glsl");
 	squareTexShader.bind(); // don't forget to activate the shader before setting uniforms
 	squareTexShader.setInt("texture1", 0);
 	squareTexShader.setInt("texture2", 1);
@@ -335,7 +335,7 @@ void setup() {
 	trans = glm::scale(trans, glm::vec3(0.75f));
 
 	setupVAOcube();
-	cubeShader.build("Shaders/_basic/V_3D.glsl", "Shaders/_basic/F_texture.glsl");
+	cubeShader.build("../Shaders/_basic/V_3D.glsl", "../Shaders/_basic/F_texture.glsl");
 	cubeShader.bind(); // don't forget to activate the shader before setting uniforms
 	cubeShader.setInt("texture1", 0);
 	cubeShader.setInt("texture2", 1);
@@ -494,6 +494,6 @@ int run () {
 	return 0;
 }
 
-int main(int argc, char* argv[]) {
-	return run();
-}
+//int main(int argc, char* argv[]) {
+//	return run();
+//}
