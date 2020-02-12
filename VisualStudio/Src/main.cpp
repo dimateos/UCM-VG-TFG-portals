@@ -9,9 +9,8 @@ int main(int argc, char* argv[]) {
 
 	success = app.init();
 	if (!success) return -1;
-	success = app.resume();
+	success = app.start();
 	if (!success) return -1;
 
-	//app.join();
 	return 0;
 }

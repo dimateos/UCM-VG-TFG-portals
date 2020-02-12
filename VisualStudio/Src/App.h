@@ -1,7 +1,6 @@
 #pragma once
 
-#include <atomic>
-#include <thread>
+class Scene;
 
 class App
 {
@@ -10,14 +9,13 @@ public:
 	~App();
 	bool init();
 	void release();
-	inline void join() const { _t->join(); };
 
-	bool resume();
-	bool pause();
+	bool start();
+	bool stop();
 
 private:
 	void loop();
+	bool _stopRequest, _running; //loop control
 
-	std::thread *_t = nullptr;
-	std::atomic<bool> _quitRequest, _running; //frenar el loop
+	Scene* _scene;
 };
