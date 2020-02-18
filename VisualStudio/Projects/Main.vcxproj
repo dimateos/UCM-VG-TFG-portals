@@ -172,12 +172,10 @@
   <ItemGroup>
     <ClCompile Include="..\Dependencies\glad\src\glad.c" />
     <ClCompile Include="..\Src\App.cpp" />
-    <ClCompile Include="..\Src\Logic\Entities\Test.cpp" />
-    <ClCompile Include="..\Src\Logic\Entity.cpp" />
-    <ClCompile Include="..\Src\Logic\Renderable.cpp" />
-    <ClCompile Include="..\Src\Logic\Renderables\Cube.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp" />
+    <ClCompile Include="..\Src\LogicScenes\SampleScene.cpp" />
+    <ClCompile Include="..\Src\Logic\Node.cpp" />
     <ClCompile Include="..\Src\Logic\Scene.cpp" />
-    <ClCompile Include="..\Src\Logic\Scenes\SampleScene.cpp" />
     <ClCompile Include="..\Src\Logic\Transform.cpp" />
     <ClCompile Include="..\Src\main.cpp" />
     <ClCompile Include="..\Src\mainBasic.cpp">
@@ -199,12 +197,10 @@
   <ItemGroup>
     <ClInclude Include="..\Dependencies\stb\stb.h" />
     <ClInclude Include="..\Src\App.h" />
-    <ClInclude Include="..\Src\Logic\Entities\Test.h" />
-    <ClInclude Include="..\Src\Logic\Entity.h" />
-    <ClInclude Include="..\Src\Logic\Renderable.h" />
-    <ClInclude Include="..\Src\Logic\Renderables\Cube.h" />
+    <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h" />
+    <ClInclude Include="..\Src\LogicScenes\SampleScene.h" />
+    <ClInclude Include="..\Src\Logic\Node.h" />
     <ClInclude Include="..\Src\Logic\Scene.h" />
-    <ClInclude Include="..\Src\Logic\Scenes\SampleScene.h" />
     <ClInclude Include="..\Src\Logic\Transform.h" />
     <ClInclude Include="..\Src\Platform\Platform_SDL.h" />
     <ClInclude Include="..\Src\Platform\Window_SDL_GL.h" />

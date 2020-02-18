@@ -16,26 +16,20 @@
     <ClCompile Include="..\Src\Platform\Window_SDL_GL.cpp">
       <Filter>Platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Logic\Renderable.cpp">
-      <Filter>Logic</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Logic\Scene.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\Logic\Transform.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Logic\Entity.cpp">
+    <ClCompile Include="..\Src\Logic\Node.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Logic\Renderables\Cube.cpp">
-      <Filter>Logic\Renderables</Filter>
+    <ClCompile Include="..\Src\LogicScenes\SampleScene.cpp">
+      <Filter>LogicScenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Logic\Entities\Test.cpp">
-      <Filter>Logic\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Src\Logic\Scenes\SampleScene.cpp">
-      <Filter>Logic\Scene</Filter>
+    <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp">
+      <Filter>LogicNodes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -51,14 +45,11 @@
     <Filter Include="Logic">
       <UniqueIdentifier>{98b63765-c1b6-4904-b4d3-648315d9404c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logic\Entities">
-      <UniqueIdentifier>{cb2926fb-aaba-4859-ba5d-c6ca3f6ff390}</UniqueIdentifier>
+    <Filter Include="LogicNodes">
+      <UniqueIdentifier>{79e22ac7-8594-41cb-8731-51a8fea4ecce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logic\Renderables">
-      <UniqueIdentifier>{054eede2-4b55-4954-8838-38ae86721ab8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Logic\Scene">
-      <UniqueIdentifier>{4d172edb-ba91-4204-b2f0-0a74ce5a4a3e}</UniqueIdentifier>
+    <Filter Include="LogicScenes">
+      <UniqueIdentifier>{bab30db9-4203-4362-8a1d-7164ac1dde2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,26 +66,20 @@
     <ClInclude Include="..\Src\Platform\Window_SDL_GL.h">
       <Filter>Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Logic\Entity.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Src\Logic\Renderable.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\Logic\Scene.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\Logic\Transform.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Logic\Renderables\Cube.h">
-      <Filter>Logic\Renderables</Filter>
+    <ClInclude Include="..\Src\Logic\Node.h">
+      <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Logic\Entities\Test.h">
-      <Filter>Logic\Entities</Filter>
+    <ClInclude Include="..\Src\LogicScenes\SampleScene.h">
+      <Filter>LogicScenes</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Logic\Scenes\SampleScene.h">
-      <Filter>Logic\Scene</Filter>
+    <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h">
+      <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

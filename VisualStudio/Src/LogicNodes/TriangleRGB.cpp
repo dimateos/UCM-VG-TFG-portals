@@ -1,7 +1,7 @@
-#include "Cube.h"
+#include "TriangleRGB.h"
 #include <glad\glad.h>
 
-Cube::Cube() {
+TriangleRGB::TriangleRGB() : Node() {
 	glGenBuffers(1, &trgb_VBO);
 	glGenVertexArrays(1, &trgb_VAO);
 
@@ -20,12 +20,12 @@ Cube::Cube() {
 
 	triangleRGBShader.build("../Shaders/_basic/V_color.glsl", "../Shaders/_basic/F_color.glsl");
 }
-Cube::~Cube() {
+TriangleRGB::~TriangleRGB() {
 	glDeleteVertexArrays(1, &trgb_VAO);
 	glDeleteBuffers(1, &trgb_VBO);
 }
 
-void Cube::draw(float delta, glm::mat4 modelMatrix) {
+void TriangleRGB::render() {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	triangleRGBShader.bind();
 	glBindVertexArray(trgb_VAO);

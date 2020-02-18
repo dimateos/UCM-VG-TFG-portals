@@ -8,7 +8,7 @@ using namespace std;
 #include <SDL.h>
 #include <glad\glad.h>
 
-#include "Logic/Scenes/SampleScene.h"
+#include "LogicScenes/SampleScene.h"
 
 App::App() {}
 
@@ -35,7 +35,10 @@ bool App::init() {
 
 void App::release() {
 	printf("app - release\n");
-	stop(); //in case not
+
+	//relase scene etc
+	_scene->release();
+	delete _scene;
 }
 
 bool App::start() {
@@ -80,21 +83,19 @@ void App::loop() {
 			//	glViewport(0, 0, event.window.data1, event.window.data2);
 			//}
 
-			else _scene->handleEvent(event);
+			//else _scene->handleEvent(event);
+			//GUARDAR EN EL ESTADO DE EVENTOS
 		}
 
 		//update
 		_scene->update(timish);
 
-		//clear in scene?
-		glClearColor(0.9f, 0.1f, 0.1f, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		//render
-		_scene->render(timish);
+		_scene->render();
 
 		//swap
 		Window_SDL_GL::swap();
 	}
+
+	release();
 }

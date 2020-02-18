@@ -1,30 +1,28 @@
 #include "Scene.h"
-
-#include "Entity.h"
+#include "Node.h"
 
 Scene::Scene() {}
 Scene::~Scene() {
-	release();
+	if (!_nodes.empty()) printf("Scene - WARNING destroyed while ents not empty\n");
 }
 
 bool Scene::init() {
-	return false;
+	return true;
 }
-
 void Scene::release() {
-	for each (Entity* it in _ents) delete it;
-	_ents.clear();
+	for each (Node* it in _nodes) delete it;
+	_nodes.clear();
 }
 
-bool Scene::handleEvent(const SDL_Event & event) {
-	for (auto e : _ents) if (e->handleEvent(event)) return true;
-	return false;
-}
+//bool Scene::handleEvent(const SDL_Event & event) {
+//	for (auto e : _ents) if (e->handleEvent(event)) return true;
+//	return false;
+//}
 
 void Scene::update(float delta) {
-	for (auto e : _ents) e->update(delta);
+	for (auto e : _nodes) e->update(delta);
 }
 
-void Scene::render(float delta) {
-	for (auto e : _ents) e->render(delta);
+void Scene::render() {
+	for (auto e : _nodes) e->render();
 }

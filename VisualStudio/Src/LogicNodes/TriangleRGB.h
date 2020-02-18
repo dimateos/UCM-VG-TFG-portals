@@ -1,16 +1,15 @@
 #pragma once
-#include <glm.hpp>
 
-#include "../Renderable.h"
-#include "../../Render/Shader.h"
+#include "../Logic/Node.h"
+#include "../Render/Shader.h"
 
-class Cube : public Renderable
+class TriangleRGB : public Node
 {
 public:
-	Cube();
-	virtual ~Cube();
+	TriangleRGB();
+	virtual ~TriangleRGB();
 
-	virtual void draw(float delta, glm::mat4 modelMatrix);
+	virtual void render();
 
 protected:
 	Shader triangleRGBShader;
