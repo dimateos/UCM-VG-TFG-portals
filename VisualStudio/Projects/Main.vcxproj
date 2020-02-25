@@ -172,19 +172,15 @@
   <ItemGroup>
     <ClCompile Include="..\Dependencies\glad\src\glad.c" />
     <ClCompile Include="..\Src\App.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\SquareAnimated.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\SquareTextured.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\Triangle.cpp" />
     <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp" />
     <ClCompile Include="..\Src\LogicScenes\SampleScene.cpp" />
     <ClCompile Include="..\Src\Logic\Node.cpp" />
     <ClCompile Include="..\Src\Logic\Scene.cpp" />
     <ClCompile Include="..\Src\Logic\Transform.cpp" />
     <ClCompile Include="..\Src\main.cpp" />
-    <ClCompile Include="..\Src\mainBasic.cpp">
-      <DeploymentContent>false</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\Src\Platform\Platform_SDL.cpp" />
     <ClCompile Include="..\Src\Platform\Window_SDL_GL.cpp" />
     <ClCompile Include="..\Src\Render\Shader.cpp">
@@ -197,6 +193,9 @@
   <ItemGroup>
     <ClInclude Include="..\Dependencies\stb\stb.h" />
     <ClInclude Include="..\Src\App.h" />
+    <ClInclude Include="..\Src\LogicNodes\SquareAnimated.h" />
+    <ClInclude Include="..\Src\LogicNodes\SquareTextured.h" />
+    <ClInclude Include="..\Src\LogicNodes\Triangle.h" />
     <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h" />
     <ClInclude Include="..\Src\LogicScenes\SampleScene.h" />
     <ClInclude Include="..\Src\Logic\Node.h" />

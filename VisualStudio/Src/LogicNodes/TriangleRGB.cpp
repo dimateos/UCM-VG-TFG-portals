@@ -2,13 +2,13 @@
 #include <glad\glad.h>
 
 TriangleRGB::TriangleRGB() : Node() {
-	glGenBuffers(1, &trgb_VBO);
-	glGenVertexArrays(1, &trgb_VAO);
+	glGenBuffers(1, &_VBO);
+	glGenVertexArrays(1, &_VAO);
 
 	// 1. bind Vertex Array Object
-	glBindVertexArray(trgb_VAO);
+	glBindVertexArray(_VAO);
 	// 2. copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, trgb_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices_rgb), triangle_vertices_rgb, GL_STATIC_DRAW);
 
 	// 3. then set our vertex attributes pointers
@@ -18,17 +18,15 @@ TriangleRGB::TriangleRGB() : Node() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	triangleRGBShader.build("../Shaders/_basic/V_color.glsl", "../Shaders/_basic/F_color.glsl");
+	_shaderRGB.build("../Shaders/_basic/V_color.glsl", "../Shaders/_basic/F_color.glsl");
 }
 TriangleRGB::~TriangleRGB() {
-	glDeleteVertexArrays(1, &trgb_VAO);
-	glDeleteBuffers(1, &trgb_VBO);
+	glDeleteVertexArrays(1, &_VAO);
+	glDeleteBuffers(1, &_VBO);
 }
 
 void TriangleRGB::render() {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	triangleRGBShader.bind();
-	glBindVertexArray(trgb_VAO);
+	_shaderRGB.bind();
+	glBindVertexArray(_VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

@@ -4,7 +4,6 @@
     <ClCompile Include="..\Dependencies\glad\src\glad.c">
       <Filter>_Dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\mainBasic.cpp" />
     <ClCompile Include="..\Src\Render\Shader.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -29,6 +28,12 @@
       <Filter>LogicScenes</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\Triangle.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\SquareAnimated.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -79,6 +84,12 @@
       <Filter>LogicScenes</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\Triangle.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\SquareAnimated.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -25,7 +25,7 @@ bool App::init() {
 	if (!success) return false;
 
 	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-	success = Window_SDL_GL::init(flags, "TFG_dimateos", 800, 800, 100, 100, 3, 3);
+	success = Window_SDL_GL::init(flags, "TFG_dimateos", RES_W, RES_H, 100, 100, 3, 3);
 	if (!success) return false;
 
 	_scene = new SampleScene();

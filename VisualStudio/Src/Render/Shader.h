@@ -11,6 +11,7 @@ public:
 	//reads and builds the shader
 	bool build(const std::string &vertexPath, const std::string &fragmentPath);
 	bool build(const char* vertexPath, const char* fragmentPath);
+	unsigned int getID();
 
 	// use/activate the shader
 	void bind();
@@ -23,7 +24,7 @@ public:
 
 protected:
 	// the program ID
-	unsigned int ID = -1;
+	unsigned int _ID = -1;
 
 	//could go to some utils
 	static std::string loadFileContent(const char* path);
