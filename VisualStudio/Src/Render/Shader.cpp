@@ -61,9 +61,6 @@ bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 	glDeleteShader(fragment);
 	return true;
 }
-unsigned int Shader::getID() {
-	return _ID;
-}
 bool Shader::buildError(const std::string & path) const {
 	std::cout << path << std::endl;
 	std::cout << "/////////////////////////////////////////////////////////////" << std::endl << std::endl;

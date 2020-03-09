@@ -9,6 +9,7 @@ using namespace std;
 #include <glad\glad.h>
 
 #include "LogicScenes/SampleScene.h"
+#include "Render/Texture.h"
 
 App::App() {}
 
@@ -27,6 +28,8 @@ bool App::init() {
 	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	success = Window_SDL_GL::init(flags, "TFG_dimateos", RES_W, RES_H, 100, 100, 3, 3);
 	if (!success) return false;
+
+	Texture::setFlipVerticallyOnLoad();
 
 	_scene = new SampleScene();
 	_scene->init();

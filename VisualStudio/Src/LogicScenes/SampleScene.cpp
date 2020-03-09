@@ -2,6 +2,7 @@
 #include "../LogicNodes/TriangleRGB.h"
 #include "../LogicNodes/Triangle.h"
 #include "../LogicNodes/SquareAnimated.h"
+#include "../LogicNodes/SquareTextured.h"
 
 #include <glad\glad.h>
 #define UNBIND 0
@@ -12,6 +13,7 @@ SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
 	_nodes.push_back(new SquareAnimated());
+	_nodes.push_back(new SquareTextured());
 	_nodes.push_back(new Triangle());
 	_nodes.push_back(new TriangleRGB());
 

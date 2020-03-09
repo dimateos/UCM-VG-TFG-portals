@@ -44,6 +44,14 @@ bool Window_SDL_GL::init(int SDL_window_flags, const char* title, int w, int h,
 
 	_width = SDL_GetWindowSurface(_window)->w;
 	_height = SDL_GetWindowSurface(_window)->h;
+
+	//logging info
+	printf("window context - GL VERSION: %s - GL VENDOR: %s\n", glGetString(GL_VERSION), glGetString(GL_VENDOR));
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "window context - Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
+	std::cout << std::endl;
+
 	return true;
 }
 

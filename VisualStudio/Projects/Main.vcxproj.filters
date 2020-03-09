@@ -36,6 +36,10 @@
     <ClCompile Include="..\Src\LogicNodes\SquareAnimated.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\SquareTextured.cpp" />
+    <ClCompile Include="..\Src\Render\Texture.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
@@ -91,6 +95,10 @@
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\SquareAnimated.h">
       <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\SquareTextured.h" />
+    <ClInclude Include="..\Src\Render\Texture.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

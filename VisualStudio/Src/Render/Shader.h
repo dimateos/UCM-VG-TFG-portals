@@ -11,7 +11,6 @@ public:
 	//reads and builds the shader
 	bool build(const std::string &vertexPath, const std::string &fragmentPath);
 	bool build(const char* vertexPath, const char* fragmentPath);
-	unsigned int getID();
 
 	// use/activate the shader
 	void bind();
@@ -21,6 +20,9 @@ public:
 	bool setBool(const std::string &name, bool value) const;
 	bool setInt(const std::string &name, int value) const;
 	bool setFloat(const std::string &name, float value) const;
+
+	// get info
+	inline unsigned int getID() const { return _ID; };
 
 protected:
 	// the program ID
