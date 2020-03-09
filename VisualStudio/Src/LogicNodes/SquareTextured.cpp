@@ -29,12 +29,11 @@ SquareTextured::SquareTextured() : Node() {
 
 	//transforming
 	_uniformTranform = _shaderTextured.getUniformLocation("transform");
-	//trans = glm::scale(trans, glm::vec3(0.75f));
+	trans.localScale = glm::vec3(0.8f);
 
 	//textures
-	_tex1.load("../Assets/_basic/container.jpg", GL_RGB, GL_TEXTURE_2D);
-	_tex2.load("../Assets/_basic/container.jpg", GL_RGBA, GL_TEXTURE_2D);
-	//_tex2.load("../Assets/_basic/awesomeface.jpg", GL_RGBA, GL_TEXTURE_2D);
+	_tex1.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D);
+	_tex2.load("../Assets/_basic/awesomeface.png", GL_TEXTURE_2D);
 
 	_shaderTextured.bind(); // don't forget to activate the shader before setting uniforms
 	_shaderTextured.setInt("texture1", 1);
@@ -56,8 +55,9 @@ void SquareTextured::render() {
 	_tex1.bind(1);
 	_tex2.bind(2);
 
-	//glUniformMatrix4fv(_uniformTranform, 1, GL_FALSE,
-	//	glm::value_ptr(glm::rotate(trans, glm::radians(_timish * 25), glm::vec3(0.0, 0.0, 1.0))));
+	trans.localRotation = glm::angleAxis(glm::radians(_timish * 25), glm::vec3(0.f, 0.f, 1.f));
+	trans.updateModelMatrix();
+	glUniformMatrix4fv(_uniformTranform, 1, GL_FALSE, trans.getModelMatrixPtr());
 
 	glBindVertexArray(_VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

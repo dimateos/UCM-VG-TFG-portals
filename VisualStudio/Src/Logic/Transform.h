@@ -13,8 +13,13 @@ public:
 	Transform();
 	~Transform();
 
-	glm::vec3 fatherPostion, localPostion, localScale;
+	glm::vec3 localPostion, localScale;
 	glm::quat localRotation;
 
+	void updateModelMatrix();
 	glm::mat4 getModelMatrix() const;
+	const glm::f32* getModelMatrixPtr() const;
+
+private:
+	glm::mat4 _computedLocalModelMatrix;
 };

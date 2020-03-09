@@ -6,20 +6,28 @@
 using namespace glm;
 
 Transform::Transform() {
-	fatherPostion = glm::vec3(0.0f);
 	localPostion = glm::vec3(0.0f);
 	localScale = glm::vec3(1.0f);
-	localRotation = glm::angleAxis(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+	localRotation = glm::angleAxis(glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
+	updateModelMatrix();
 }
 
 Transform::~Transform() {}
 
-glm::mat4 Transform::getModelMatrix() const {
+void Transform::updateModelMatrix() {
 	glm::mat4 translate = glm::translate(glm::mat4(1.0), localPostion);
 	glm::mat4 rotate = glm::mat4_cast(localRotation);
 	glm::mat4 scale = glm::scale(glm::mat4(1.0), localScale);
 
-	return translate * rotate * scale;
+	_computedLocalModelMatrix = translate * rotate * scale;
+}
+
+glm::mat4 Transform::getModelMatrix() const {
+	return _computedLocalModelMatrix;
+}
+
+const glm::f32 * Transform::getModelMatrixPtr() const {
+	return glm::value_ptr(_computedLocalModelMatrix);
 }
 
 

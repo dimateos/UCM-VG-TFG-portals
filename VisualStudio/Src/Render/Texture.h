@@ -9,7 +9,7 @@ public:
 	void free();
 
 	//load the texture
-	bool load(const std::string &path, int colorMode, int textureType);
+	bool load(const std::string &path, int textureType);
 
 	// use/activate the texture
 	void bind(unsigned int unit = 0);
@@ -26,10 +26,11 @@ public:
 
 	//static defaults
 	static void setFlipVerticallyOnLoad(bool mode = true);
+	static int getColorModeFromNrChannels(int nrChannels);
 	static int DEFAULT_textureWrap_S, DEFAULT_textureWrap_T, DEFAULT_minFilter, DEFAULT_magFilter;
 
 protected:
-	// the program ID
+	// the texture ID
 	unsigned int _ID = -1;
 	int _colorMode, _textureType;
 	int _width, _height, _nrChannels;
