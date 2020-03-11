@@ -5,11 +5,10 @@ using namespace std;
 #include "Platform/Platform_SDL.h"
 #include "Platform/Window_SDL_GL.h"
 
-#include <SDL.h>
-#include <glad\glad.h>
-
 #include "LogicScenes/SampleScene.h"
-#include "Render/Texture.h"
+
+#include <SDL.h>
+
 
 App::App() {}
 
@@ -17,7 +16,7 @@ App::~App() {
 	if (_running == true) printf("app - WARNING destroyed while running\n");
 }
 
-bool App::init() {
+bool App::init(int window_w, int window_h) {
 	printf("app - init\n");
 	bool success = false;
 
@@ -26,10 +25,8 @@ bool App::init() {
 	if (!success) return false;
 
 	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-	success = Window_SDL_GL::init(flags, "TFG_dimateos", RES_W, RES_H, 100, 100, 3, 3);
+	success = Window_SDL_GL::init(flags, "TFG_dimateos", window_w, window_h, 100, 100, 3, 3);
 	if (!success) return false;
-
-	Texture::setFlipVerticallyOnLoad();
 
 	_scene = new SampleScene();
 	_scene->init();
@@ -68,8 +65,15 @@ void App::loop() {
 
 	SDL_Event event;
 	float timish = 0.015;
+
+	Platform_SDL::startTimings();
+
 	while (!_stopRequest) {
 		//printf("app - loop\n");
+
+		Platform_SDL::updateTimings();
+		//printf("fps: %f\n", 1 / Platform_SDL::getDeltaTime());
+		//printf("time since start: %f\n", Platform_SDL::getDeltaTimeSinceStart());
 
 		//events
 		while (SDL_PollEvent(&event) && !_stopRequest) {
@@ -91,7 +95,7 @@ void App::loop() {
 		}
 
 		//update
-		_scene->update(timish);
+		_scene->update();
 
 		//render
 		_scene->render();

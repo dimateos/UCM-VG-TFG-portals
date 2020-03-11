@@ -3,7 +3,7 @@
 Node::Node() {}
 Node::~Node() {}
 
-void Node::update(float delta) {
+void Node::update() {
 }
 
 void Node::render() {

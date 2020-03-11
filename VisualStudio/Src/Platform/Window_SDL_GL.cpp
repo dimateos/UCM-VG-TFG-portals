@@ -7,6 +7,7 @@
 
 int Window_SDL_GL::_width = 0;
 int Window_SDL_GL::_height = 0;
+float Window_SDL_GL::_resolution = 1.0f;
 SDL_Window* Window_SDL_GL::_window = nullptr;
 SDL_GLContext Window_SDL_GL::_context = nullptr;
 
@@ -44,6 +45,7 @@ bool Window_SDL_GL::init(int SDL_window_flags, const char* title, int w, int h,
 
 	_width = SDL_GetWindowSurface(_window)->w;
 	_height = SDL_GetWindowSurface(_window)->h;
+	_resolution = (float)_width / (float)_height;
 
 	//logging info
 	printf("window context - GL VERSION: %s - GL VENDOR: %s\n", glGetString(GL_VERSION), glGetString(GL_VENDOR));

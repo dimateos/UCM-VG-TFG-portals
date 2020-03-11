@@ -19,8 +19,8 @@ void Scene::release() {
 //	return false;
 //}
 
-void Scene::update(float delta) {
-	for (auto e : _nodes) e->update(delta);
+void Scene::update() {
+	for (auto e : _nodes) e->update();
 }
 
 void Scene::render() {

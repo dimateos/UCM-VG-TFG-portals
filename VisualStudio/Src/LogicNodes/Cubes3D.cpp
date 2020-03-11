@@ -1,6 +1,7 @@
 #include "Cubes3D.h"
 #include <glad\glad.h>
 
+#include "../Platform/Platform_SDL.h"
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
@@ -48,10 +49,6 @@ Cubes3D::~Cubes3D() {
 	glDeleteBuffers(1, &_VBO);
 }
 
-void Cubes3D::update(float delta) {
-	_timish += delta;
-}
-
 void Cubes3D::render() {
 	_shader3D.bind();
 
@@ -59,7 +56,7 @@ void Cubes3D::render() {
 	_tex2.bind(2);
 
 	//rotate
-	trans.localRotation = glm::angleAxis(glm::radians(_timish * 25), glm::vec3(0.f, 0.f, 1.f));
+	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
 	trans.updateModelMatrix();
 
 	glBindVertexArray(_VAO);

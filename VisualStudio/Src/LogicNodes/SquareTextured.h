@@ -10,15 +10,12 @@ public:
 	SquareTextured();
 	virtual ~SquareTextured();
 
-	virtual void update(float delta);
 	virtual void render();
 
 protected:
 	Shader _shaderTextured;
 	Texture _tex1, _tex2;
 	unsigned int _uniformTranform;
-
-	float _timish;
 
 	unsigned int _VAO, _VBO, _EBO;
 	float _l = 0.6f;

@@ -14,7 +14,7 @@ public:
 	virtual bool init();
 	virtual void release();
 
-	virtual void update(float delta);
+	virtual void update();
 	virtual void render();
 
 protected:

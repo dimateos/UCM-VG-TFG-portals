@@ -1,6 +1,8 @@
 #include "SquareAnimated.h"
 #include <glad\glad.h>
 
+#include "../Platform/Platform_SDL.h"
+
 SquareAnimated::SquareAnimated() : Node() {
 	glGenBuffers(1, &_VBO);
 	glGenBuffers(1, &_EBO);
@@ -21,7 +23,6 @@ SquareAnimated::SquareAnimated() : Node() {
 
 	_shaderBasic.build("../Shaders/_basic/V_base.glsl", "../Shaders/_basic/F_uniform.glsl");
 	_uniformLocation = _shaderBasic.getUniformLocation("ourColor");
-	_timish = 0;
 }
 SquareAnimated::~SquareAnimated() {
 	glDeleteVertexArrays(1, &_VAO);
@@ -29,14 +30,10 @@ SquareAnimated::~SquareAnimated() {
 	glDeleteBuffers(1, &_VBO);
 }
 
-void SquareAnimated::update(float delta) {
-	_timish += delta;
-}
-
 void SquareAnimated::render() {
 	_shaderBasic.bind();
 
-	float light = (sin(_timish) / 2.0f) + 0.5f;
+	float light = (sin(Platform_SDL::getDeltaTimeSinceStartf()) / 2.0f) + 0.5f;
 	glUniform4f(_uniformLocation, light, light, light, 1.0f);
 
 	glBindVertexArray(_VAO);

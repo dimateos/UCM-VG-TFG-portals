@@ -1,6 +1,8 @@
 #include "SquareTextured.h"
 #include <glad\glad.h>
 
+#include "../Platform/Platform_SDL.h"
+
 SquareTextured::SquareTextured() : Node() {
 	glGenBuffers(1, &_VBO);
 	glGenBuffers(1, &_EBO);
@@ -46,17 +48,13 @@ SquareTextured::~SquareTextured() {
 	glDeleteBuffers(1, &_VBO);
 }
 
-void SquareTextured::update(float delta) {
-	_timish += delta;
-}
-
 void SquareTextured::render() {
 	_shaderTextured.bind();
 
 	_tex1.bind(1);
 	_tex2.bind(2);
 
-	trans.localRotation = glm::angleAxis(glm::radians(_timish * 25), glm::vec3(0.f, 0.f, 1.f));
+	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
 	trans.updateModelMatrix();
 	glUniformMatrix4fv(_uniformTranform, 1, GL_FALSE, trans.getModelMatrixPtr());
 

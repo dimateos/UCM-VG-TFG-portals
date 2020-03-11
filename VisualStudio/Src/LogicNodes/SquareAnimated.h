@@ -9,14 +9,11 @@ public:
 	SquareAnimated();
 	virtual ~SquareAnimated();
 
-	virtual void update(float delta);
 	virtual void render();
 
 protected:
 	Shader _shaderBasic;
 	unsigned int _uniformLocation;
-
-	float _timish;
 
 	unsigned int _VAO, _VBO, _EBO;
 	float _l = 0.9f;

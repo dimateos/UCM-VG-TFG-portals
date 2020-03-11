@@ -9,6 +9,6 @@ public:
 
 	Transform trans;
 
-	virtual void update(float delta);
+	virtual void update();
 	virtual void render();
 };

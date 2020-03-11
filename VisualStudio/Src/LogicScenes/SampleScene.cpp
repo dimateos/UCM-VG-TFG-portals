@@ -5,6 +5,7 @@
 #include "../LogicNodes/SquareTextured.h"
 #include "../LogicNodes/Cubes3D.h"
 
+#include "../Render/Texture.h"
 #include <glad\glad.h>
 #define UNBIND 0
 
@@ -13,6 +14,8 @@ SampleScene::SampleScene() : Scene() {}
 SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
+	Texture::setFlipVerticallyOnLoad();
+
 	//_nodes.push_back(new SquareAnimated());
 	//_nodes.push_back(new SquareTextured());
 	_nodes.push_back(new Triangle());
@@ -24,7 +27,7 @@ bool SampleScene::init() {
 }
 
 void SampleScene::update(float delta) {
-	Scene::update(delta);
+	Scene::update();
 }
 
 void SampleScene::render() {

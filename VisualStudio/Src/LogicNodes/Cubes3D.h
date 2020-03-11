@@ -10,7 +10,6 @@ public:
 	Cubes3D();
 	virtual ~Cubes3D();
 
-	virtual void update(float delta);
 	virtual void render();
 
 protected:
@@ -21,7 +20,6 @@ protected:
 	glm::vec3 _initialPos;
 	glm::mat4 view, projection;
 
-	float _timish;
 	unsigned int _VAO, _VBO;
 
 	glm::vec3 cubePositions[9] = {
