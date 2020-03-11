@@ -7,7 +7,7 @@ typedef void *SDL_GLContext;
 class Window_SDL_GL
 {
 public:
-	static bool init(int SDL_window_flags, const char* title, int w, int h, int x, int y, int GL_minor, int GL_major);
+	static bool init(const char* title, int w, int h, int x, int y, int GL_minor, int GL_major);
 	static void release();
 
 	//swap window buffers and present

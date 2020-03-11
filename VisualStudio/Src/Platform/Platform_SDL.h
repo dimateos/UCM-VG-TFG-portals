@@ -1,11 +1,19 @@
 #pragma once
 
+#include "Listening.h"
+typedef union SDL_Event; //forwarded
+
 //maybe later decouple service using middle interface?
 class Platform_SDL
 {
 public:
-	static bool init(int SDL_flags);
+	static bool init();
 	static void release();
+
+	//atm here?
+	static void pollEvents();
+	static Emitter<SDL_Event> _keyEventEmitter, _mouseMotionEventEmitter, _mouseButtonEventEmitter,
+		_windowEventEmitter, _platformEventEmitter;
 
 	static void startTimings();
 	static void updateTimings();

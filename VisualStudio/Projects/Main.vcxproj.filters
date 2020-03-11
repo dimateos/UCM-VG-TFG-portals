@@ -110,5 +110,8 @@
     <ClInclude Include="..\Src\LogicNodes\Cubes3D.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\Platform\Listening.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,8 +2,11 @@
 #include <glad\glad.h>
 
 #include "../Platform/Platform_SDL.h"
+#include <SDL_events.h>
+
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
+
 
 Cubes3D::Cubes3D() : Node() {
 	glGenBuffers(1, &_VBO);
@@ -43,10 +46,31 @@ Cubes3D::Cubes3D() : Node() {
 
 	_shader3D.setInt("texture1", 1);
 	_shader3D.setInt("texture2", 2);
+
+	Platform_SDL::_keyEventEmitter.registerListener(this);
+	_rotationAngle = glm::vec3(0.f, 0.f, 1.f);
 }
 Cubes3D::~Cubes3D() {
 	glDeleteVertexArrays(1, &_VAO);
 	glDeleteBuffers(1, &_VBO);
+}
+
+bool Cubes3D::handleEvent(SDL_Event const & e) {
+	bool handled = false;
+
+	if (e.type == SDL_KEYDOWN) {
+		handled = true;
+
+		switch (e.key.keysym.sym) {
+			case SDLK_1: _rotationAngle = glm::vec3(1.f, 0.f, 0.f); break;
+			case SDLK_2: _rotationAngle = glm::vec3(0.f, 1.f, 0.f); break;
+			case SDLK_3: _rotationAngle = glm::vec3(0.f, 0.f, 1.f); break;
+			default: handled = false;
+		}
+	}
+
+	//else printf("cube - ignored event type: %i\n", e.type);
+	return handled;
 }
 
 void Cubes3D::render() {
@@ -56,7 +80,7 @@ void Cubes3D::render() {
 	_tex2.bind(2);
 
 	//rotate
-	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
+	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25.0f), _rotationAngle);
 	trans.updateModelMatrix();
 
 	glBindVertexArray(_VAO);

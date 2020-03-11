@@ -11,12 +11,12 @@ float Window_SDL_GL::_resolution = 1.0f;
 SDL_Window* Window_SDL_GL::_window = nullptr;
 SDL_GLContext Window_SDL_GL::_context = nullptr;
 
-bool Window_SDL_GL::init(int SDL_window_flags, const char* title, int w, int h,
-	int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED, int GL_major = 3, int GL_minor = 3) {
+bool Window_SDL_GL::init(const char* title, int w, int h, int x = 0, int y = 0, int GL_major = 3, int GL_minor = 3) {
 	printf("window - init\n");
+	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 
 	//create window
-	_window = SDL_CreateWindow(title, x, y, w, h, SDL_window_flags);
+	_window = SDL_CreateWindow(title, x, y, w, h, flags);
 	if (_window == nullptr) {
 		printf("window - Error creating window! SDL Error: %s\n", SDL_GetError());
 		return false;

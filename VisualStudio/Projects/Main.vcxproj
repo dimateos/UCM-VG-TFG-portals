@@ -248,6 +248,7 @@
     <ClInclude Include="..\Src\Logic\Transform.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\Src\Platform\Listening.h" />
     <ClInclude Include="..\Src\Platform\Platform_SDL.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

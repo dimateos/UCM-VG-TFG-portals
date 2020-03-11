@@ -4,12 +4,16 @@
 #include "../Render/Shader.h"
 #include "../Render/Texture.h"
 
-class Cubes3D : public Node
+#include "../Platform/Listening.h"
+typedef union SDL_Event; //forwarded
+
+class Cubes3D : public Node, Listener<SDL_Event>
 {
 public:
 	Cubes3D();
 	virtual ~Cubes3D();
 
+	virtual bool handleEvent(SDL_Event const & e);
 	virtual void render();
 
 protected:
@@ -18,6 +22,7 @@ protected:
 	unsigned int _uniformModel;
 
 	glm::vec3 _initialPos;
+	glm::vec3 _rotationAngle;
 	glm::mat4 view, projection;
 
 	unsigned int _VAO, _VBO;

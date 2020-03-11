@@ -1,13 +1,13 @@
 #include "Scene.h"
 #include "Node.h"
 
-Scene::Scene() {}
+Scene::Scene(App* app) : _app (app) {}
 Scene::~Scene() {
 	if (!_nodes.empty()) printf("Scene - WARNING destroyed while ents not empty\n");
 }
 
 bool Scene::init() {
-	return true;
+	return _app != nullptr;
 }
 void Scene::release() {
 	for each (Node* it in _nodes) delete it;

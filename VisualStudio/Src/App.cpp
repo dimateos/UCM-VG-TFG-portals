@@ -7,9 +7,6 @@ using namespace std;
 
 #include "LogicScenes/SampleScene.h"
 
-#include <SDL.h>
-
-
 App::App() {}
 
 App::~App() {
@@ -21,15 +18,16 @@ bool App::init(int window_w, int window_h) {
 	bool success = false;
 
 	//init all platform systems
-	success = Platform_SDL::init(SDL_INIT_VIDEO);
+	success = Platform_SDL::init();
 	if (!success) return false;
 
-	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-	success = Window_SDL_GL::init(flags, "TFG_dimateos", window_w, window_h, 100, 100, 3, 3);
+	success = Window_SDL_GL::init("TFG_dimateos", window_w, window_h, 100, 100, 3, 3);
 	if (!success) return false;
 
-	_scene = new SampleScene();
-	_scene->init();
+	_scene = new SampleScene(this);
+	success = _scene->init();
+	if (!success) return false;
+
 	return true;
 }
 
@@ -62,10 +60,6 @@ bool App::stop() {
 
 void App::loop() {
 	printf("app - Start loop\n");
-
-	SDL_Event event;
-	float timish = 0.015;
-
 	Platform_SDL::startTimings();
 
 	while (!_stopRequest) {
@@ -75,24 +69,8 @@ void App::loop() {
 		//printf("fps: %f\n", 1 / Platform_SDL::getDeltaTime());
 		//printf("time since start: %f\n", Platform_SDL::getDeltaTimeSinceStart());
 
-		//events
-		while (SDL_PollEvent(&event) && !_stopRequest) {
-			if (event.type == SDL_QUIT) {
-				stop();
-			}
-			//exit also on ESC
-			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-				stop();
-			}
-			//emit the events to the listeners (INPUT)
-			//else Emit(e);
-			//else if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-			//	glViewport(0, 0, event.window.data1, event.window.data2);
-			//}
-
-			//else _scene->handleEvent(event);
-			//GUARDAR EN EL ESTADO DE EVENTOS
-		}
+		//events sent to registered listeners by the platform
+		Platform_SDL::pollEvents();
 
 		//update
 		_scene->update();

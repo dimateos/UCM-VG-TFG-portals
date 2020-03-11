@@ -3,12 +3,13 @@
 
 //forwarded
 class Node;
+class App; //tmp?
 //class Camera;
 
 class Scene
 {
 public:
-	Scene();
+	Scene(App* app);
 	virtual ~Scene();
 
 	virtual bool init();
@@ -20,4 +21,5 @@ public:
 protected:
 	//Camera* _camera = nullptr;
 	std::vector<Node*> _nodes;
+	App* _app;
 };
