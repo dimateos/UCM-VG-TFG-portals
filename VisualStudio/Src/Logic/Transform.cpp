@@ -1,6 +1,5 @@
 #include "Transform.h"
 
-//#include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 using namespace glm;
@@ -25,7 +24,6 @@ void Transform::updateModelMatrix() {
 glm::mat4 Transform::getModelMatrix() const {
 	return _computedLocalModelMatrix;
 }
-
 const glm::f32 * Transform::getModelMatrixPtr() const {
 	return glm::value_ptr(_computedLocalModelMatrix);
 }

@@ -3,6 +3,7 @@
 #include "../LogicNodes/Triangle.h"
 #include "../LogicNodes/SquareAnimated.h"
 #include "../LogicNodes/SquareTextured.h"
+#include "../LogicNodes/Cubes3D.h"
 
 #include <glad\glad.h>
 #define UNBIND 0
@@ -12,12 +13,13 @@ SampleScene::SampleScene() : Scene() {}
 SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
-	_nodes.push_back(new SquareAnimated());
-	_nodes.push_back(new SquareTextured());
+	//_nodes.push_back(new SquareAnimated());
+	//_nodes.push_back(new SquareTextured());
 	_nodes.push_back(new Triangle());
 	_nodes.push_back(new TriangleRGB());
+	_nodes.push_back(new Cubes3D());
 
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	return true;
 }
 
@@ -27,8 +29,8 @@ void SampleScene::update(float delta) {
 
 void SampleScene::render() {
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Scene::render();
 

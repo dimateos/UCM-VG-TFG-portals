@@ -25,6 +25,7 @@ SquareTextured::SquareTextured() : Node() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	//build the shader
 	_shaderTextured.build("../Shaders/_basic/V_transform_c.glsl", "../Shaders/_basic/F_texture_c.glsl");
 
 	//transforming
