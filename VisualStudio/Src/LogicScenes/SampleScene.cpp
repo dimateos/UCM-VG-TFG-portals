@@ -4,31 +4,45 @@
 #include "../LogicNodes/SquareAnimated.h"
 #include "../LogicNodes/SquareTextured.h"
 #include "../LogicNodes/Cubes3D.h"
+#include "../LogicNodes/FPS.h"
 
 #include "../Render/Texture.h"
 #include <glad\glad.h>
-#define UNBIND 0
 
 #include "../Platform/Platform_SDL.h"
+#include "../Platform/Window_SDL_GL.h"
 #include "../app.h"
 #include <SDL_events.h>
+
+#include "../Render/Viewport.h"
+#include "../Render/Projection.h"
+#include "../Logic/Camera.h"
 
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
 SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
+	//SCENE INPUT
 	Platform_SDL::_platformEventEmitter.registerListener(this);
 
-	Texture::setFlipVerticallyOnLoad();
+	//CAMERA
+	_vp = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
+	_proj = new Projection(_vp->getAspect());
+	_cam = new Camera(_vp, _proj);
 
+	//OBJECTS
 	//_nodes.push_back(new SquareAnimated());
+
+	Texture::setFlipVerticallyOnLoad();
 	//_nodes.push_back(new SquareTextured());
+
 	_nodes.push_back(new Triangle());
 	//_nodes.push_back(new TriangleRGB());
-	_nodes.push_back(new Cubes3D());
 
 	glEnable(GL_DEPTH_TEST);
+	_nodes.push_back(new Cubes3D(_cam));
+
 	return true;
 }
 

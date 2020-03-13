@@ -45,6 +45,18 @@
     <ClCompile Include="..\Src\LogicNodes\Cubes3D.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\Render\Viewport.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Logic\Camera.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Render\Projection.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\FPS.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
@@ -112,6 +124,18 @@
     </ClInclude>
     <ClInclude Include="..\Src\Platform\Listening.h">
       <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Viewport.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\Camera.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Projection.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\FPS.h">
+      <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

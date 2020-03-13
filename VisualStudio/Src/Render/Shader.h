@@ -14,6 +14,7 @@ public:
 
 	// use/activate the shader
 	void bind();
+	void unbind();
 
 	// utility uniform functions
 	int getUniformLocation(const std::string &name) const;

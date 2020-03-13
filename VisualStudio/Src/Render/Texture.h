@@ -13,6 +13,7 @@ public:
 
 	// use/activate the texture
 	void bind(unsigned int unit = 0);
+	void unbind();
 
 	//set para wrappings, filters y borders?
 

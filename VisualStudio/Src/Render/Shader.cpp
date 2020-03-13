@@ -70,6 +70,9 @@ bool Shader::buildError(const std::string & path) const {
 void Shader::bind() {
 	glUseProgram(_ID);
 }
+void Shader::unbind() {
+	glUseProgram(0);
+}
 
 int Shader::getUniformLocation(const std::string & name) const {
 	int pos = glGetUniformLocation(_ID, name.c_str());

@@ -17,9 +17,13 @@ public:
 	glm::quat localRotation;
 
 	void updateModelMatrix();
-	glm::mat4 getModelMatrix() const;
+	glm::mat4 const& getModelMatrix() const;
 	const glm::f32* getModelMatrixPtr() const;
 
+	void updateInvModelMatrix();
+	glm::mat4 const& getInvModelMatrix() const;
+	const glm::f32* getInvModelMatrixPtr() const;
+
 private:
-	glm::mat4 _computedLocalModelMatrix;
+	glm::mat4 _computedLocalModelMatrix, _computedInvLocalModelMatrix;
 };

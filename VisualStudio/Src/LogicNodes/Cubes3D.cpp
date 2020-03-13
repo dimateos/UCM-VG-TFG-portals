@@ -8,7 +8,7 @@
 #include <gtc/type_ptr.hpp>
 
 
-Cubes3D::Cubes3D() : Node() {
+Cubes3D::Cubes3D(Camera * cam) : Node(), _cam(cam) {
 	glGenBuffers(1, &_VBO);
 	glGenVertexArrays(1, &_VAO);
 
@@ -34,11 +34,13 @@ Cubes3D::Cubes3D() : Node() {
 	trans.localScale = glm::vec3(0.8f);
 
 	_initialPos = trans.localPostion;
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-	projection = glm::perspective(glm::radians(45.0f),
-		(float) Window_SDL_GL::getWidth() / (float)Window_SDL_GL::getHeight(), 0.1f, 100.0f);
-	glUniformMatrix4fv(_shader3D.getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(_shader3D.getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(_shader3D.getUniformLocation("projection"), 1, GL_FALSE, _cam->getProj()->getProjMatrixPtr());
+
+	_cam->trans.localPostion.z = 5;
+	_cam->trans.localScale.x = 0.5;
+	_cam->trans.localRotation = glm::angleAxis(glm::radians(30.0f), glm::vec3(1.f, 0.f, 0.f));
+	_cam->trans.updateInvModelMatrix();
+	glUniformMatrix4fv(_shader3D.getUniformLocation("view"), 1, GL_FALSE, _cam->getViewMatrixPtr());
 
 	//textures
 	_tex1.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D);

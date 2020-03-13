@@ -7,10 +7,12 @@
 #include "../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
 
+#include "../Logic/Camera.h"
+
 class Cubes3D : public Node, Listener<SDL_Event>
 {
 public:
-	Cubes3D();
+	Cubes3D(Camera* cam);
 	virtual ~Cubes3D();
 
 	virtual bool handleEvent(SDL_Event const & e);
@@ -23,7 +25,8 @@ protected:
 
 	glm::vec3 _initialPos;
 	glm::vec3 _rotationAngle;
-	glm::mat4 view, projection;
+
+	Camera * _cam;
 
 	unsigned int _VAO, _VBO;
 

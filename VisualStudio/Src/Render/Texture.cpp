@@ -91,3 +91,6 @@ void Texture::bind(unsigned int unit) {
 	glActiveTexture(GL_TEXTURE0 + unit); //activate the texture unit (0 is default so no need if only 1 unit)
 	glBindTexture(_textureType, _ID);
 }
+void Texture::unbind() {
+	glBindTexture(_textureType, 0);
+}
