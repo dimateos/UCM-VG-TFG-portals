@@ -12,14 +12,14 @@ public:
 	virtual void render();
 
 protected:
-	Shader _shaderRGB;
+	Shader shaderRGB_;
 
-	unsigned int _VAO, _VBO;
-	const float _l = 0.2f;
-	float triangle_vertices_rgb[6*3] = {
+	unsigned int VAO_, VBO_;
+	const float l_ = 0.2f;
+	float triangle_vertices_rgb_[6*3] = {
 		// positions				// colors
-		-_l, -_l, 0.0f,		1.0f, 0.0f, 0.0f,   // bottom right
-		_l, -_l, 0.0f,		0.0f, 1.0f, 0.0f,   // bottom left
-		0.0f,  _l, 0.0f,	0.0f, 0.0f, 1.0f    // top
+		-l_, -l_, 0.0f,		1.0f, 0.0f, 0.0f,   // bottom right
+		l_, -l_, 0.0f,		0.0f, 1.0f, 0.0f,   // bottom left
+		0.0f,  l_, 0.0f,	0.0f, 0.0f, 1.0f    // top
 	};
 };

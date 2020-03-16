@@ -10,7 +10,7 @@ using namespace std;
 App::App() {}
 
 App::~App() {
-	if (_running == true) printf("app - WARNING destroyed while running\n");
+	if (running_ == true) printf("app - WARNING destroyed while running\n");
 }
 
 bool App::init(int window_w, int window_h) {
@@ -24,8 +24,8 @@ bool App::init(int window_w, int window_h) {
 	success = Window_SDL_GL::init("TFG_dimateos", window_w, window_h, 100, 100, 3, 3);
 	if (!success) return false;
 
-	_scene = new SampleScene(this);
-	success = _scene->init();
+	scene_ = new SampleScene(this);
+	success = scene_->init();
 	if (!success) return false;
 
 	return true;
@@ -35,26 +35,26 @@ void App::release() {
 	printf("app - release\n");
 
 	//relase scene etc
-	_scene->release();
-	delete _scene;
+	scene_->release();
+	delete scene_;
 }
 
 bool App::start() {
-	if (_running) return false;
+	if (running_) return false;
 	printf("app - Start running\n");
 
-	_running = true;
-	_stopRequest = false;
+	running_ = true;
+	stopRequest_ = false;
 	loop();
 	return true;
 }
 
 bool App::stop() {
-	if (_running == false) return false; //not running
+	if (running_ == false) return false; //not running
 	printf("app - Stop running\n");
 
-	_running = false;
-	_stopRequest = true;
+	running_ = false;
+	stopRequest_ = true;
 	return true;
 }
 
@@ -62,7 +62,7 @@ void App::loop() {
 	printf("app - Start loop\n");
 	Platform_SDL::startTimings();
 
-	while (!_stopRequest) {
+	while (!stopRequest_) {
 		//printf("app - loop\n");
 
 		Platform_SDL::updateTimings();
@@ -73,10 +73,10 @@ void App::loop() {
 		Platform_SDL::pollEvents();
 
 		//update
-		_scene->update();
+		scene_->update();
 
 		//render
-		_scene->render();
+		scene_->render();
 
 		//swap
 		Window_SDL_GL::swap();

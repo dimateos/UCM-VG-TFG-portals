@@ -27,29 +27,29 @@ bool SampleScene::init() {
 	Platform_SDL::_platformEventEmitter.registerListener(this);
 
 	//CAMERA
-	_vp = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
-	_proj = new Projection(_vp->getAspect());
-	_cam = new Camera(_vp, _proj);
+	vp_ = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
+	proj_ = new Projection(vp_->getAspect());
+	cam_ = new Camera(vp_, proj_);
 
 	//OBJECTS
-	//_nodes.push_back(new SquareAnimated());
+	//nodes_.push_back(new SquareAnimated());
 
 	Texture::setFlipVerticallyOnLoad();
-	//_nodes.push_back(new SquareTextured());
+	//nodes_.push_back(new SquareTextured());
 
-	_nodes.push_back(new Triangle());
-	//_nodes.push_back(new TriangleRGB());
+	nodes_.push_back(new Triangle());
+	//nodes_.push_back(new TriangleRGB());
 
 	glEnable(GL_DEPTH_TEST);
-	_nodes.push_back(new Cubes3D(_cam));
-	_nodes.push_back(new FPS(_cam));
+	nodes_.push_back(new Cubes3D(cam_));
+	nodes_.push_back(new FPS(cam_));
 
 	return true;
 }
 
 bool SampleScene::handleEvent(SDL_Event const & e) {
 	if (e.type == SDL_QUIT) {
-		_app->stop();
+		app_->stop();
 		return true;
 	}
 

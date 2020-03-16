@@ -19,13 +19,13 @@ void Transform::updateModelMatrix() {
 	glm::mat4 rotate = glm::mat4_cast(localRotation);
 	glm::mat4 scale = glm::scale(glm::mat4(1.0), localScale);
 
-	_computedLocalModelMatrix = translate * rotate * scale;
+	computedLocalModelMatrix_ = translate * rotate * scale;
 }
 glm::mat4 const& Transform::getModelMatrix() const {
-	return _computedLocalModelMatrix;
+	return computedLocalModelMatrix_;
 }
 const glm::f32 * Transform::getModelMatrixPtr() const {
-	return glm::value_ptr(_computedLocalModelMatrix);
+	return glm::value_ptr(computedLocalModelMatrix_);
 }
 
 void Transform::updateInvModelMatrix() {
@@ -33,13 +33,13 @@ void Transform::updateInvModelMatrix() {
 	glm::mat4 rotate = glm::mat4_cast(glm::inverse(localRotation));
 	glm::mat4 scale = glm::scale(glm::mat4(1.0), 1.0f / localScale);
 
-	_computedInvLocalModelMatrix = translate * rotate * scale;
+	computedInvLocalModelMatrix_ = translate * rotate * scale;
 }
 glm::mat4 const& Transform::getInvModelMatrix() const {
-	return _computedInvLocalModelMatrix;
+	return computedInvLocalModelMatrix_;
 }
 const glm::f32 * Transform::getInvModelMatrixPtr() const {
-	return glm::value_ptr(_computedInvLocalModelMatrix);
+	return glm::value_ptr(computedInvLocalModelMatrix_);
 }
 
 

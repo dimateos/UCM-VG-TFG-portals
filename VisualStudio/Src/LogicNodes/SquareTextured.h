@@ -13,28 +13,28 @@ public:
 	virtual void render();
 
 protected:
-	Shader _shaderTextured;
-	Texture _tex1, _tex2;
-	unsigned int _uniformTranform;
+	Shader shaderTextured_;
+	Texture tex1_, tex2_;
+	unsigned int uniformTranform_;
 
-	unsigned int _VAO, _VBO, _EBO;
-	float _l = 0.6f;
-	unsigned int indices[6] = {  // note that we start from 0
+	unsigned int VAO_, VBO_, EBO_;
+	float l_ = 0.6f;
+	unsigned int indices_[6] = {  // note that we start from 0
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
-	float square_tex_vertices[4*5] = {
+	float square_tex_vertices_[4*5] = {
 		// positions          // texture coords
-		 _l,  _l, 0.0f,   1.0f, 1.0f,   // top right
-		 _l, -_l, 0.0f,   1.0f, 0.0f,   // bottom right
-		-_l, -_l, 0.0f,   0.0f, 0.0f,   // bottom left
-		-_l,  _l, 0.0f,   0.0f, 1.0f    // top left
+		 l_,  l_, 0.0f,   1.0f, 1.0f,   // top right
+		 l_, -l_, 0.0f,   1.0f, 0.0f,   // bottom right
+		-l_, -l_, 0.0f,   0.0f, 0.0f,   // bottom left
+		-l_,  l_, 0.0f,   0.0f, 1.0f    // top left
 	};
-	float square_tex_color_vertices[4*8] = {
+	float square_tex_color_vertices_[4*8] = {
 		// positions		// colors           // texture coords
-		 _l,  _l, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-		 _l, -_l, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-		-_l, -_l, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-		-_l,  _l, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+		 l_,  l_, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+		 l_, -l_, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+		-l_, -l_, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+		-l_,  l_, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
 	};
 };

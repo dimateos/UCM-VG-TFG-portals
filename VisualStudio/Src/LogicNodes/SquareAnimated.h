@@ -12,18 +12,18 @@ public:
 	virtual void render();
 
 protected:
-	Shader _shaderBasic;
-	unsigned int _uniformLocation;
+	Shader shaderBasic_;
+	unsigned int uniformLocation_;
 
-	unsigned int _VAO, _VBO, _EBO;
-	float _l = 0.9f;
-	float square_vertices[4*3] = {
-		 _l,  _l, 0.0f,  // top right
-		 _l, -_l, 0.0f,  // bottom right
-		-_l, -_l, 0.0f,  // bottom left
-		-_l,  _l, 0.0f   // top left
+	unsigned int VAO_, VBO_, EBO_;
+	float l_ = 0.9f;
+	float square_vertices_[4*3] = {
+		 l_,  l_, 0.0f,  // top right
+		 l_, -l_, 0.0f,  // bottom right
+		-l_, -l_, 0.0f,  // bottom left
+		-l_,  l_, 0.0f   // top left
 	};
-	unsigned int indices[6] = {  // note that we start from 0
+	unsigned int indices_[6] = {  // note that we start from 0
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};

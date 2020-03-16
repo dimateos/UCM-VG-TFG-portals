@@ -13,14 +13,14 @@ Projection::~Projection() {}
 
 void Projection::updateProjMatrix() {
 	//atm just perspective
-	_computedProjMatrix = glm::perspective(
+	computedProjMatrix_ = glm::perspective(
 		glm::radians(fov), aspect, near, far
 	);
 }
 
 glm::mat4 Projection::getProjMatrix() const {
-	return _computedProjMatrix;
+	return computedProjMatrix_;
 }
 const glm::f32 * Projection::getProjMatrixPtr() const {
-	return glm::value_ptr(_computedProjMatrix);
+	return glm::value_ptr(computedProjMatrix_);
 }

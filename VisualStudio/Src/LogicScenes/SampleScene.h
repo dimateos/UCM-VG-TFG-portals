@@ -22,7 +22,7 @@ public:
 	virtual void render();
 
 protected:
-	Viewport* _vp;
-	Projection* _proj;
-	Camera* _cam;
+	Viewport* vp_;
+	Projection* proj_;
+	Camera* cam_;
 };

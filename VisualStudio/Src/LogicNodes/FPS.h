@@ -15,5 +15,5 @@ public:
 	virtual bool handleEvent(SDL_Event const & e);
 
 protected:
-	Camera * _cam;
+	Camera * cam_;
 };

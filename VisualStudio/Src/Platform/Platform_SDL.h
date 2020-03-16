@@ -19,16 +19,16 @@ public:
 	static void updateTimings();
 
 	//timings in seconds
-	inline static double getDeltaTime() { return _deltaTime; }
-	inline static float getDeltaTimef() { return (float) _deltaTime; }
-	inline static double getDeltaTimeSinceStart() { return _detaTimeSinceStart; };
-	inline static float getDeltaTimeSinceStartf() { return (float) _detaTimeSinceStart; };
+	inline static double getDeltaTime() { return deltaTime_; }
+	inline static float getDeltaTimef() { return (float) deltaTime_; }
+	inline static double getDeltaTimeSinceStart() { return detaTimeSinceStart_; };
+	inline static float getDeltaTimeSinceStartf() { return (float) detaTimeSinceStart_; };
 
 private:
 	Platform_SDL() {};
 
 	//atm here
-	static double _SDL_PERFORMANCE_FREQUENCY;
-	static long long unsigned int _lastFrame, _thisFrame;
-	static double _deltaTime, _detaTimeSinceStart;
+	static double SDL_PERFORMANCE_FREQUENCY_;
+	static long long unsigned int lastFrame_, thisFrame_;
+	static double deltaTime_, detaTimeSinceStart_;
 };

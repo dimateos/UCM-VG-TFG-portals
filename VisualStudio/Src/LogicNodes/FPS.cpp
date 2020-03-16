@@ -8,7 +8,7 @@
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
-FPS::FPS(Camera * cam) : Node(), _cam(cam) {
+FPS::FPS(Camera * cam) : Node(), cam_(cam) {
 	Platform_SDL::_keyEventEmitter.registerListener(this);
 }
 
@@ -24,7 +24,7 @@ bool FPS::handleEvent(SDL_Event const & e) {
 		handled = true;
 
 		switch (e.key.keysym.sym) {
-		//case SDLK_w: _cam->trans.localPostion.y +=
+		//case SDLK_w: cam_->trans.localPostion.y +=
 		default: handled = false;
 		}
 	}

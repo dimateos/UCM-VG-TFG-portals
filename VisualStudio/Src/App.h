@@ -15,7 +15,7 @@ public:
 
 private:
 	void loop();
-	bool _stopRequest, _running; //loop control
+	bool stopRequest_, running_; //loop control
 
-	Scene* _scene;
+	Scene* scene_;
 };

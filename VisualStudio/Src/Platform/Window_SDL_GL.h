@@ -14,22 +14,22 @@ public:
 	static void swap();
 
 	//Window data
-	inline static SDL_Window* getWindow() { return _window; };
-	inline static int getWidth() { return _width; };
-	inline static int getHeight() { return _height; };
-	inline static float getResolution() { return _resolution; };
+	inline static SDL_Window* getWindow() { return window_; };
+	inline static int getWidth() { return width_; };
+	inline static int getHeight() { return height_; };
+	inline static float getResolution() { return resolution_; };
 
 	//Context data
-	inline static SDL_GLContext getContext() { return _context; };
+	inline static SDL_GLContext getContext() { return context_; };
 
 private:
 	Window_SDL_GL() {};
 
 	//Window data
-	static SDL_Window* _window;
-	static int _width, _height;
-	static float _resolution;
+	static SDL_Window* window_;
+	static int width_, height_;
+	static float resolution_;
 
 	//Context data
-	static SDL_GLContext _context;
+	static SDL_GLContext context_;
 };

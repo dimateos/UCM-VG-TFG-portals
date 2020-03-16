@@ -2,11 +2,11 @@
 #include <SDL.h>
 #include <iostream>
 
-double Platform_SDL::_SDL_PERFORMANCE_FREQUENCY = 0.0f;
-long long unsigned int Platform_SDL::_lastFrame = 0;
-long long unsigned int Platform_SDL::_thisFrame = 0;
-double Platform_SDL::_deltaTime = 0.0f;
-double Platform_SDL::_detaTimeSinceStart = 0.0f;
+double Platform_SDL::SDL_PERFORMANCE_FREQUENCY_ = 0.0f;
+long long unsigned int Platform_SDL::lastFrame_ = 0;
+long long unsigned int Platform_SDL::thisFrame_ = 0;
+double Platform_SDL::deltaTime_ = 0.0f;
+double Platform_SDL::detaTimeSinceStart_ = 0.0f;
 
 Emitter<SDL_Event> Platform_SDL::_keyEventEmitter, Platform_SDL::_mouseMotionEventEmitter, Platform_SDL::_mouseButtonEventEmitter,
 	Platform_SDL::_windowEventEmitter, Platform_SDL::_platformEventEmitter;
@@ -21,7 +21,7 @@ bool Platform_SDL::init() {
 		return false;
 	}
 
-	_SDL_PERFORMANCE_FREQUENCY = SDL_GetPerformanceFrequency();
+	SDL_PERFORMANCE_FREQUENCY_ = SDL_GetPerformanceFrequency();
 	return true;
 }
 
@@ -49,13 +49,13 @@ void Platform_SDL::pollEvents() {
 }
 
 void Platform_SDL::startTimings() {
-	_thisFrame = SDL_GetPerformanceCounter();
+	thisFrame_ = SDL_GetPerformanceCounter();
 }
 
 void Platform_SDL::updateTimings() {
-	_lastFrame = _thisFrame;
-	_thisFrame = SDL_GetPerformanceCounter();
+	lastFrame_ = thisFrame_;
+	thisFrame_ = SDL_GetPerformanceCounter();
 
-	_deltaTime = (_thisFrame - _lastFrame) / _SDL_PERFORMANCE_FREQUENCY;
-	_detaTimeSinceStart += _deltaTime;
+	deltaTime_ = (thisFrame_ - lastFrame_) / SDL_PERFORMANCE_FREQUENCY_;
+	detaTimeSinceStart_ += deltaTime_;
 }

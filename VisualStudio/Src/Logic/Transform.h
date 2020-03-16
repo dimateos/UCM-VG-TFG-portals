@@ -27,5 +27,5 @@ public:
 	const glm::f32* getInvModelMatrixPtr() const;
 
 private:
-	glm::mat4 _computedLocalModelMatrix, _computedInvLocalModelMatrix;
+	glm::mat4 computedLocalModelMatrix_, computedInvLocalModelMatrix_;
 };

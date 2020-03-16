@@ -1,17 +1,17 @@
 #include "Scene.h"
 #include "Node.h"
 
-Scene::Scene(App* app) : _app (app) {}
+Scene::Scene(App* app) : app_ (app) {}
 Scene::~Scene() {
-	if (!_nodes.empty()) printf("Scene - WARNING destroyed while ents not empty\n");
+	if (!nodes_.empty()) printf("Scene - WARNING destroyed while ents not empty\n");
 }
 
 bool Scene::init() {
-	return _app != nullptr;
+	return app_ != nullptr;
 }
 void Scene::release() {
-	for each (Node* it in _nodes) delete it;
-	_nodes.clear();
+	for each (Node* it in nodes_) delete it;
+	nodes_.clear();
 }
 
 //bool Scene::handleEvent(const SDL_Event & event) {
@@ -20,9 +20,9 @@ void Scene::release() {
 //}
 
 void Scene::update() {
-	for (auto e : _nodes) e->update();
+	for (auto e : nodes_) e->update();
 }
 
 void Scene::render() {
-	for (auto e : _nodes) e->render();
+	for (auto e : nodes_) e->render();
 }

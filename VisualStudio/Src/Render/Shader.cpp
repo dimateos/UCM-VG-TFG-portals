@@ -10,9 +10,9 @@ Shader::~Shader() {
 	destroy();
 }
 void Shader::destroy() {
-	if (_ID != -1) {
-		glDeleteProgram(_ID);
-		_ID = -1;
+	if (ID_ != -1) {
+		glDeleteProgram(ID_);
+		ID_ = -1;
 	}
 }
 
@@ -20,7 +20,7 @@ bool Shader::build(const std::string & vertexPath, const std::string & fragmentP
 	return build(vertexPath.c_str(), vertexPath.c_str());
 }
 bool Shader::build(const char * vertexPath, const char * fragmentPath) {
-	if (_ID != -1) {
+	if (ID_ != -1) {
 		std::cout << "ERROR::SHADER::PROGRAM::ALREADYBUILT\n" << std::endl;
 		std::cout << vertexPath << fragmentPath << std::endl;
 		return false;
@@ -39,20 +39,20 @@ bool Shader::build(const char * vertexPath, const char * fragmentPath) {
 	if (fragment == -1) return buildError(fragmentPath);;
 
 	// 3. link shader program
-	_ID = glCreateProgram();
-	glAttachShader(_ID, vertex);
-	glAttachShader(_ID, fragment);
-	glLinkProgram(_ID);
+	ID_ = glCreateProgram();
+	glAttachShader(ID_, vertex);
+	glAttachShader(ID_, fragment);
+	glLinkProgram(ID_);
 
 	// print linking errors if any
 	int success;
 	char infoLog[512];
-	glGetProgramiv(_ID, GL_LINK_STATUS, &success);
+	glGetProgramiv(ID_, GL_LINK_STATUS, &success);
 	if (!success) {
-		glGetProgramInfoLog(_ID, 512, NULL, infoLog);
+		glGetProgramInfoLog(ID_, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		std::cout << vertexPath << fragmentPath << std::endl;
-		_ID = -1;
+		ID_ = -1;
 		return false;
 	}
 
@@ -68,31 +68,31 @@ bool Shader::buildError(const std::string & path) const {
 }
 
 void Shader::bind() {
-	glUseProgram(_ID);
+	glUseProgram(ID_);
 }
 void Shader::unbind() {
 	glUseProgram(0);
 }
 
 int Shader::getUniformLocation(const std::string & name) const {
-	int pos = glGetUniformLocation(_ID, name.c_str());
+	int pos = glGetUniformLocation(ID_, name.c_str());
 	if (pos == -1) setError(name);
 	return pos;
 }
 bool Shader::setBool(const std::string & name, bool value) const {
-	int pos = glGetUniformLocation(_ID, name.c_str());
+	int pos = glGetUniformLocation(ID_, name.c_str());
 	if (pos == -1) return setError(name);
 	glUniform1i(pos, (int)value);
 	return true;
 }
 bool Shader::setInt(const std::string & name, int value) const {
-	int pos = glGetUniformLocation(_ID, name.c_str());
+	int pos = glGetUniformLocation(ID_, name.c_str());
 	if (pos == -1) return setError(name);
 	glUniform1i(pos, value);
 	return true;
 }
 bool Shader::setFloat(const std::string & name, float value) const {
-	int pos = glGetUniformLocation(_ID, name.c_str());
+	int pos = glGetUniformLocation(ID_, name.c_str());
 	if (pos == -1) return setError(name);
 	glUniform1f(pos, value);
 	return true;

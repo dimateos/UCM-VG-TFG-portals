@@ -13,10 +13,10 @@ public:
 	inline glm::dmat4 const& getViewMatrix() const { return trans.getInvModelMatrix(); };
 	inline const glm::f32* getViewMatrixPtr() const { return trans.getInvModelMatrixPtr(); };
 
-	inline Viewport* getVP() const { return _vp; }
-	inline Projection* getProj() const { return _proj; }
+	inline Viewport* getVP() const { return vp_; }
+	inline Projection* getProj() const { return proj_; }
 
 protected:
-	Viewport* _vp;
-	Projection* _proj;
+	Viewport* vp_;
+	Projection* proj_;
 };

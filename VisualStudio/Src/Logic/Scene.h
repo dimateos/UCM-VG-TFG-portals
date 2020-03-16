@@ -20,6 +20,6 @@ public:
 
 protected:
 	//Camera* _camera = nullptr;
-	std::vector<Node*> _nodes;
-	App* _app;
+	std::vector<Node*> nodes_;
+	App* app_;
 };

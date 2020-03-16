@@ -1,20 +1,20 @@
 #include "Viewport.h"
 #include <glad\glad.h>
 
-Viewport::Viewport(int w, int h) : _w(w), _h(h), _x(0), _y(0), _aspect(w / h) {}
+Viewport::Viewport(int w, int h) : w_(w), h_(h), x_(0), y_(0), aspect_(w / h) {}
 Viewport::~Viewport() {}
 
 void Viewport::setSize(int w, int h) {
-	_w = w;
-	_h = h;
-	_aspect = (float)_w / (float)_h;
+	w_ = w;
+	h_ = h;
+	aspect_ = (float)w_ / (float)h_;
 }
 void Viewport::setPos(int x, int y) {
-	_x = x;
-	_y = y;
+	x_ = x;
+	y_ = y;
 }
 
 void Viewport::set()
 {
-	glViewport(_x, _y, _w, _h);
+	glViewport(x_, y_, w_, h_);
 }

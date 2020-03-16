@@ -18,12 +18,12 @@ public:
 	//set para wrappings, filters y borders?
 
 	// get info
-	inline unsigned int getID() const { return _ID; };
-	inline int getColorMode() const { return _colorMode; };
-	inline int getTextureType() const { return _textureType; };
-	inline int getWidth() const { return _width; };
-	inline int getHeight() const { return _height; };
-	inline int getNrChannels() const { return _nrChannels; };
+	inline unsigned int getID() const { return ID_; };
+	inline int getColorMode() const { return colorMode_; };
+	inline int getTextureType() const { return textureType_; };
+	inline int getWidth() const { return width_; };
+	inline int getHeight() const { return height_; };
+	inline int getNrChannels() const { return nrChannels_; };
 
 	//static defaults
 	static void setFlipVerticallyOnLoad(bool mode = true);
@@ -32,9 +32,9 @@ public:
 
 protected:
 	// the texture ID
-	unsigned int _ID = -1;
-	int _colorMode, _textureType;
-	int _width, _height, _nrChannels;
+	unsigned int ID_ = -1;
+	int colorMode_, textureType_;
+	int width_, height_, nrChannels_;
 
 	//informative errors
 	bool loadError(const std::string & path) const;

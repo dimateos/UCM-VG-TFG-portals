@@ -23,11 +23,11 @@ public:
 	bool setFloat(const std::string &name, float value) const;
 
 	// get info
-	inline unsigned int getID() const { return _ID; };
+	inline unsigned int getID() const { return ID_; };
 
 protected:
 	// the program ID
-	unsigned int _ID = -1;
+	unsigned int ID_ = -1;
 
 	//could go to some utils
 	static std::string loadFileContent(const char* path);

@@ -14,5 +14,5 @@ public:
 	const glm::f32* getProjMatrixPtr() const;
 
 private:
-	glm::mat4 _computedProjMatrix;
+	glm::mat4 computedProjMatrix_;
 };

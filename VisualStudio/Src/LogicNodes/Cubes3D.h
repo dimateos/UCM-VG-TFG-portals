@@ -21,23 +21,23 @@ public:
 	virtual void render();
 
 protected:
-	Shader _shader3D;
-	Texture _tex1, _tex2;
-	unsigned int _uniformModel;
+	Shader shader3D_;
+	Texture tex1_, tex2_;
+	unsigned int uniformModel_;
 
-	glm::vec3 _initialPos;
-	glm::vec3 _rotationAngle;
+	glm::vec3 initialPos_;
+	glm::vec3 rotationAngle_;
 
-	Camera * _cam;
+	Camera * cam_;
 
 	//testing input movement
-	float _speed = 1;
-	glm::vec3 _velocity;
-	std::list<Direction> _xAxis, _yAxis;
+	float speed_ = 1;
+	glm::vec3 velocity_;
+	std::list<Direction> xAxis_, yAxis_;
 
-	unsigned int _VAO, _VBO;
+	unsigned int VAO_, VBO_;
 
-	glm::vec3 cubePositions[9] = {
+	glm::vec3 cubePositions_[9] = {
 		glm::vec3(2.0f,  5.0f, -15.0f),
 		glm::vec3(-1.5f, -2.2f, -2.5f),
 		glm::vec3(-3.8f, -2.0f, -12.3f),
