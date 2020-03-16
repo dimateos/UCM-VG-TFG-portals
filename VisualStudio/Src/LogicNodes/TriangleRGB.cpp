@@ -1,7 +1,7 @@
 #include "TriangleRGB.h"
 #include <glad\glad.h>
 
-TriangleRGB::TriangleRGB() : Node() {
+TriangleRGB::TriangleRGB() : Node(&Node::ROOT) {
 	glGenBuffers(1, &VBO_);
 	glGenVertexArrays(1, &VAO_);
 

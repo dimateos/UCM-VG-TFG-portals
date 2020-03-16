@@ -3,7 +3,7 @@
 
 #include "../Platform/Platform_SDL.h"
 
-SquareTextured::SquareTextured() : Node() {
+SquareTextured::SquareTextured() : Node(&Node::ROOT) {
 	glGenBuffers(1, &VBO_);
 	glGenBuffers(1, &EBO_);
 	glGenVertexArrays(1, &VAO_);

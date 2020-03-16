@@ -8,8 +8,10 @@
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
-FPS::FPS(Camera * cam) : Node(), cam_(cam) {
+FPS::FPS(Camera * cam) : Node(&Node::ROOT), cam_(cam) {
 	Platform_SDL::_keyEventEmitter.registerListener(this);
+
+	cam_->father = this;
 }
 
 FPS::~FPS() {}

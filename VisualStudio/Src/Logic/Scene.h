@@ -20,6 +20,11 @@ public:
 
 protected:
 	//Camera* _camera = nullptr;
-	std::vector<Node*> nodes_;
+	Node* world_node_;
 	App* app_;
+
+	//change for iterative over a vector
+	void release_rec(Node* n);
+	void update_rec(Node* n);
+	void render_rec(Node* n);
 };

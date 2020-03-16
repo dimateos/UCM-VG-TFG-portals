@@ -1,7 +1,7 @@
 #include "Triangle.h"
 #include <glad\glad.h>
 
-Triangle::Triangle() : Node() {
+Triangle::Triangle() : Node(&Node::ROOT) {
 	glGenBuffers(1, &VBO_);
 	glGenVertexArrays(1, &VAO_);
 

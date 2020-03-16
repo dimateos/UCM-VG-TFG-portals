@@ -32,17 +32,17 @@ bool SampleScene::init() {
 	cam_ = new Camera(vp_, proj_);
 
 	//OBJECTS
-	//nodes_.push_back(new SquareAnimated());
+	//world_node_->children.push_back(new SquareAnimated());
 
 	Texture::setFlipVerticallyOnLoad();
-	//nodes_.push_back(new SquareTextured());
+	//world_node_->children.push_back(new SquareTextured());
 
-	nodes_.push_back(new Triangle());
-	//nodes_.push_back(new TriangleRGB());
+	world_node_->children.push_back(new Triangle());
+	//world_node_->children.push_back(new TriangleRGB());
 
 	glEnable(GL_DEPTH_TEST);
-	nodes_.push_back(new Cubes3D(cam_));
-	nodes_.push_back(new FPS(cam_));
+	world_node_->children.push_back(new Cubes3D(cam_));
+	world_node_->children.push_back(new FPS(cam_));
 
 	return true;
 }

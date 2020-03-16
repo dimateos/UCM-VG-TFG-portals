@@ -8,7 +8,7 @@
 #include <gtc/type_ptr.hpp>
 
 
-Cubes3D::Cubes3D(Camera * cam) : Node(), cam_(cam) {
+Cubes3D::Cubes3D(Camera * cam) : Node(&Node::ROOT), cam_(cam) {
 	glGenBuffers(1, &VBO_);
 	glGenVertexArrays(1, &VAO_);
 
