@@ -23,7 +23,7 @@ public:
 protected:
 	Shader shader3D_;
 	Texture tex1_, tex2_;
-	unsigned int uniformModel_;
+	unsigned int uniformModel_, uniformView_;
 
 	glm::vec3 initialPos_;
 	glm::vec3 rotationAngle_;

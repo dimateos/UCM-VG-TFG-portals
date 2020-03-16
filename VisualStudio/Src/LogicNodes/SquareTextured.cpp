@@ -55,7 +55,7 @@ void SquareTextured::render() {
 	tex2_.bind(2);
 
 	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
-	trans.updateModelMatrix();
+	updateTransform();
 	glUniformMatrix4fv(uniformTranform_, 1, GL_FALSE, trans.getModelMatrixPtr());
 
 	glBindVertexArray(VAO_);

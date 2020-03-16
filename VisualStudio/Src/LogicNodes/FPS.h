@@ -16,4 +16,8 @@ public:
 
 protected:
 	Camera * cam_;
+
+	float speed_ = 1;
+	glm::vec3 velocity_;
+	std::list<Direction> xAxis_, zAxis_;
 };

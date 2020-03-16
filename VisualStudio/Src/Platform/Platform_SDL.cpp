@@ -44,7 +44,7 @@ void Platform_SDL::pollEvents() {
 
 		//others
 		else if (event.type == SDL_QUIT || event.type == SDL_SYSWMEVENT) _platformEventEmitter.Emit(event);
-		else printf("plat - ignored event type: %i\n", event.type);
+		//else printf("plat - ignored event type: %i\n", event.type);
 	}
 }
 

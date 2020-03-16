@@ -10,7 +10,7 @@ void Node::updateTransform() {
 	trans.updateModelMatrix(father->trans.getModelMatrix());
 }
 void Node::updateInvTransform() {
-	trans.updateInvModelMatrix(father->trans.getModelMatrix());
+	trans.updateInvModelMatrix(father->trans.getInvModelMatrix());
 }
 
 void Node::update() {

@@ -39,8 +39,8 @@ Cubes3D::Cubes3D(Camera * cam) : Node(&Node::ROOT), cam_(cam) {
 	cam_->trans.localPostion.z = 5;
 	cam_->trans.localScale.x = 0.5;
 	cam_->trans.localRotation = glm::angleAxis(glm::radians(30.0f), glm::vec3(1.f, 0.f, 0.f));
-	cam_->trans.updateInvModelMatrix();
-	glUniformMatrix4fv(shader3D_.getUniformLocation("view"), 1, GL_FALSE, cam_->getViewMatrixPtr());
+	cam_->updateInvTransform();
+	uniformView_ = shader3D_.getUniformLocation("view");
 
 	//textures
 	tex1_.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D);
@@ -114,12 +114,15 @@ void Cubes3D::update() {
 void Cubes3D::render() {
 	shader3D_.bind();
 
+	//movable camera
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
+
 	tex1_.bind(1);
 	tex2_.bind(2);
 
 	//rotate
 	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25.0f), rotationAngle_);
-	trans.updateModelMatrix();
+	updateTransform();
 
 	glBindVertexArray(VAO_);
 
@@ -132,7 +135,7 @@ void Cubes3D::render() {
 	for (unsigned int i = 0; i < 9; i++) {
 		//m = glm::rotate(m, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
 		trans.localPostion = cubePositions_[i];
-		trans.updateModelMatrix();
+		updateTransform();
 
 		//draw one
 		glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, trans.getModelMatrixPtr());
