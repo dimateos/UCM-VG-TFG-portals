@@ -67,12 +67,48 @@ bool Cubes3D::handleEvent(SDL_Event const & e) {
 			case SDLK_1: _rotationAngle = glm::vec3(1.f, 0.f, 0.f); break;
 			case SDLK_2: _rotationAngle = glm::vec3(0.f, 1.f, 0.f); break;
 			case SDLK_3: _rotationAngle = glm::vec3(0.f, 0.f, 1.f); break;
+
+			case SDLK_RIGHT: _xAxis.push_front(RIGHT); break;
+			case SDLK_LEFT: _xAxis.push_front(LEFT); break;
+			case SDLK_DOWN: _yAxis.push_front(DOWN); break;
+			case SDLK_UP: _yAxis.push_front(UP); break;
+
 			default: handled = false;
+		}
+	}
+	else if (e.type == SDL_KEYUP) {
+		handled = true;
+
+		switch (e.key.keysym.sym) {
+		case SDLK_RIGHT: _xAxis.remove(RIGHT); break;
+		case SDLK_LEFT: _xAxis.remove(LEFT); break;
+		case SDLK_DOWN: _yAxis.remove(DOWN); break;
+		case SDLK_UP: _yAxis.remove(UP); break;
+
+		default: handled = false;
 		}
 	}
 
 	//else printf("cube - ignored event type: %i\n", e.type);
 	return handled;
+}
+
+void Cubes3D::update() {
+	_velocity = glm::vec3(0);
+
+	if (!_yAxis.empty()) {
+		if (_yAxis.front() == UP) _velocity.y = 1;
+		else _velocity.y = -1;
+	}
+	if (!_xAxis.empty()) {
+		if (_xAxis.front() == RIGHT) _velocity.x = 1;
+		else _velocity.x = -1;
+	}
+
+	if (_velocity.y != 0 || _velocity.x != 0) {
+		_velocity = glm::normalize(_velocity) * _speed;
+		trans.localPostion += _velocity * Platform_SDL::getDeltaTimef();
+	}
 }
 
 void Cubes3D::render() {
@@ -92,6 +128,7 @@ void Cubes3D::render() {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//draw the rest
+	_initialPos = trans.localPostion;
 	for (unsigned int i = 0; i < 9; i++) {
 		//m = glm::rotate(m, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
 		trans.localPostion = cubePositions[i];
@@ -100,8 +137,8 @@ void Cubes3D::render() {
 		//draw one
 		glUniformMatrix4fv(_uniformModel, 1, GL_FALSE, trans.getModelMatrixPtr());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		//restore initial transform
-		trans.localPostion = _initialPos;
 	}
+
+	//restore initial transform
+	trans.localPostion = _initialPos;
 }

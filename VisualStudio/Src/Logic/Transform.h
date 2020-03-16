@@ -7,6 +7,8 @@
 //more constructors later
 //https://gamedev.stackexchange.com/questions/94061/rotating-an-object-with-quaternion
 
+enum Direction { RIGHT, LEFT, DOWN, UP, BACK, FORE }; //ordered as SDL enums
+
 class Transform
 {
 public:

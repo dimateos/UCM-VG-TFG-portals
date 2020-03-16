@@ -8,6 +8,7 @@
 typedef union SDL_Event; //forwarded
 
 #include "../Logic/Camera.h"
+#include <list>
 
 class Cubes3D : public Node, Listener<SDL_Event>
 {
@@ -16,6 +17,7 @@ public:
 	virtual ~Cubes3D();
 
 	virtual bool handleEvent(SDL_Event const & e);
+	virtual void update();
 	virtual void render();
 
 protected:
@@ -27,6 +29,11 @@ protected:
 	glm::vec3 _rotationAngle;
 
 	Camera * _cam;
+
+	//testing input movement
+	float _speed = 1;
+	glm::vec3 _velocity;
+	std::list<Direction> _xAxis, _yAxis;
 
 	unsigned int _VAO, _VBO;
 

@@ -42,6 +42,7 @@ bool SampleScene::init() {
 
 	glEnable(GL_DEPTH_TEST);
 	_nodes.push_back(new Cubes3D(_cam));
+	_nodes.push_back(new FPS(_cam));
 
 	return true;
 }
