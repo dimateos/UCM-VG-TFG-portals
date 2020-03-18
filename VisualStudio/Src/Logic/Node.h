@@ -9,7 +9,7 @@ public:
 	Node(Node* father);
 	virtual ~Node();
 
-	static Node ROOT; //root node
+	static Node ROOT; //root node for now
 
 	inline std::list<Node*> const& getChildren() const { return children_; }
 	inline Node* const& getFather() const { return father_; }

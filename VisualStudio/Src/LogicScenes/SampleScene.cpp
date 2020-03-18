@@ -3,9 +3,11 @@
 #include "../LogicNodes/OldExamples/Triangle.h"
 #include "../LogicNodes/OldExamples/SquareAnimated.h"
 #include "../LogicNodes/OldExamples/SquareTextured.h"
+#include "../LogicNodes/OldExamples/Cubes3D.h"
 
-#include "../LogicNodes/Cubes3D.h"
+#include "../LogicNodes/Cube.h"
 #include "../LogicNodes/FPS.h"
+#include "../LogicNodes/InputFreeMovement.h"
 
 #include "../Render/Texture.h"
 #include <glad\glad.h>
@@ -24,6 +26,8 @@ SampleScene::SampleScene(App* app) : Scene(app) {}
 SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
+	Scene::init();
+
 	//SCENE INPUT
 	Platform_SDL::platformEventEmitter_.registerListener(this);
 
@@ -32,18 +36,24 @@ bool SampleScene::init() {
 	proj_ = new Projection(vp_->getAspect());
 	cam_ = new Camera(vp_, proj_);
 
+	glEnable(GL_DEPTH_TEST); //3d depth
+	Texture::setFlipVerticallyOnLoad(); //texture loading
+
 	//OBJECTS
-	//world_node_->children.push_back(new SquareAnimated());
+	//world_node_->addChild(new SquareAnimated());
+	//world_node_->addChild(new SquareTextured());
+	//world_node_->addChild(new Triangle());
+	//world_node_->addChild(new TriangleRGB());
+	//world_node_->addChild(new Cubes3D(cam_));
 
-	Texture::setFlipVerticallyOnLoad();
-	//world_node_->children.push_back(new SquareTextured());
+	auto cube = new Cube(cam_);
+	world_node_->addChild(cube);
 
-	world_node_->children.push_back(new Triangle());
-	//world_node_->children.push_back(new TriangleRGB());
+	auto node = new InputFreeMovement(cube);
+	node->setFather(world_node_);
 
-	glEnable(GL_DEPTH_TEST);
-	world_node_->children.push_back(new Cubes3D(cam_));
-	world_node_->children.push_back(new FPS(cam_));
+	//auto rotated = new Node();
+	//world_node_->addChild(new FPS(cam_));
 
 	return true;
 }
@@ -58,7 +68,8 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	return false;
 }
 
-void SampleScene::update(float delta) {
+void SampleScene::update() {
+	cam_->update();
 	Scene::update();
 }
 

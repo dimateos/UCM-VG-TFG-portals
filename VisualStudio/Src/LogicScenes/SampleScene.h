@@ -18,7 +18,7 @@ public:
 	virtual bool init();
 
 	virtual bool handleEvent(SDL_Event const & e);
-	virtual void update(float delta);
+	virtual void update();
 	virtual void render();
 
 protected:
