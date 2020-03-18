@@ -49,7 +49,7 @@ Cubes3D::Cubes3D(Camera * cam) : Node(&Node::ROOT), cam_(cam) {
 	shader3D_.setInt("texture1", 1);
 	shader3D_.setInt("texture2", 2);
 
-	Platform_SDL::_keyEventEmitter.registerListener(this);
+	Platform_SDL::keyEventEmitter_.registerListener(this);
 	rotationAngle_ = glm::vec3(0.f, 0.f, 1.f);
 }
 Cubes3D::~Cubes3D() {

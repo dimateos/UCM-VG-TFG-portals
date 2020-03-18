@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Logic/Node.h"
-#include "../Render/Shader.h"
-#include "../Render/Texture.h"
+#include "../../Logic/Node.h"
+#include "../../Render/Shader.h"
+#include "../../Render/Texture.h"
 
 class SquareTextured : public Node
 {

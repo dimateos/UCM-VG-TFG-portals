@@ -1,8 +1,9 @@
 #include "SampleScene.h"
-#include "../LogicNodes/TriangleRGB.h"
-#include "../LogicNodes/Triangle.h"
-#include "../LogicNodes/SquareAnimated.h"
-#include "../LogicNodes/SquareTextured.h"
+#include "../LogicNodes/OldExamples/TriangleRGB.h"
+#include "../LogicNodes/OldExamples/Triangle.h"
+#include "../LogicNodes/OldExamples/SquareAnimated.h"
+#include "../LogicNodes/OldExamples/SquareTextured.h"
+
 #include "../LogicNodes/Cubes3D.h"
 #include "../LogicNodes/FPS.h"
 
@@ -24,7 +25,7 @@ SampleScene::~SampleScene() {}
 
 bool SampleScene::init() {
 	//SCENE INPUT
-	Platform_SDL::_platformEventEmitter.registerListener(this);
+	Platform_SDL::platformEventEmitter_.registerListener(this);
 
 	//CAMERA
 	vp_ = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());

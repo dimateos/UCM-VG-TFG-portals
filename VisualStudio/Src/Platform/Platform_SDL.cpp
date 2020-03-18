@@ -8,8 +8,8 @@ long long unsigned int Platform_SDL::thisFrame_ = 0;
 double Platform_SDL::deltaTime_ = 0.0f;
 double Platform_SDL::detaTimeSinceStart_ = 0.0f;
 
-Emitter<SDL_Event> Platform_SDL::_keyEventEmitter, Platform_SDL::_mouseMotionEventEmitter, Platform_SDL::_mouseButtonEventEmitter,
-	Platform_SDL::_windowEventEmitter, Platform_SDL::_platformEventEmitter;
+Emitter<SDL_Event> Platform_SDL::keyEventEmitter_, Platform_SDL::mouseMotionEventEmitter_, Platform_SDL::mouseButtonEventEmitter_,
+	Platform_SDL::windowEventEmitter_, Platform_SDL::platformEventEmitter_;
 
 bool Platform_SDL::init() {
 	printf("plat - init\n");
@@ -36,14 +36,14 @@ void Platform_SDL::pollEvents() {
 	while (SDL_PollEvent(&event)) {
 
 		//distrubuted listening
-		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) _keyEventEmitter.Emit(event);
-		else if (event.type == SDL_MOUSEMOTION) _mouseMotionEventEmitter.Emit(event);
+		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) keyEventEmitter_.Emit(event);
+		else if (event.type == SDL_MOUSEMOTION) mouseMotionEventEmitter_.Emit(event);
 		else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEWHEEL)
-			_mouseButtonEventEmitter.Emit(event);
-		else if (event.type == SDL_WINDOWEVENT || event.type == SDL_DISPLAYEVENT) _windowEventEmitter.Emit(event);
+			mouseButtonEventEmitter_.Emit(event);
+		else if (event.type == SDL_WINDOWEVENT || event.type == SDL_DISPLAYEVENT) windowEventEmitter_.Emit(event);
 
 		//others
-		else if (event.type == SDL_QUIT || event.type == SDL_SYSWMEVENT) _platformEventEmitter.Emit(event);
+		else if (event.type == SDL_QUIT || event.type == SDL_SYSWMEVENT) platformEventEmitter_.Emit(event);
 		//else printf("plat - ignored event type: %i\n", event.type);
 	}
 }

@@ -1,7 +1,7 @@
 #include "SquareTextured.h"
 #include <glad\glad.h>
 
-#include "../Platform/Platform_SDL.h"
+#include "../../Platform/Platform_SDL.h"
 
 SquareTextured::SquareTextured() : Node(&Node::ROOT) {
 	glGenBuffers(1, &VBO_);

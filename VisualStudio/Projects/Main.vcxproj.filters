@@ -27,20 +27,8 @@
     <ClCompile Include="..\Src\LogicScenes\SampleScene.cpp">
       <Filter>LogicScenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\Triangle.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\SquareAnimated.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Render\Texture.cpp">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\SquareTextured.cpp">
-      <Filter>LogicNodes</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\Cubes3D.cpp">
       <Filter>LogicNodes</Filter>
@@ -56,6 +44,18 @@
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\FPS.cpp">
       <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareAnimated.cpp">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareTextured.cpp">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\Triangle.cpp">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\TriangleRGB.cpp">
+      <Filter>LogicNodes\OldExamples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +76,9 @@
     </Filter>
     <Filter Include="LogicScenes">
       <UniqueIdentifier>{bab30db9-4203-4362-8a1d-7164ac1dde2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogicNodes\OldExamples">
+      <UniqueIdentifier>{f79150ca-0587-4481-96f2-d5679be05598}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -104,20 +107,8 @@
     <ClInclude Include="..\Src\LogicScenes\SampleScene.h">
       <Filter>LogicScenes</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\Triangle.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\SquareAnimated.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\Render\Texture.h">
       <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\SquareTextured.h">
-      <Filter>LogicNodes</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\Cubes3D.h">
       <Filter>LogicNodes</Filter>
@@ -136,6 +127,18 @@
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\FPS.h">
       <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareAnimated.h">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareTextured.h">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\Triangle.h">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\TriangleRGB.h">
+      <Filter>LogicNodes\OldExamples</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -176,18 +176,10 @@
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\Cubes3D.cpp" />
     <ClCompile Include="..\Src\LogicNodes\FPS.cpp" />
-    <ClCompile Include="..\Src\LogicNodes\SquareAnimated.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\SquareTextured.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\Triangle.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\TriangleRGB.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareAnimated.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareTextured.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\Triangle.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\TriangleRGB.cpp" />
     <ClCompile Include="..\Src\LogicScenes\SampleScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -229,18 +221,10 @@
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\Cubes3D.h" />
     <ClInclude Include="..\Src\LogicNodes\FPS.h" />
-    <ClInclude Include="..\Src\LogicNodes\SquareAnimated.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\SquareTextured.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\Triangle.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\TriangleRGB.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareAnimated.h" />
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareTextured.h" />
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\Triangle.h" />
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\TriangleRGB.h" />
     <ClInclude Include="..\Src\LogicScenes\SampleScene.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

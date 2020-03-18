@@ -1,7 +1,7 @@
 #include "SquareAnimated.h"
 #include <glad\glad.h>
 
-#include "../Platform/Platform_SDL.h"
+#include "../../Platform/Platform_SDL.h"
 
 SquareAnimated::SquareAnimated() : Node(&Node::ROOT) {
 	glGenBuffers(1, &VBO_);

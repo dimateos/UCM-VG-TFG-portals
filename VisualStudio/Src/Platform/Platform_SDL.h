@@ -12,8 +12,8 @@ public:
 
 	//atm here?
 	static void pollEvents();
-	static Emitter<SDL_Event> _keyEventEmitter, _mouseMotionEventEmitter, _mouseButtonEventEmitter,
-		_windowEventEmitter, _platformEventEmitter;
+	static Emitter<SDL_Event> keyEventEmitter_, mouseMotionEventEmitter_, mouseButtonEventEmitter_,
+		windowEventEmitter_, platformEventEmitter_;
 
 	static void startTimings();
 	static void updateTimings();

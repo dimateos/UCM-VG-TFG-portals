@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Logic/Node.h"
-#include "../Render/Shader.h"
+#include "../../Logic/Node.h"
+#include "../../Render/Shader.h"
 
 class Triangle : public Node
 {
