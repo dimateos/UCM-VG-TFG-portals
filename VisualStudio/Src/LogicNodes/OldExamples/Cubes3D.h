@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Logic/Node.h"
-#include "../Render/Shader.h"
-#include "../Render/Texture.h"
+#include "../../Logic/Node.h"
+#include "../../Render/Shader.h"
+#include "../../Render/Texture.h"
 
-#include "../Platform/Listening.h"
+#include "../../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
 
-#include "../Logic/Camera.h"
+#include "../../Logic/Camera.h"
 #include <list>
 
 class Cubes3D : public Node, Listener<SDL_Event>

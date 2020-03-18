@@ -1,10 +1,10 @@
 #include "Cubes3D.h"
 #include <glad\glad.h>
 
-#include "../Platform/Platform_SDL.h"
+#include "../../Platform/Platform_SDL.h"
 #include <SDL_events.h>
 
-#include "../Platform/Window_SDL_GL.h"
+#include "../../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
 
