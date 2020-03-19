@@ -66,7 +66,8 @@ void App::loop() {
 		//printf("app - loop\n");
 
 		Platform_SDL::updateTimings();
-		//printf("fps: %f\n", 1 / Platform_SDL::getDeltaTime());
+		//float fps = 1 / Platform_SDL::getDeltaTime();
+		//if (fps < 135) printf("fps: %f\n", fps);
 		//printf("time since start: %f\n", Platform_SDL::getDeltaTimeSinceStart());
 
 		//events sent to registered listeners by the platform

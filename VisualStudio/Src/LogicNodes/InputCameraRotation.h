@@ -20,5 +20,5 @@ protected:
 
 	float sens_ = 1;
 	int rotY_ = 0, rotX_ = 0;
-	float total_rotX_ = 0, maxRotX_ = 90;
+	float total_rotY_ = 0, total_rotX_ = 0, maxRotX_ = 90;
 };

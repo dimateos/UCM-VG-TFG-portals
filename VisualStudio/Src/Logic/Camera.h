@@ -9,8 +9,8 @@ public:
 	Camera(Viewport* vp, Projection* proj);
 	virtual ~Camera();
 
-	inline glm::mat4 const& getViewMatrix() { return getModelMatrix_Inversed(); };
-	inline const glm::f32* getViewMatrixPtr() { return getModelMatrix_Inversed_ptr(); };
+	glm::mat4 const& getViewMatrix();
+	const glm::f32* getViewMatrixPtr();
 
 	inline Viewport* getVP() const { return vp_; }
 	inline Projection* getProj() const { return proj_; }

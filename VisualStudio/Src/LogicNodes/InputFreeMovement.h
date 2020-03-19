@@ -8,7 +8,7 @@ typedef union SDL_Event; //forwarded
 class InputFreeMovement : public Node, Listener<SDL_Event>
 {
 public:
-	InputFreeMovement(Node* father, Node* target, Node * rotationReference);
+	InputFreeMovement(Node* father, Node* target, Node * rotationReference, bool disable_rotation);
 	virtual ~InputFreeMovement();
 
 	virtual void update();
@@ -18,7 +18,7 @@ protected:
 	Node *target_, *rotationReference_;
 	Transformation initialTrans_;
 
-	bool disable_rotation_ = false; //maybe separated node?
+	bool disable_rotation_; //maybe separated node?
 	void applyFrameRotation();
 	void applyFrameTranslation();
 

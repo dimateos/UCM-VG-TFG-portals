@@ -38,30 +38,34 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 
 void InputCameraRotation::update() {
 	if (!focus_) return;
+	if (rotY_ == 0 && rotX_ == 0) return;
 
 	//horizontal rotation
 	if (rotY_ != 0) {
 		float frame_rotY = sens_ * -rotY_;
+		total_rotY_ += frame_rotY;
 
-		cam_->yaw(frame_rotY);
 		rotY_ = 0;
 	}
-
 	//limit the vertical rotation (x axis)
 	if (rotX_ != 0) {
 		float frame_rotX = sens_ * -rotX_;
 		total_rotX_ += frame_rotX;
 
 		if (total_rotX_ > maxRotX_) {
-			frame_rotX -= total_rotX_ - maxRotX_;
+			//frame_rotX -= total_rotX_ - maxRotX_;
 			total_rotX_ = maxRotX_;
 		}
 		else if (total_rotX_ < -maxRotX_) {
-			frame_rotX -= total_rotX_ + maxRotX_;
+			//frame_rotX -= total_rotX_ + maxRotX_;
 			total_rotX_ = -maxRotX_;
 		}
 
-		cam_->pitch(frame_rotX);
 		rotX_ = 0;
 	}
+
+	//reset and apply frist yaw to avoid rolling
+	cam_->setLocalRot(Transformation::BASE_ROT);
+	cam_->yaw(total_rotY_);
+	cam_->pitch(total_rotX_);
 }

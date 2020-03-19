@@ -4,8 +4,8 @@
 #include "../Platform/Platform_SDL.h"
 #include <SDL_events.h>
 
-InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotationReference)
-	: Node(father), target_(target), rotationReference_(rotationReference) {
+InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotationReference, bool disable_rotation)
+	: Node(father), target_(target), rotationReference_(rotationReference), disable_rotation_(disable_rotation) {
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
 	initialTrans_ = target_->getLocalTrans();

@@ -4,10 +4,6 @@
 #include "../Logic/Camera.h" //tmp
 #include "../Platform/Platform_SDL.h"
 
-//TESTING
-#include <gtc/type_ptr.hpp>
-#include <gtx/matrix_decompose.hpp>
-
 Cube::Cube(Node * father) : Node(father) {
 	glGenBuffers(1, &VBO_);
 	glGenVertexArrays(1, &VAO_);

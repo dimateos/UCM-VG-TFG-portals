@@ -75,7 +75,7 @@ bool SampleScene::init() {
 	//cam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
 
 	//INPUT
-	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_);
+	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_, false);
 	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
 	return true;
@@ -97,6 +97,8 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 void SampleScene::update() {
 	Scene::update();
+
+	//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
 }
 
 void SampleScene::render() {
