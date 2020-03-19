@@ -32,7 +32,7 @@ protected:
 
 	//testing input movement
 	float speed_ = 1;
-	glm::vec3 velocity_;
+	glm::vec3 frame_velocity_;
 	std::list<Direction> xAxis_, yAxis_;
 
 	unsigned int VAO_, VBO_;

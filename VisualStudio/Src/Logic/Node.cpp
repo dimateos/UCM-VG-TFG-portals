@@ -1,19 +1,20 @@
 #include "Node.h"
 
 Node Node::ROOT = Node();
+Camera* Node::ROOT_CAM = nullptr;
 
-Node::Node() : father_(nullptr) {}
-Node::Node(Node * father) : father_(nullptr) {
+Node::Node() : Transformable(nullptr), father_(nullptr) {}
+Node::Node(Node * father) : Transformable(nullptr), father_(nullptr) {
 	father->addChild(this);
 }
 Node::~Node() {}
 
-void Node::setFather(Node * const & father) {
-	if (father == father_) return;						//check same father
-	if (father_ != nullptr) father_->removeChild(this);	//check father not null before removing
-	if (father != nullptr) father->addChild(this);		//check new father not null before adding
+void Node::setFather(Node * const & father, bool ignoreTrans) {
+	if (father == father_) return;										//check same father
+	if (father_ != nullptr) father_->removeChild(this, ignoreTrans);	//check father not null before removing
+	if (father != nullptr) father->addChild(this, ignoreTrans);			//check new father not null before adding
 }
-void Node::addChild(Node * const & child) {
+void Node::addChild(Node * const & child, bool ignoreTrans) {
 	if (child == nullptr) return;
 	if (child->father_ == this) return; //already child
 
@@ -21,8 +22,9 @@ void Node::addChild(Node * const & child) {
 	if (child->father_ != nullptr) child->father_->removeChild(child);
 	children_.push_back(child);
 	child->father_ = this;
+	if (!ignoreTrans) child->setFatherTransform(this);
 }
-void Node::removeChild(Node * const & child) {
+void Node::removeChild(Node * const & child, bool ignoreTrans) {
 	if (child == nullptr) return;
 	if (child->father_ != this) return; //not its child
 
@@ -31,17 +33,11 @@ void Node::removeChild(Node * const & child) {
 	if (it != children_.end()) {
 		children_.erase(it);
 		child->father_ = nullptr;
+		if (!ignoreTrans) child->setFatherTransform(nullptr);
 	}
 }
 void Node::clearChildren() {
 	children_.clear();
-}
-
-void Node::updateTransform() {
-	trans.updateModelMatrix(father_->trans.getModelMatrix());
-}
-void Node::updateInvTransform() {
-	trans.updateInvModelMatrix(father_->trans.getInvModelMatrix());
 }
 
 void Node::update() {

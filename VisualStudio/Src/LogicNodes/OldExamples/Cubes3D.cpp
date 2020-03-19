@@ -31,14 +31,14 @@ Cubes3D::Cubes3D(Camera * cam) : Node(&Node::ROOT), cam_(cam) {
 
 	//positioning
 	uniformModel_ = shader3D_.getUniformLocation("model");
-	trans.localScale = glm::vec3(0.8f);
+	trans.localScale_ = glm::vec3(0.8f);
 
-	initialPos_ = trans.localPostion;
+	initialPos_ = trans.localPostion_;
 	glUniformMatrix4fv(shader3D_.getUniformLocation("projection"), 1, GL_FALSE, cam_->getProj()->getProjMatrixPtr());
 
-	cam_->trans.localPostion.z = 5;
-	cam_->trans.localScale.x = 0.5;
-	cam_->trans.localRotation = glm::angleAxis(glm::radians(30.0f), glm::vec3(1.f, 0.f, 0.f));
+	cam_->trans.localPostion_.z = 5;
+	cam_->trans.localScale_.x = 0.5;
+	cam_->trans.localRotation_ = glm::angleAxis(glm::radians(30.0f), glm::vec3(1.f, 0.f, 0.f));
 	cam_->updateInvTransform();
 	uniformView_ = shader3D_.getUniformLocation("view");
 
@@ -94,20 +94,20 @@ bool Cubes3D::handleEvent(SDL_Event const & e) {
 }
 
 void Cubes3D::update() {
-	velocity_ = glm::vec3(0);
+	frame_velocity_ = glm::vec3(0);
 
 	if (!yAxis_.empty()) {
-		if (yAxis_.front() == UP) velocity_.y = 1;
-		else velocity_.y = -1;
+		if (yAxis_.front() == UP) frame_velocity_.y = 1;
+		else frame_velocity_.y = -1;
 	}
 	if (!xAxis_.empty()) {
-		if (xAxis_.front() == RIGHT) velocity_.x = 1;
-		else velocity_.x = -1;
+		if (xAxis_.front() == RIGHT) frame_velocity_.x = 1;
+		else frame_velocity_.x = -1;
 	}
 
-	if (velocity_.y != 0 || velocity_.x != 0) {
-		velocity_ = glm::normalize(velocity_) * speed_;
-		trans.localPostion += velocity_ * Platform_SDL::getDeltaTimef();
+	if (frame_velocity_.y != 0 || frame_velocity_.x != 0) {
+		frame_velocity_ = glm::normalize(frame_velocity_) * speed_;
+		trans.localPostion_ += frame_velocity_ * Platform_SDL::getDeltaTimef();
 	}
 }
 
@@ -121,27 +121,27 @@ void Cubes3D::render() {
 	tex2_.bind(2);
 
 	//rotate
-	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25.0f), rotationAngle_);
+	trans.localRotation_ = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25.0f), rotationAngle_);
 	updateTransform();
 
 	glBindVertexArray(VAO_);
 
 	//draw one
-	glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, trans.getModelMatrixPtr());
+	glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, trans.getModelMatrix_ptr());
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//draw the rest
-	initialPos_ = trans.localPostion;
+	initialPos_ = trans.localPostion_;
 	for (unsigned int i = 0; i < 9; i++) {
 		//m = glm::rotate(m, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-		trans.localPostion = cubePositions_[i];
+		trans.localPostion_ = cubePositions_[i];
 		updateTransform();
 
 		//draw one
-		glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, trans.getModelMatrixPtr());
+		glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, trans.getModelMatrix_ptr());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
 	//restore initial transform
-	trans.localPostion = initialPos_;
+	trans.localPostion_ = initialPos_;
 }

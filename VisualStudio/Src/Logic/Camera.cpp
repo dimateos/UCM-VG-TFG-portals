@@ -6,8 +6,3 @@ using namespace glm;
 
 Camera::Camera(Viewport * vp, Projection* proj) : Node(&Node::ROOT), vp_(vp), proj_(proj) {}
 Camera::~Camera() {}
-
-void Camera::update() {
-	updateInvTransform();
-}
-

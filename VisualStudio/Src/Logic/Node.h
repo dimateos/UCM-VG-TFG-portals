@@ -1,31 +1,31 @@
 #pragma once
-#include "Transform.h"
+#include "Transformable.h"
 #include <list>
 
-class Node
+class Camera; //forwarded for now
+
+class Node : public Transformable
 {
 public:
 	Node();
 	Node(Node* father);
 	virtual ~Node();
 
+	static Camera* ROOT_CAM; //root camera for now
 	static Node ROOT; //root node for now
 
-	inline std::list<Node*> const& getChildren() const { return children_; }
 	inline Node* const& getFather() const { return father_; }
-	void setFather(Node* const& father);
-	void addChild(Node* const& child);
-	void removeChild(Node* const& child);
-	void clearChildren();
+	void setFather(Node* const& father, bool ignoreTrans = false);
 
-	Transform trans;
-	void updateTransform();
-	void updateInvTransform();
+	inline std::list<Node*> const& getChildren() const { return children_; }
+	void addChild(Node* const& child, bool ignoreTrans = false);
+	void removeChild(Node* const& child, bool ignoreTrans = false);
+	void clearChildren();
 
 	virtual void update();
 	virtual void render();
 
-protected:
+private:
 	Node* father_;
 	std::list<Node*> children_;
 };

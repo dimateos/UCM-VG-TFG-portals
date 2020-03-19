@@ -32,7 +32,7 @@ SquareTextured::SquareTextured() : Node(&Node::ROOT) {
 
 	//transforming
 	uniformTranform_ = shaderTextured_.getUniformLocation("transform");
-	trans.localScale = glm::vec3(0.8f);
+	trans.localScale_ = glm::vec3(0.8f);
 
 	//textures
 	tex1_.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D);
@@ -54,9 +54,9 @@ void SquareTextured::render() {
 	tex1_.bind(1);
 	tex2_.bind(2);
 
-	trans.localRotation = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
+	trans.localRotation_ = glm::angleAxis(glm::radians(Platform_SDL::getDeltaTimeSinceStartf() * 25), glm::vec3(0.f, 0.f, 1.f));
 	updateTransform();
-	glUniformMatrix4fv(uniformTranform_, 1, GL_FALSE, trans.getModelMatrixPtr());
+	glUniformMatrix4fv(uniformTranform_, 1, GL_FALSE, trans.getModelMatrix_ptr());
 
 	glBindVertexArray(VAO_);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
