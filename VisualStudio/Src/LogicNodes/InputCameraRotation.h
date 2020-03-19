@@ -8,7 +8,7 @@ typedef union SDL_Event; //forwarded
 class InputCameraRotation : public Node, Listener<SDL_Event>
 {
 public:
-	InputCameraRotation(Node* father, Camera* cam, Node* xAxisTargetRot, Node* yAxisTargetRot);
+	InputCameraRotation(Node* father, Camera* cam);
 	virtual ~InputCameraRotation();
 
 	virtual void update();
@@ -16,7 +16,6 @@ public:
 
 protected:
 	Camera * cam_;
-	Node *xAxisTargetRot_, *yAxisTargetRot_;
 	bool focus_ = true;
 
 	float sens_ = 1;

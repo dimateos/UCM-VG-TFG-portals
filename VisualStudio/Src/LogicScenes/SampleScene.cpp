@@ -16,8 +16,6 @@
 #include "../Render/Projection.h"
 #include "../Logic/Camera.h"
 
-#include <glm.hpp>
-
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
 SampleScene::~SampleScene() {}
@@ -54,8 +52,8 @@ bool SampleScene::init() {
 
 	//PLAYER
 	auto player = new Node(world_node_);
-	//player->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
-	//player->yaw(-90);
+	player->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
+	//player->yaw(20);
 	//player->scale(0.8f);
 
 	//edit camera
@@ -63,8 +61,10 @@ bool SampleScene::init() {
 	//cam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
 
 	//INPUT
-	//auto inputMovementNode = new InputFreeMovement(world_node_, player);
-	//auto inputCameraNode = new InputCameraRotation(world_node_, cam_, player);
+	auto inputMovementNode = new InputFreeMovement(world_node_, player);
+	//auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
+
+	//test directions
 
 	return true;
 }

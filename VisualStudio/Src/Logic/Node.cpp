@@ -22,7 +22,7 @@ void Node::addChild(Node * const & child, bool ignoreTrans) {
 	if (child->father_ != nullptr) child->father_->removeChild(child);
 	children_.push_back(child);
 	child->father_ = this;
-	if (!ignoreTrans) child->setFatherTransform(this);
+	if (!ignoreTrans) child->setFatherTransformable(this);
 }
 void Node::removeChild(Node * const & child, bool ignoreTrans) {
 	if (child == nullptr) return;
@@ -33,7 +33,7 @@ void Node::removeChild(Node * const & child, bool ignoreTrans) {
 	if (it != children_.end()) {
 		children_.erase(it);
 		child->father_ = nullptr;
-		if (!ignoreTrans) child->setFatherTransform(nullptr);
+		if (!ignoreTrans) child->setFatherTransformable(nullptr);
 	}
 }
 void Node::clearChildren() {

@@ -8,7 +8,8 @@ const glm::vec3 Transformation::BASE_RIGHT = X;
 const glm::vec3 Transformation::BASE_BACK = Z;
 const glm::vec3 Transformation::BASE_POS = ZEROS;
 const glm::vec3 Transformation::BASE_SCALE = ONES;
-const glm::quat Transformation::BASE_ROT = glm::angleAxis(glm::radians(0.f), BASE_UP); //IDENTITY_QUAT
+const glm::quat Transformation::BASE_ROT = IDENTITY_QUAT;
+//const glm::quat Transformation::BASE_ROT = glm::angleAxis(glm::radians(0.f), BASE_UP);
 
 const Transformation Transformation::BASE = {
 	Transformation::BASE_POS, Transformation::BASE_ROT, Transformation::BASE_SCALE

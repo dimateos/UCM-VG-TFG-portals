@@ -7,8 +7,7 @@
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
-InputCameraRotation::InputCameraRotation(Node* father, Camera * cam, Node* xAxisTargetRot, Node * yAxisTargetRot) :
-	Node(father), cam_(cam), xAxisTargetRot_(xAxisTargetRot), yAxisTargetRot_(yAxisTargetRot) {
+InputCameraRotation::InputCameraRotation(Node* father, Camera * cam) : Node(father), cam_(cam) {
 	Platform_SDL::mouseMotionEventEmitter_.registerListener(this);
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
@@ -54,22 +53,14 @@ void InputCameraRotation::update() {
 			total_rotX_ = -maxRotX_;
 		}
 
-		xAxisTargetRot_->pitch(frame_rotX);
-
-		//cam_->trans.localRotation_ *= glm::angleAxis(glm::radians(frame_rotX), glm::vec3(1.f, 0.f, 0.f));
-		//xAxisTargetRot_->trans.localRotation_ *= glm::angleAxis(glm::radians(frame_rotX), glm::vec3(1.f, 0.f, 0.f));
-		//printf("InputCameraRotation - total x rot: %f\n", total_rotX_);
+		cam_->pitch(frame_rotX);
 		rotX_ = 0;
 	}
 
 	if (rotY_ != 0) {
 		float frame_rotY = sens_ * -rotY_;
 
-		xAxisTargetRot_->yaw(frame_rotY);
-
-		//cam_->trans.localRotation_ *= glm::angleAxis(glm::radians(frame_rotY), glm::vec3(0.f, 1.f, 0.f));
-		//yAxisTargetRot_->trans.localRotation_ *= glm::angleAxis(glm::radians(frame_rotY), glm::vec3(0.f, 1.f, 0.f));
-		//printf("InputCameraRotation - local rot: %f %f %f %f\n", trans.localRotation_.x, trans.localRotation_.y, trans.localRotation_.z, trans.localRotation_.w);
+		cam_->yaw(frame_rotY);
 		rotY_ = 0;
 	}
 }
