@@ -4,7 +4,8 @@
 #include "../Platform/Platform_SDL.h"
 #include <SDL_events.h>
 
-InputFreeMovement::InputFreeMovement(Node * father, Node * target) : Node(father), target_(target) {
+InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotationReference)
+	: Node(father), target_(target), rotationReference_(rotationReference) {
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
 	initialTrans_ = target_->getLocalTrans();
@@ -31,7 +32,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 
 			//rotate / sprinting keys
 		case SDLK_LSHIFT: sprinting_ = (sprint_toggleMode_ ? !sprinting_ : true); break;
-		case SDLK_r: rotating_ = (rotate_toggleMode_ ? !rotating_ : true); break;
+		case SDLK_r: if (!disable_rotation_) rotating_ = (rotate_toggleMode_ ? !rotating_ : true); break;
 
 			//reset key
 		case SDLK_t:
@@ -70,7 +71,11 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 }
 
 void InputFreeMovement::update() {
-	//ROTATION
+	if (rotating_) applyFrameRotation();
+	else applyFrameTranslation();
+}
+
+void InputFreeMovement::applyFrameRotation() {
 	frame_rotation_ = glm::vec3(0);
 
 	if (!rot_xAxis_.empty()) {
@@ -92,10 +97,11 @@ void InputFreeMovement::update() {
 		frame_rotation_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
 
 		//euler angles
-		target_->rotate(frame_rotation_);
+		target_->rotate(frame_rotation_); //TODO: only local?
 	}
+}
 
-	//MOVEMENT
+void InputFreeMovement::applyFrameTranslation() {
 	frame_velocity_ = glm::vec3(0);
 
 	if (!xAxis_.empty()) {
@@ -117,6 +123,6 @@ void InputFreeMovement::update() {
 		frame_velocity_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
 
 		//directly add
-		target_->translate(frame_velocity_);
+		target_->translate(rotationReference_->getLocalRot() * frame_velocity_);
 	}
 }

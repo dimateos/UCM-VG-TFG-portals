@@ -41,14 +41,27 @@ bool SampleScene::init() {
 	auto cube = new Cube(world_node_);
 	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
 	//cube->setLocalScaleY(2.0f);
+	//cube->pitch(180.0f);
+	//cube->yaw(90.0f);
+
+	//directions of space
+	auto cubeSon = new Node(cube);
+	cubeSon->scale(0.25f);
+	float f = 1.5f / cubeSon->getLocalScaleX();
+	auto cubeRight = new Cube(cubeSon);
+	cubeRight->translate(Transformation::BASE_RIGHT * f);
+	auto cubeUp = new Cube(cubeSon);
+	cubeUp->translate(Transformation::BASE_UP * f);
+	auto cubeBack = new Cube(cubeSon);
+	cubeBack->translate(Transformation::BASE_BACK * f);
 
 	//transforming a father to see how transforms chain
-	auto cubeFather = new Node(world_node_);
+	//auto cubeFather = new Node(world_node_);
 	//cubeFather->setLocalPos(glm::vec3(1.f, 1.f, 1.f));
 	//cubeFather->yaw(45.0f);
 	//cubeFather->setLocalScaleY(0.5f);
 	//actualy set the father in order to see results
-	cube->setFather(cubeFather);
+	//cube->setFather(cubeFather);
 
 	//PLAYER
 	auto player = new Node(world_node_);
@@ -58,13 +71,12 @@ bool SampleScene::init() {
 
 	//edit camera
 	cam_->setFather(player);
+	//cam_->yaw(20);
 	//cam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
 
 	//INPUT
-	auto inputMovementNode = new InputFreeMovement(world_node_, player);
-	//auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
-
-	//test directions
+	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_);
+	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
 	return true;
 }

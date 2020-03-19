@@ -39,6 +39,14 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 void InputCameraRotation::update() {
 	if (!focus_) return;
 
+	//horizontal rotation
+	if (rotY_ != 0) {
+		float frame_rotY = sens_ * -rotY_;
+
+		cam_->yaw(frame_rotY);
+		rotY_ = 0;
+	}
+
 	//limit the vertical rotation (x axis)
 	if (rotX_ != 0) {
 		float frame_rotX = sens_ * -rotX_;
@@ -55,12 +63,5 @@ void InputCameraRotation::update() {
 
 		cam_->pitch(frame_rotX);
 		rotX_ = 0;
-	}
-
-	if (rotY_ != 0) {
-		float frame_rotY = sens_ * -rotY_;
-
-		cam_->yaw(frame_rotY);
-		rotY_ = 0;
 	}
 }

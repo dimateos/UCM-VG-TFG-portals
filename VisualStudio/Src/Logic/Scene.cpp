@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "Node.h"
 
-Scene::Scene(App* app) : app_ (app), world_node_(new Node(&Node::ROOT)) {}
+Scene::Scene(App* app) : app_ (app), world_node_(&Node::ROOT) {}
 Scene::~Scene() {
 	if (!world_node_->getChildren().empty()) printf("Scene - WARNING destroyed while scene not empty\n");
 }
@@ -12,7 +12,7 @@ bool Scene::init() {
 void Scene::release() {
 	for (auto n : world_node_->getChildren()) release_rec(n);
 	world_node_->clearChildren();
-	delete world_node_;
+	//delete world_node_; //reference not new node
 }
 void Scene::release_rec(Node * n) {
 	for (auto c : n->getChildren()) release_rec(c);

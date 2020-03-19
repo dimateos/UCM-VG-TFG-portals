@@ -40,7 +40,7 @@ glm::mat4 const& Transformable::getModelMatrix_Inversed() {
 	//no father, then return the local
 	if (father_transform_ == nullptr) return local_computedMatrix_Inversed_;
 
-	computedMatrix_Inversed_ = father_transform_->getModelMatrix_Inversed() * local_computedMatrix_Inversed_;
+	computedMatrix_Inversed_ = local_computedMatrix_Inversed_ * father_transform_->getModelMatrix_Inversed();
 	return computedMatrix_Inversed_;
 }
 const glm::f32 * Transformable::getModelMatrix_Inversed_ptr() {

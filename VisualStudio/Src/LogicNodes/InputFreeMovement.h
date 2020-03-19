@@ -8,15 +8,19 @@ typedef union SDL_Event; //forwarded
 class InputFreeMovement : public Node, Listener<SDL_Event>
 {
 public:
-	InputFreeMovement(Node* father, Node* target);
+	InputFreeMovement(Node* father, Node* target, Node * rotationReference);
 	virtual ~InputFreeMovement();
 
 	virtual void update();
 	virtual bool handleEvent(SDL_Event const & e);
 
 protected:
-	Node* target_;
+	Node *target_, *rotationReference_;
 	Transformation initialTrans_;
+
+	bool disable_rotation_ = false; //maybe separated node?
+	void applyFrameRotation();
+	void applyFrameTranslation();
 
 	float speed_ = 1, rotation_speed_ = 50, sprint_scaler_ = 3;
 	bool sprint_toggleMode_ = false, rotate_toggleMode_ = true;

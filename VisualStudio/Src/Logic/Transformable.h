@@ -34,6 +34,7 @@ public:
 	inline void setLocalPosZ(float z) { local_trans_.postion.z = z; setOutDated(); }
 	//common translate interface
 	inline void translate(glm::vec3 const& v) { local_trans_.postion += v; setOutDated(); }
+	inline void translateForward(glm::vec3 const& v) { local_trans_.postion += local_trans_.rotation * v; setOutDated(); }
 	inline void translateX(float x) { local_trans_.postion.x += x; setOutDated(); }
 	inline void translateY(float y) { local_trans_.postion.y += y; setOutDated(); }
 	inline void translateZ(float z) { local_trans_.postion.z += z; setOutDated(); }
@@ -51,9 +52,9 @@ public:
 		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees), axe); setOutDated();
 	}
 	inline void rotate(glm::vec3 const& degrees) {
-		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees.x), X);
-		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees.y), Y);
 		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees.z), Z);
+		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees.y), Y);
+		local_trans_.rotation *= glm::angleAxis(glm::radians(degrees.x), X);
 		setOutDated();
 	}
 
@@ -71,9 +72,9 @@ public:
 	inline void scale(float s) { local_trans_.scale *= s; setOutDated(); }
 
 	//relative directions
-	inline glm::vec3 const& right() const { return Transformation::BASE_RIGHT * local_trans_.rotation; }
-	inline glm::vec3 const& up() const { return local_trans_.postion * local_trans_.rotation; }
-	inline glm::vec3 const& back() const { return local_trans_.postion * local_trans_.rotation; }
+	inline glm::vec3 const& right() const { return local_trans_.rotation * Transformation::BASE_RIGHT; }
+	inline glm::vec3 const& up() const { return local_trans_.rotation * Transformation::BASE_UP; }
+	inline glm::vec3 const& back() const { return local_trans_.rotation * Transformation::BASE_BACK; }
 
 	//look at? scene position¿ preserve scene position on add child?
 	//GLOBAL TRANFORMATION
