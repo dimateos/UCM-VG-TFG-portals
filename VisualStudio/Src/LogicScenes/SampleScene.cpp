@@ -1,12 +1,7 @@
 #include "SampleScene.h"
-#include "../LogicNodes/OldExamples/TriangleRGB.h"
-#include "../LogicNodes/OldExamples/Triangle.h"
-#include "../LogicNodes/OldExamples/SquareAnimated.h"
-#include "../LogicNodes/OldExamples/SquareTextured.h"
-#include "../LogicNodes/OldExamples/Cubes3D.h"
 
 #include "../LogicNodes/Cube.h"
-#include "../LogicNodes/FPS.h"
+#include "../LogicNodes/InputCameraRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
 
 #include "../Render/Texture.h"
@@ -21,6 +16,8 @@
 #include "../Render/Projection.h"
 #include "../Logic/Camera.h"
 
+#include <glm.hpp>
+
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
 SampleScene::~SampleScene() {}
@@ -30,30 +27,44 @@ bool SampleScene::init() {
 
 	//SCENE INPUT
 	Platform_SDL::platformEventEmitter_.registerListener(this);
+	Platform_SDL::keyEventEmitter_.registerListener(this);
 
 	//CAMERA
 	vp_ = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
 	proj_ = new Projection(vp_->getAspect());
 	cam_ = new Camera(vp_, proj_);
-
-	glEnable(GL_DEPTH_TEST); //3d depth
-	Texture::setFlipVerticallyOnLoad(); //texture loading
+	Node::ROOT_CAM = cam_;
 
 	//OBJECTS
-	//world_node_->addChild(new SquareAnimated());
-	//world_node_->addChild(new SquareTextured());
-	//world_node_->addChild(new Triangle());
-	//world_node_->addChild(new TriangleRGB());
-	//world_node_->addChild(new Cubes3D(cam_));
+	glEnable(GL_DEPTH_TEST); //3d depth test
+	Texture::setFlipVerticallyOnLoad(); //texture loading
 
-	auto cube = new Cube(cam_);
-	world_node_->addChild(cube);
+	//simple cube
+	auto cube = new Cube(world_node_);
+	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
+	//cube->setLocalScaleY(2.0f);
 
-	auto node = new InputFreeMovement(cube);
-	node->setFather(world_node_);
+	//transforming a father to see how transforms chain
+	auto cubeFather = new Node(world_node_);
+	//cubeFather->setLocalPos(glm::vec3(1.f, 1.f, 1.f));
+	//cubeFather->yaw(45.0f);
+	//cubeFather->setLocalScaleY(0.5f);
+	//actualy set the father in order to see results
+	cube->setFather(cubeFather);
 
-	//auto rotated = new Node();
-	//world_node_->addChild(new FPS(cam_));
+	//PLAYER
+	auto player = new Node(world_node_);
+	//player->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
+	//player->yaw(-90);
+	//player->scale(0.8f);
+
+	//edit camera
+	cam_->setFather(player);
+	//cam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
+
+	//INPUT
+	//auto inputMovementNode = new InputFreeMovement(world_node_, player);
+	//auto inputCameraNode = new InputCameraRotation(world_node_, cam_, player);
 
 	return true;
 }
@@ -63,13 +74,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		app_->stop();
 		return true;
 	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
+		app_->stop();
+		return true;
+	}
 
-	else printf("scene - ignored event type: %i\n", e.type);
+	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;
 }
 
 void SampleScene::update() {
-	cam_->update();
 	Scene::update();
 }
 

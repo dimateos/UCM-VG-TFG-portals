@@ -5,23 +5,21 @@
 #include "../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
 
-class FPS : public Node, Listener<SDL_Event>
+class InputCameraRotation : public Node, Listener<SDL_Event>
 {
 public:
-	FPS(Camera* cam);
-	virtual ~FPS();
+	InputCameraRotation(Node* father, Camera* cam, Node* xAxisTargetRot, Node* yAxisTargetRot);
+	virtual ~InputCameraRotation();
 
 	virtual void update();
 	virtual bool handleEvent(SDL_Event const & e);
 
 protected:
 	Camera * cam_;
+	Node *xAxisTargetRot_, *yAxisTargetRot_;
+	bool focus_ = true;
 
 	float sens_ = 1;
 	int rotY_ = 0, rotX_ = 0;
 	float total_rotX_ = 0, maxRotX_ = 90;
-
-	float speed_ = 1;
-	glm::vec3 velocity_;
-	std::list<Direction> xAxis_, zAxis_, yAxis_;
 };

@@ -4,11 +4,10 @@
 #include "../Platform/Platform_SDL.h"
 #include <SDL_events.h>
 
-InputFreeMovement::InputFreeMovement(Node* fatherToMove) : Node(fatherToMove) {
+InputFreeMovement::InputFreeMovement(Node * father, Node * target) : Node(father), target_(target) {
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
-	iniPostion = father_->trans.localPostion;
-	iniRotation = father_->trans.localRotation;
+	initialTrans_ = target_->getLocalTrans();
 }
 
 InputFreeMovement::~InputFreeMovement() {}
@@ -27,15 +26,17 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 			//separated keys
 		case SDLK_SPACE: yAxis_.push_front(UP); break;
 		case SDLK_c: yAxis_.push_front(DOWN); break;
-		case SDLK_e: rot_zAxis_.push_front(RIGHT); break;
-		case SDLK_q: rot_zAxis_.push_front(LEFT); break;
+		case SDLK_e: if (rotating_) rot_zAxis_.push_front(RIGHT); break;
+		case SDLK_q: if (rotating_) rot_zAxis_.push_front(LEFT); break;
 
 			//rotate / sprinting keys
 		case SDLK_LSHIFT: sprinting_ = (sprint_toggleMode_ ? !sprinting_ : true); break;
 		case SDLK_r: rotating_ = (rotate_toggleMode_ ? !rotating_ : true); break;
 
 			//reset key
-		case SDLK_t: !rotating_ ? father_->trans.localPostion = iniPostion : father_->trans.localRotation = iniRotation; break;
+		case SDLK_t:
+			!rotating_ ? target_->setLocalPos(initialTrans_.postion) : target_->setLocalRot(initialTrans_.rotation);
+			break;
 
 		default: handled = false;
 		}
@@ -43,10 +44,10 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYUP) {
 		switch (e.key.keysym.sym) {
 			//combined keys
-		case SDLK_d: !rotating_ ? xAxis_.remove(RIGHT) : rot_yAxis_.remove(RIGHT); break;
-		case SDLK_a: !rotating_ ? xAxis_.remove(LEFT) : rot_yAxis_.remove(LEFT); break;
-		case SDLK_s: !rotating_ ? zAxis_.remove(BACK) : rot_xAxis_.remove(BACK); break;
-		case SDLK_w: !rotating_ ? zAxis_.remove(FORE) : rot_xAxis_.remove(FORE); break;
+		case SDLK_d: xAxis_.remove(RIGHT); rot_yAxis_.remove(RIGHT); break;
+		case SDLK_a: xAxis_.remove(LEFT); rot_yAxis_.remove(LEFT); break;
+		case SDLK_s: zAxis_.remove(BACK); rot_xAxis_.remove(BACK); break;
+		case SDLK_w: zAxis_.remove(FORE); rot_xAxis_.remove(FORE); break;
 
 			//separated keys
 		case SDLK_SPACE: yAxis_.remove(UP); break;
@@ -81,8 +82,8 @@ void InputFreeMovement::update() {
 		else frame_rotation_.z = 1;
 	}
 	if (!rot_yAxis_.empty()) {
-		if (rot_yAxis_.front() == RIGHT) frame_rotation_.y = 1;
-		else frame_rotation_.y = -1;
+		if (rot_yAxis_.front() == RIGHT) frame_rotation_.y = -1;
+		else frame_rotation_.y = 1;
 	}
 
 	//apply rotation if non zero
@@ -91,9 +92,7 @@ void InputFreeMovement::update() {
 		frame_rotation_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
 
 		//euler angles
-		father_->trans.localRotation *= glm::angleAxis(glm::radians(frame_rotation_.x), glm::vec3(1.f, 0.f, 0.f));
-		father_->trans.localRotation *= glm::angleAxis(glm::radians(frame_rotation_.y), glm::vec3(0.f, 1.f, 0.f));
-		father_->trans.localRotation *= glm::angleAxis(glm::radians(frame_rotation_.z), glm::vec3(0.f, 0.f, 1.f));
+		target_->rotate(frame_rotation_);
 	}
 
 	//MOVEMENT
@@ -118,8 +117,6 @@ void InputFreeMovement::update() {
 		frame_velocity_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
 
 		//directly add
-		father_->trans.localPostion += frame_velocity_;
+		target_->translate(frame_velocity_);
 	}
-
-	father_->updateTransform();
 }

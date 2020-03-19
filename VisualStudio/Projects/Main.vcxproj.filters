@@ -18,9 +18,6 @@
     <ClCompile Include="..\Src\Logic\Scene.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Logic\Transform.cpp">
-      <Filter>Logic</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Logic\Node.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
@@ -30,9 +27,6 @@
     <ClCompile Include="..\Src\Render\Texture.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\Cubes3D.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Render\Viewport.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -41,9 +35,6 @@
     </ClCompile>
     <ClCompile Include="..\Src\Render\Projection.cpp">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\FPS.cpp">
-      <Filter>LogicNodes</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareAnimated.cpp">
       <Filter>LogicNodes\OldExamples</Filter>
@@ -56,6 +47,24 @@
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\TriangleRGB.cpp">
       <Filter>LogicNodes\OldExamples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\Cube.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\InputCameraRotation.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Logic\Transformation.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Logic\Transformable.cpp">
+      <Filter>Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,9 +107,6 @@
     <ClInclude Include="..\Src\Logic\Scene.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Logic\Transform.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\Logic\Node.h">
       <Filter>Logic</Filter>
     </ClInclude>
@@ -109,9 +115,6 @@
     </ClInclude>
     <ClInclude Include="..\Src\Render\Texture.h">
       <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\Cubes3D.h">
-      <Filter>LogicNodes</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\Platform\Listening.h">
       <Filter>Platform</Filter>
@@ -125,9 +128,6 @@
     <ClInclude Include="..\Src\Render\Projection.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\FPS.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareAnimated.h">
       <Filter>LogicNodes\OldExamples</Filter>
     </ClInclude>
@@ -139,6 +139,24 @@
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\TriangleRGB.h">
       <Filter>LogicNodes\OldExamples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">
+      <Filter>LogicNodes\OldExamples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\Cube.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\InputCameraRotation.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\Transformation.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Logic\Transformable.h">
+      <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
