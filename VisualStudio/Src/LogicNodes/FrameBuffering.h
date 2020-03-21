@@ -15,9 +15,10 @@ public:
 	virtual void render();
 
 protected:
-	Shader shaderScreen_;
+	Shader shaderScreen_, postFilterShader_;
 	Texture tex1_; //testing
 	unsigned int framebuffer_, texColorBuffer_;
+	float res_, preview_res_; //resolution for the texture (multi/down sampling)
 
 	unsigned int VAO_, VBO_, EBO_;
 	float l_ = 1.0f; //size of screen

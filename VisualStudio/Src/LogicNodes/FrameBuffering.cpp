@@ -29,15 +29,18 @@ FrameBuffering::FrameBuffering(Node * father) : Node(father) {
 	glEnableVertexAttribArray(1);
 
 	//SHADER
-	shaderScreen_.build("../Shaders/V_screenTexture.glsl", "../Shaders/F_screenTexture.glsl");
-	tex1_.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D);
+	shaderScreen_.build("../Shaders/V_screenTexture.glsl", "../Shaders/F_screenTexture.glsl"); //unused
+	postFilterShader_.build("../Shaders/V_screenTexture.glsl", "../Shaders/F_screenTexture_postFiltering.glsl");
+	tex1_.load("../Assets/_basic/container.jpg", GL_TEXTURE_2D); //for testnf unused
 
 	//TEXTURE
+	res_ = 2.0f;
+	preview_res_ = 0.25;
 	glGenTextures(1, &texColorBuffer_);
 	glBindTexture(GL_TEXTURE_2D, texColorBuffer_);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getHeight() * res_, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST
 	glBindTexture(GL_TEXTURE_2D, 0); //unbind just in case
 
 	//FRAME BUFFER
@@ -50,7 +53,7 @@ FrameBuffering::FrameBuffering(Node * father) : Node(father) {
 	unsigned int rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getHeight() * res_);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0); //unbind
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 	//..delete render buffer
@@ -71,10 +74,14 @@ FrameBuffering::~FrameBuffering() {
 
 void FrameBuffering::bindFrameBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+	glViewport(0, 0, Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getWidth() * res_);
 }
 
 void FrameBuffering::render() {
-	shaderScreen_.bind();
+	postFilterShader_.bind();
+	postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f);
+	postFilterShader_.setInt("option", 3);
+	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
 
 	glBindVertexArray(VAO_);
 	//glDisable(GL_DEPTH_TEST);
@@ -86,4 +93,9 @@ void FrameBuffering::render() {
 	//glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	postFilterShader_.setInt("option", 0);
+	glViewport(0, 0, Window_SDL_GL::getWidth() *preview_res_, Window_SDL_GL::getWidth() *preview_res_);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
 }
