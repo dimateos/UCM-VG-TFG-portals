@@ -66,6 +66,9 @@
     <ClCompile Include="..\Src\Logic\Transformable.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\FrameBuffering.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="..\Src\Logic\Transformable.h">
       <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\FrameBuffering.h">
+      <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

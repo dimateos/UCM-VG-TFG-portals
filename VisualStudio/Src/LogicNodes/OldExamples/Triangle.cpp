@@ -34,4 +34,5 @@ void Triangle::render() {
 	glBindVertexArray(VAO_);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glBindVertexArray(UNBIND); //no need to unbind every time
 }

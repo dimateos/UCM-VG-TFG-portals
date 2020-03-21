@@ -30,6 +30,13 @@ bool Window_SDL_GL::init(const char* title, int w, int h, int x = 0, int y = 0, 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, GL_minor);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); //remove deprecated
 
+	// Turn on double buffering with a 24bit Z buffer
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4); //MSAA
+	//glEnable(GL_MULTISAMPLE);
+
 	//create opengl context
 	context_ = SDL_GL_CreateContext(window_);
 	if (context_ == nullptr) {

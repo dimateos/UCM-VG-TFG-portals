@@ -9,6 +9,8 @@ class Viewport;
 class Projection;
 class Camera;
 
+class FrameBuffering;
+
 class SampleScene : public Scene, Listener<SDL_Event>
 {
 public:
@@ -25,4 +27,6 @@ protected:
 	Viewport* vp_;
 	Projection* proj_;
 	Camera* cam_;
+
+	FrameBuffering* frameBuffering_;
 };

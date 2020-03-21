@@ -76,9 +76,9 @@ public:
 	inline glm::vec3 const& up() const { return local_trans_.rotation * Transformation::BASE_UP; }
 	inline glm::vec3 const& back() const { return local_trans_.rotation * Transformation::BASE_BACK; }
 
-	//look at? scene position¿ preserve scene position on add child?
 	//GLOBAL TRANFORMATION
-	//comparisons, copy constrs, etc
+	//comparisons, copy constrs, OPERATIONS
+	//look at? scene position¿ preserve scene position on add child?
 
 private:
 	glm::mat4 local_computedMatrix_, computedMatrix_;

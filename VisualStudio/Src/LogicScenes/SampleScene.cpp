@@ -4,6 +4,8 @@
 #include "../LogicNodes/InputCameraRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
 
+#include "../LogicNodes/FrameBuffering.h"
+
 #include "../Render/Texture.h"
 #include <glad\glad.h>
 
@@ -34,7 +36,7 @@ bool SampleScene::init() {
 	Node::ROOT_CAM = cam_;
 
 	//OBJECTS
-	glEnable(GL_DEPTH_TEST); //3d depth test
+	//glEnable(GL_DEPTH_TEST); //3d depth test
 	Texture::setFlipVerticallyOnLoad(); //texture loading
 
 	//simple cube
@@ -78,6 +80,9 @@ bool SampleScene::init() {
 	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_, false);
 	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
+	//FRAME BUFFERING
+	frameBuffering_ = new FrameBuffering(nullptr); //out of the tree
+
 	return true;
 }
 
@@ -101,12 +106,28 @@ void SampleScene::update() {
 	//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
 }
 
+//void SampleScene::render() {
+//	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//	Scene::render();
+//	frameBuffering_->render();
+//}
+
 void SampleScene::render() {
+	//FIRST PASS
+	frameBuffering_->bindFrameBuffer();
+	glEnable(GL_DEPTH_TEST); //3d depth test enabled
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
-	//glClear(GL_COLOR_BUFFER_BIT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Scene::render();
 
-	//glBindVertexArray(UNBIND); //no need to unbind every time
+	//SECOND PASS
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDisable(GL_DEPTH_TEST); //3d depth test disable (no need to clear the depth buffer)
+	//glClearColor(0.2f, 0.2f, 0.2f, 1.0); //no need because we draw the whole screen
+	//glClear(GL_COLOR_BUFFER_BIT);
+
+	frameBuffering_->render();
 }
