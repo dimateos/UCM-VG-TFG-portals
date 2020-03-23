@@ -51,9 +51,6 @@
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
       <Filter>LogicNodes\OldExamples</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\Cube.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
@@ -67,6 +64,15 @@
       <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\FrameBuffering.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Render\Mesh.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Render\Material.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\ShapeNode.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,9 +152,6 @@
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">
       <Filter>LogicNodes\OldExamples</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\Cube.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
@@ -162,6 +165,15 @@
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\FrameBuffering.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Mesh.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Render\Material.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\ShapeNode.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>

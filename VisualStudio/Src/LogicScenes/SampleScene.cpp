@@ -1,6 +1,6 @@
 #include "SampleScene.h"
 
-#include "../LogicNodes/Cube.h"
+#include "../LogicNodes/ShapeNode.h"
 #include "../LogicNodes/InputCameraRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
 
@@ -35,27 +35,45 @@ bool SampleScene::init() {
 	cam_ = new Camera(vp_, proj_);
 	Node::ROOT_CAM = cam_;
 
+	//COMMON TEXTURES AND MATERIALS
+	//really badly placed here but for now
+
+	Texture::setFlipVerticallyOnLoad(); //texture loading
+	checkersTex_.load("../Assets/checker_gray.bmp", GL_TEXTURE_2D);
+	blankTex_.load("../Assets/blank_white.bmp", GL_TEXTURE_2D);
+
+	SolidMaterial::SOLID_MAT_SHADER.build("../Shaders/_basic/V_3D.glsl", "../Shaders/_basic/F_solid.glsl");
+	SolidMaterial::SOLID_MAT_SHADER.bind();
+	SolidMaterial::UNIFORM_COLOR = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("color");
+	SolidMaterial::SOLID_MAT_SHADER.setInt("texture0", 0);
+
+	uniformModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("model");
+	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
+	glUniformMatrix4fv(SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection"), 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
+
 	//OBJECTS
 	//glEnable(GL_DEPTH_TEST); //3d depth test
-	Texture::setFlipVerticallyOnLoad(); //texture loading
+	auto mesh = new CubeMesh();
+	auto mat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
+	auto cube = new ShapeNode(world_node_, mesh, mat);
 
 	//simple cube
-	auto cube = new Cube(world_node_);
+	//auto cube = new ShapeNode(world_node_);
 	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
 	//cube->setLocalScaleY(2.0f);
 	//cube->pitch(180.0f);
 	//cube->yaw(90.0f);
 
 	//directions of space
-	auto cubeSon = new Node(cube);
-	cubeSon->scale(0.25f);
-	float f = 1.5f / cubeSon->getLocalScaleX();
-	auto cubeRight = new Cube(cubeSon);
-	cubeRight->translate(Transformation::BASE_RIGHT * f);
-	auto cubeUp = new Cube(cubeSon);
-	cubeUp->translate(Transformation::BASE_UP * f);
-	auto cubeBack = new Cube(cubeSon);
-	cubeBack->translate(Transformation::BASE_BACK * f);
+	//auto cubeSon = new Node(cube);
+	//cubeSon->scale(0.25f);
+	//float f = 1.5f / cubeSon->getLocalScaleX();
+	//auto cubeRight = new ShapeNode(cubeSon);
+	//cubeRight->translate(Transformation::BASE_RIGHT * f);
+	//auto cubeUp = new ShapeNode(cubeSon);
+	//cubeUp->translate(Transformation::BASE_UP * f);
+	//auto cubeBack = new ShapeNode(cubeSon);
+	//cubeBack->translate(Transformation::BASE_BACK * f);
 
 	//transforming a father to see how transforms chain
 	//auto cubeFather = new Node(world_node_);
@@ -115,12 +133,18 @@ void SampleScene::update() {
 //}
 
 void SampleScene::render() {
+	//CONFIG COMMON SHADER
+	SolidMaterial::SOLID_MAT_SHADER.bind();
+	//movable camera
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
+
 	//FIRST PASS
 	frameBuffering_->bindFrameBuffer();
 	glEnable(GL_DEPTH_TEST); //3d depth test enabled
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//edited virtual render_rec
 	Scene::render();
 
 	//SECOND PASS
@@ -130,4 +154,11 @@ void SampleScene::render() {
 	//glClear(GL_COLOR_BUFFER_BIT);
 
 	frameBuffering_->render();
+}
+
+void SampleScene::render_rec(Node * n) {
+	//movable model
+	glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, n->getModelMatrix_ptr());
+	n->render();
+	for (auto c : n->getChildren()) render_rec(c);
 }

@@ -24,7 +24,7 @@ protected:
 	App* app_;
 
 	//change for iterative over a vector
-	void release_rec(Node* n);
-	void update_rec(Node* n);
-	void render_rec(Node* n);
+	virtual void release_rec(Node* n);
+	virtual void update_rec(Node* n);
+	virtual void render_rec(Node* n);
 };

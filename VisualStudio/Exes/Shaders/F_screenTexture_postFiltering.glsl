@@ -1,7 +1,6 @@
 #version 330 core
-out vec4 FragColor;
-
 in vec2 TexCoords;
+out vec4 FragColor;
 
 uniform sampler2D screenTexture;
 
@@ -27,7 +26,6 @@ const float kernel_sharpen[9] = float[](
     1, 8, 1,
     1, 1, 1
 );
-
 const float kernel_edges[9] = float[](
     -1, -1, -1,
     -1,  9, -1,
