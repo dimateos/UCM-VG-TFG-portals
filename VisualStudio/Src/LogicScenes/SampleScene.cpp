@@ -31,7 +31,7 @@ bool SampleScene::init() {
 
 	//CAMERA
 	vp_ = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
-	proj_ = new Projection(vp_->getAspect());
+	proj_ = new Projection(vp_->getAspect(), 90.0f);
 	cam_ = new Camera(vp_, proj_);
 	Node::ROOT_CAM = cam_;
 
@@ -53,9 +53,28 @@ bool SampleScene::init() {
 
 	//OBJECTS
 	//glEnable(GL_DEPTH_TEST); //3d depth test
-	auto mesh = new CubeMesh();
-	auto mat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
-	auto cube = new ShapeNode(world_node_, mesh, mat);
+	auto cubeMesh = new CubeMesh();
+	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
+	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
+	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
+	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
+	auto cyanCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.8f), &checkersTex_);
+
+	auto redCube = new ShapeNode(world_node_, cubeMesh, redCheckerMat);
+	auto redFloor = new ShapeNode(world_node_, cubeMesh, orangeCheckerMat);
+	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
+	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
+
+	auto blueCube = new ShapeNode(world_node_, cubeMesh, blueCheckerMat);
+	blueCube->translateX(10.0f);
+	auto blueFloor = new ShapeNode(world_node_, cubeMesh, cyanCheckerMat);
+	blueFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
+	blueFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
+	blueFloor->translateX(10.0f);
+
+	auto whiteFloor = new ShapeNode(world_node_, cubeMesh, whiteCheckerMat);
+	whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
+	whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
 	//simple cube
 	//auto cube = new ShapeNode(world_node_);

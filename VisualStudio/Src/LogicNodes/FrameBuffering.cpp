@@ -8,25 +8,7 @@
 
 FrameBuffering::FrameBuffering(Node * father) : Node(father) {
 	//MESH
-	glGenBuffers(1, &VBO_);
-	glGenBuffers(1, &EBO_);
-	glGenVertexArrays(1, &VAO_);
-
-	// 1. bind Vertex Array Object
-	glBindVertexArray(VAO_);
-	// 2. copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(square_tex_vertices_), square_tex_vertices_, GL_STATIC_DRAW);
-	// 2.5. set index orders
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_), indices_, GL_STATIC_DRAW);
-
-	// 3. then set our vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	mesh_ = new PlaneMesh();
 
 	//SHADER
 	shaderScreen_.build("../Shaders/V_screenTexture.glsl", "../Shaders/F_screenTexture.glsl"); //unused
@@ -64,12 +46,7 @@ FrameBuffering::FrameBuffering(Node * father) : Node(father) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind
 }
 FrameBuffering::~FrameBuffering() {
-	glDeleteVertexArrays(1, &VAO_);
-	glDeleteBuffers(1, &EBO_);
-	glDeleteBuffers(1, &VBO_);
-
-	glDeleteTextures(1, &texColorBuffer_);
-	glDeleteFramebuffers(1, &framebuffer_);
+	delete mesh_;
 }
 
 void FrameBuffering::bindFrameBuffer() {
@@ -80,22 +57,20 @@ void FrameBuffering::bindFrameBuffer() {
 void FrameBuffering::render() {
 	postFilterShader_.bind();
 	postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f);
-	postFilterShader_.setInt("option", 3);
+	postFilterShader_.setInt("option", 0);
 	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
 
-	glBindVertexArray(VAO_);
 	//glDisable(GL_DEPTH_TEST);
 	glActiveTexture(GL_TEXTURE0); //other shaders may have changed this
 	glBindTexture(GL_TEXTURE_2D, texColorBuffer_);
 	//glBindTexture(GL_TEXTURE_2D, tex1_.getID());
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //to check the quad on top
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	mesh_->draw();
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	postFilterShader_.setInt("option", 0);
+	postFilterShader_.setInt("option", 2);
 	glViewport(0, 0, Window_SDL_GL::getWidth() *preview_res_, Window_SDL_GL::getWidth() *preview_res_);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	mesh_->draw();
 	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
 }
