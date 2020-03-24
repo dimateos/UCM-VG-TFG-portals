@@ -5,12 +5,16 @@
 class RenderTarget
 {
 public:
-	RenderTarget(Viewport* vp);
+	RenderTarget();
 	~RenderTarget();
 	void free();
 
-	void bind();
+	bool create(Viewport* vp);
+	bool setDefault(Viewport* vp);
+
+	void bind(bool enableDepthTest);
 	void unbind();
+	void clear(float r, float g, float b, int flags);
 
 	inline unsigned int getID() const { return ID_; };
 	inline Viewport* getVP() const { return vp_; }

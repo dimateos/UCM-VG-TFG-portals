@@ -27,11 +27,12 @@ public:
 
 protected:
 	//for now here
-	Viewport* vp_;
 	Projection* proj_;
 	Camera* cam_;
 
-	RenderTarget* rt_, rt_screen_;
+	Viewport *vp_screen_, *vp_PF_;
+	RenderTarget *rt_screen_, *rt_PF_;
+
 	ScreenPostFiltering* screenPF_;
 
 	//common here now

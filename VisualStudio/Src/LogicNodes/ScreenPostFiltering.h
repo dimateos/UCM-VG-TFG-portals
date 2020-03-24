@@ -27,8 +27,7 @@ protected:
 	RenderTarget* renderTarget_;
 	Mesh* mesh_;
 
-	float res_, preview_res_; //resolution for the texture (multi/down sampling)
-
+	float preview_res_; //resolution for the texture small preview (unused)
 	bool readingInput_ = false;
 	int option_ = 0;
 };

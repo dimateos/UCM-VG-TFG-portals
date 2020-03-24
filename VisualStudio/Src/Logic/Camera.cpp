@@ -4,7 +4,7 @@
 #include <gtc/type_ptr.hpp>
 using namespace glm;
 
-Camera::Camera(Viewport * vp, Projection* proj) : Node(&Node::ROOT), vp_(vp), proj_(proj) {}
+Camera::Camera(Projection* proj) : Node(&Node::ROOT), proj_(proj) {}
 Camera::~Camera() {}
 
 glm::mat4 const& Camera::getViewMatrix() {

@@ -32,13 +32,20 @@ bool SampleScene::init() {
 	Platform_SDL::platformEventEmitter_.registerListener(this);
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
-	//CAMERA
-	vp_ = new Viewport(Window_SDL_GL::getWidth(), (float)Window_SDL_GL::getHeight());
-	proj_ = new Projection(vp_->getAspect(), 90.0f);
-	cam_ = new Camera(vp_, proj_);
-	Node::ROOT_CAM = cam_;
+	//TARGETS
+	vp_screen_ = new Viewport(Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
+	float resPF = 2.0f; //PostFiltering multi/down sampling
+	vp_PF_ = new Viewport(Window_SDL_GL::getWidth() * resPF, Window_SDL_GL::getHeight() * resPF);
 
-	rt_ = new RenderTarget();
+	rt_screen_ = new RenderTarget();
+	rt_screen_->setDefault(vp_screen_);
+	rt_PF_ = new RenderTarget();
+	rt_PF_->create(vp_PF_);
+
+	//CAMERA
+	proj_ = new Projection(vp_screen_->getAspect(), 90.0f);
+	cam_ = new Camera(proj_);
+	Node::ROOT_CAM = cam_;
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -58,7 +65,6 @@ bool SampleScene::init() {
 	glUniformMatrix4fv(SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection"), 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
 
 	//OBJECTS
-	//glEnable(GL_DEPTH_TEST); //3d depth test
 	auto cubeMesh = new CubeMesh();
 	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
@@ -124,7 +130,7 @@ bool SampleScene::init() {
 	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
 	//FRAME BUFFERING
-	screenPF_ = new ScreenPostFiltering(nullptr, rt_); //out of the tree
+	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
 
 	return true;
 }
@@ -156,26 +162,13 @@ void SampleScene::render() {
 	//movable camera
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
-	//FIRST PASS
-	rt_->bind();
-	glEnable(GL_DEPTH_TEST); //3d depth test enabled
+	//LAST PASS - postfilters
+	rt_PF_->bind(true); //3d depth test enabled
+	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Scene::render(); //edited virtual render_rec
 
-	float res_ = 2.0f;
-	glViewport(0, 0, Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getWidth() * res_);
-
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//edited virtual render_rec
-	Scene::render();
-
-	//LAST PASS
-	rt_->unbind();
-	glDisable(GL_DEPTH_TEST); //3d depth test disable (no need to clear the depth buffer)
-	//glClearColor(0.2f, 0.2f, 0.2f, 1.0); //no need because we draw the whole screen
-	//glClear(GL_COLOR_BUFFER_BIT);
-
-	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
+	//SCREEN PASS
+	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
 	screenPF_->render();
 }
 

@@ -18,9 +18,8 @@ ScreenPostFiltering::ScreenPostFiltering(Node * father, RenderTarget* renderTarg
 	setOption(0);
 
 	//TEXTURE
-	res_ = 2.0f;
 	preview_res_ = 0.25;
-	rtt_.createRenderTargetTexture(renderTarget_->getID(), Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getHeight() * res_);
+	rtt_.createRenderTargetTexture(renderTarget_->getID(), renderTarget_->getVP()->getW(), renderTarget_->getVP()->getH());
 }
 ScreenPostFiltering::~ScreenPostFiltering() {
 	delete mesh_;
