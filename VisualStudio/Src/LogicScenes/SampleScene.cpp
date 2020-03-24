@@ -42,10 +42,16 @@ bool SampleScene::init() {
 	rt_PF_ = new RenderTarget();
 	rt_PF_->create(vp_PF_);
 
+	//FRAME BUFFERING
+	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
+
 	//CAMERA
 	proj_ = new Projection(vp_screen_->getAspect(), 90.0f);
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
+
+	//glDisable(GL_CULL_FACE); //cube not correct vertices
+	//glEnable(GL_CULL_FACE);
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -66,11 +72,11 @@ bool SampleScene::init() {
 
 	//OBJECTS
 	auto cubeMesh = new CubeMesh();
-	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
 	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
 	auto cyanCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.8f), &checkersTex_);
+	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 
 	auto redCube = new ShapeNode(world_node_, cubeMesh, redCheckerMat);
 	auto redFloor = new ShapeNode(world_node_, cubeMesh, orangeCheckerMat);
@@ -88,6 +94,23 @@ bool SampleScene::init() {
 	whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
 	whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
+	//RENDER PANEL
+	rt_renderPanel_ = new RenderTarget();
+	rt_renderPanel_->create(vp_screen_);
+	renderTex_ = new Texture();
+	renderTex_->createRenderTargetTexture(rt_renderPanel_->getID(), rt_renderPanel_->getVP()->getW(), rt_renderPanel_->getVP()->getH());
+
+	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
+	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
+
+	auto planeMesh = new PlaneMesh();
+	renderPanel_ = new ShapeNode(world_node_, planeMesh, renderMat_);
+	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
+	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
+	renderPanel_->translateY(2);
+	//renderPanel->pitch(90);
+
+	//OTHER TESTING OBJECTS
 	//simple cube
 	//auto cube = new ShapeNode(world_node_);
 	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
@@ -129,9 +152,6 @@ bool SampleScene::init() {
 	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_, false);
 	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
-	//FRAME BUFFERING
-	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
-
 	return true;
 }
 
@@ -142,6 +162,11 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
 		app_->stop();
+		return true;
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
+		if (renderPanel_->mat_ == renderMat_) renderPanel_->mat_ = pinkMat_;
+		else renderPanel_->mat_ = renderMat_;
 		return true;
 	}
 
@@ -169,6 +194,10 @@ void SampleScene::render() {
 
 	//SCREEN PASS
 	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
+	screenPF_->render();
+
+	//EXTRA PASS
+	rt_renderPanel_->bind(false); //3d depth test disable (no need to clear the depth buffer)
 	screenPF_->render();
 }
 

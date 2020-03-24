@@ -9,6 +9,8 @@ class Viewport;
 class Projection;
 class Camera;
 class RenderTarget;
+class ShapeNode;
+class Texture;
 
 #include "../Render/Material.h"
 class ScreenPostFiltering;
@@ -34,6 +36,12 @@ protected:
 	RenderTarget *rt_screen_, *rt_PF_;
 
 	ScreenPostFiltering* screenPF_;
+
+	//render panelling
+	ShapeNode* renderPanel_;
+	SolidMaterial *pinkMat_, *renderMat_;
+	RenderTarget *rt_renderPanel_;
+	Texture *renderTex_;
 
 	//common here now
 	Texture checkersTex_, blankTex_;

@@ -31,6 +31,10 @@ void ScreenPostFiltering::setOption(int n) {
 	postFilterShader_.setInt("option", option_);
 }
 
+Texture * ScreenPostFiltering::getTexture() {
+	return &rtt_;
+}
+
 bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
