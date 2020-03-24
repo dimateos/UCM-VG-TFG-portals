@@ -35,16 +35,24 @@ void Texture::free() {
 	}
 }
 
-bool Texture::load(const std::string & path, int textureType) {
+bool Texture::generate(int textureType) {
 	if (ID_ != -1) {
 		std::cout << "WARINING::TEXTURE::ALREADYLOADED\n" << std::endl;
-		loadError(path);
+		return false;
 	}
 	textureType_ = textureType; //no checking if correct type because not using enums - meh
 
 	//generate buffers
 	glGenTextures(1, &ID_);
 	glBindTexture(textureType_, ID_);
+	return true;
+}
+
+bool Texture::load(const std::string & path, int textureType) {
+	if (!generate(textureType)) {
+		loadError(path);
+		return false;
+	}
 
 	//set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(textureType_, GL_TEXTURE_WRAP_S, DEFAULT_textureWrap_S);
@@ -79,8 +87,51 @@ bool Texture::load(const std::string & path, int textureType) {
 	}
 
 	stbi_image_free(data);
+	unbind();
 	return true;
 }
+bool Texture::createRenderTargetTexture(unsigned int framebufferID, int width, int height) {
+	if (!generate(GL_TEXTURE_2D)) {
+		std::cout << "ERROR::TEXTURE:: Render target texture creation\n" << std::endl;
+		return false;
+	}
+
+	//texture vars
+	nrChannels_ = 3;
+	colorMode_ = GL_RGB;
+	width_ = width;
+	height_ = height;
+
+	//texture with no data
+	glTexImage2D(textureType_, 0, colorMode_, width, height, 0, colorMode_, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(textureType_, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST
+	glTexParameteri(textureType_, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST
+
+	//available depth test
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); //basic size
+	glBindRenderbuffer(GL_RENDERBUFFER, 0); //unbind
+	//..delete render buffer
+
+	// attach them to currently bound framebuffer object
+	glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureType_, ID_, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	//check errors
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		return false;
+	}
+
+	//left unbinded
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind
+	unbind();
+	return true;
+}
+
 bool Texture::loadError(const std::string & path) const {
 	std::cout << path << std::endl;
 	std::cout << "/////////////////////////////////////////////////////////////" << std::endl << std::endl;

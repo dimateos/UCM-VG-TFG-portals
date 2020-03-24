@@ -11,8 +11,8 @@ public:
 	InputCameraRotation(Node* father, Camera* cam);
 	virtual ~InputCameraRotation();
 
-	virtual void update();
 	virtual bool handleEvent(SDL_Event const & e);
+	virtual void update();
 
 protected:
 	Camera * cam_;

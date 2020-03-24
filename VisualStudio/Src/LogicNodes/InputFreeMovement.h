@@ -11,8 +11,8 @@ public:
 	InputFreeMovement(Node* father, Node* target, Node * rotationReference, bool disable_rotation);
 	virtual ~InputFreeMovement();
 
-	virtual void update();
 	virtual bool handleEvent(SDL_Event const & e);
+	virtual void update();
 
 protected:
 	Node *target_, *rotationReference_;

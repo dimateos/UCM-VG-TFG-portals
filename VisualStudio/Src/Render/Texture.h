@@ -11,6 +11,9 @@ public:
 	//load the texture
 	bool load(const std::string &path, int textureType);
 
+	//atm here, but may be a virtual texture with a wrapping interface for all
+	bool createRenderTargetTexture(unsigned int framebufferID, int width, int height);
+
 	// use/activate the texture
 	void bind(unsigned int unit = 0);
 	void unbind();
@@ -35,6 +38,8 @@ protected:
 	unsigned int ID_ = -1;
 	int colorMode_, textureType_;
 	int width_, height_, nrChannels_;
+
+	bool generate(int textureType);
 
 	//informative errors
 	bool loadError(const std::string & path) const;

@@ -175,7 +175,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\ShapeNode.cpp" />
-    <ClCompile Include="..\Src\LogicNodes\FrameBuffering.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\ScreenPostFiltering.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputCameraRotation.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp" />
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
@@ -219,6 +219,7 @@
     <ClCompile Include="..\Src\Render\Material.cpp" />
     <ClCompile Include="..\Src\Render\Mesh.cpp" />
     <ClCompile Include="..\Src\Render\Projection.cpp" />
+    <ClCompile Include="..\Src\Render\RenderTarget.cpp" />
     <ClCompile Include="..\Src\Render\Shader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -236,7 +237,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\ShapeNode.h" />
-    <ClInclude Include="..\Src\LogicNodes\FrameBuffering.h" />
+    <ClInclude Include="..\Src\LogicNodes\ScreenPostFiltering.h" />
     <ClInclude Include="..\Src\LogicNodes\InputCameraRotation.h" />
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h" />
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">
@@ -278,6 +279,7 @@
     <ClInclude Include="..\Src\Render\Material.h" />
     <ClInclude Include="..\Src\Render\Mesh.h" />
     <ClInclude Include="..\Src\Render\Projection.h" />
+    <ClInclude Include="..\Src\Render\RenderTarget.h" />
     <ClInclude Include="..\Src\Render\Shader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

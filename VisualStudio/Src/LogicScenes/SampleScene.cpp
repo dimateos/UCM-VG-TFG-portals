@@ -4,7 +4,8 @@
 #include "../LogicNodes/InputCameraRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
 
-#include "../LogicNodes/FrameBuffering.h"
+#include "../LogicNodes/ScreenPostFiltering.h"
+#include "../Render/RenderTarget.h"
 
 #include "../Render/Texture.h"
 #include <glad\glad.h>
@@ -20,7 +21,9 @@
 
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
-SampleScene::~SampleScene() {}
+SampleScene::~SampleScene() {
+	//delete all new
+}
 
 bool SampleScene::init() {
 	Scene::init();
@@ -34,6 +37,8 @@ bool SampleScene::init() {
 	proj_ = new Projection(vp_->getAspect(), 90.0f);
 	cam_ = new Camera(vp_, proj_);
 	Node::ROOT_CAM = cam_;
+
+	rt_ = new RenderTarget();
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -49,6 +54,7 @@ bool SampleScene::init() {
 
 	uniformModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("model");
 	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
+	//fixed projection
 	glUniformMatrix4fv(SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection"), 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
 
 	//OBJECTS
@@ -118,7 +124,7 @@ bool SampleScene::init() {
 	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
 
 	//FRAME BUFFERING
-	frameBuffering_ = new FrameBuffering(nullptr); //out of the tree
+	screenPF_ = new ScreenPostFiltering(nullptr, rt_); //out of the tree
 
 	return true;
 }
@@ -143,36 +149,34 @@ void SampleScene::update() {
 	//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
 }
 
-//void SampleScene::render() {
-//	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//	Scene::render();
-//	frameBuffering_->render();
-//}
-
 void SampleScene::render() {
-	//CONFIG COMMON SHADER
+	//CONFIG COMMON SHADER here for now
 	SolidMaterial::SOLID_MAT_SHADER.bind();
+
 	//movable camera
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
 	//FIRST PASS
-	frameBuffering_->bindFrameBuffer();
+	rt_->bind();
 	glEnable(GL_DEPTH_TEST); //3d depth test enabled
+
+	float res_ = 2.0f;
+	glViewport(0, 0, Window_SDL_GL::getWidth() * res_, Window_SDL_GL::getWidth() * res_);
+
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//edited virtual render_rec
 	Scene::render();
 
-	//SECOND PASS
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//LAST PASS
+	rt_->unbind();
 	glDisable(GL_DEPTH_TEST); //3d depth test disable (no need to clear the depth buffer)
 	//glClearColor(0.2f, 0.2f, 0.2f, 1.0); //no need because we draw the whole screen
 	//glClear(GL_COLOR_BUFFER_BIT);
 
-	frameBuffering_->render();
+	glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
+	screenPF_->render();
 }
 
 void SampleScene::render_rec(Node * n) {

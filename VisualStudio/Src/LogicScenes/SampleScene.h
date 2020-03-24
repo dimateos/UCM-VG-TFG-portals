@@ -8,9 +8,10 @@ typedef union SDL_Event; //forwarded
 class Viewport;
 class Projection;
 class Camera;
+class RenderTarget;
 
 #include "../Render/Material.h"
-class FrameBuffering;
+class ScreenPostFiltering;
 
 class SampleScene : public Scene, Listener<SDL_Event>
 {
@@ -30,10 +31,11 @@ protected:
 	Projection* proj_;
 	Camera* cam_;
 
+	RenderTarget* rt_, rt_screen_;
+	ScreenPostFiltering* screenPF_;
+
 	//common here now
 	Texture checkersTex_, blankTex_;
 	unsigned int uniformModel_, uniformView_;
 	virtual void render_rec(Node* n);
-
-	FrameBuffering* frameBuffering_;
 };
