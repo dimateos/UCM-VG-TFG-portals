@@ -76,6 +76,7 @@ bool SampleScene::init() {
 	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
 	auto cyanCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.8f), &checkersTex_);
+	auto greenCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.2f), &checkersTex_);
 	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 
 	auto redCube = new ShapeNode(world_node_, cubeMesh, redCheckerMat);
@@ -110,6 +111,19 @@ bool SampleScene::init() {
 	renderPanel_->translateY(2);
 	//renderPanel->pitch(90);
 
+	//REFERENCE AXIS
+	auto axisMesh = new AxisMesh();
+	auto axisRGB = new ShapeNode(world_node_, axisMesh, pinkMat_);
+	auto axisSon = new Node(axisRGB);
+	axisSon->scale(0.25f);
+	float f = 1.0f / axisSon->getLocalScaleX();
+	auto cubeRight = new ShapeNode(axisSon, cubeMesh, redCheckerMat);
+	cubeRight->translate(Transformation::BASE_RIGHT * f);
+	auto cubeUp = new ShapeNode(axisSon, cubeMesh, greenCheckerMat);
+	cubeUp->translate(Transformation::BASE_UP * f);
+	auto cubeBack = new ShapeNode(axisSon, cubeMesh, blueCheckerMat);
+	cubeBack->translate(Transformation::BASE_BACK * f);
+
 	//OTHER TESTING OBJECTS
 	//simple cube
 	//auto cube = new ShapeNode(world_node_);
@@ -117,17 +131,6 @@ bool SampleScene::init() {
 	//cube->setLocalScaleY(2.0f);
 	//cube->pitch(180.0f);
 	//cube->yaw(90.0f);
-
-	//directions of space
-	//auto cubeSon = new Node(cube);
-	//cubeSon->scale(0.25f);
-	//float f = 1.5f / cubeSon->getLocalScaleX();
-	//auto cubeRight = new ShapeNode(cubeSon);
-	//cubeRight->translate(Transformation::BASE_RIGHT * f);
-	//auto cubeUp = new ShapeNode(cubeSon);
-	//cubeUp->translate(Transformation::BASE_UP * f);
-	//auto cubeBack = new ShapeNode(cubeSon);
-	//cubeBack->translate(Transformation::BASE_BACK * f);
 
 	//transforming a father to see how transforms chain
 	//auto cubeFather = new Node(world_node_);
@@ -139,14 +142,17 @@ bool SampleScene::init() {
 
 	//PLAYER
 	auto player = new Node(world_node_);
-	player->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
+	player->setLocalPos(glm::vec3(0.f, 0.f, 10.f));
 	//player->yaw(20);
 	//player->scale(0.8f);
 
+	auto playerBody = new ShapeNode(player, cubeMesh, redCheckerMat);
+	playerBody->scale(0.2);
+
 	//edit camera
 	cam_->setFather(player);
+	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
 	//cam_->yaw(20);
-	//cam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
 
 	//INPUT
 	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_, false);
