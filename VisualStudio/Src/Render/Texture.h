@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+class RenderTarget;
+
 class Texture
 {
 public:
@@ -13,6 +15,7 @@ public:
 
 	//atm here, but may be a virtual texture with a wrapping interface for all
 	bool createRenderTargetTexture(unsigned int framebufferID, int width, int height);
+	bool createRenderTargetTexture(const RenderTarget * rt);
 
 	// use/activate the texture
 	void bind(unsigned int unit = 0);

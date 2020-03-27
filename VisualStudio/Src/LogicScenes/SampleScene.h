@@ -43,6 +43,13 @@ protected:
 	RenderTarget *rt_renderPanel_;
 	Texture *renderTex_;
 
+	//render portal
+	ShapeNode* portalPanel_;
+	SolidMaterial *portalMat_;
+	RenderTarget *rt_portalPanel_;
+	Texture *portalTex_;
+	Camera* portalCam_;
+
 	//common here now
 	Texture checkersTex_, blankTex_;
 	unsigned int uniformModel_, uniformView_;

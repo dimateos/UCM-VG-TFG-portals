@@ -99,17 +99,29 @@ bool SampleScene::init() {
 	rt_renderPanel_ = new RenderTarget();
 	rt_renderPanel_->create(vp_screen_);
 	renderTex_ = new Texture();
-	renderTex_->createRenderTargetTexture(rt_renderPanel_->getID(), rt_renderPanel_->getVP()->getW(), rt_renderPanel_->getVP()->getH());
+	renderTex_->createRenderTargetTexture(rt_renderPanel_);
 
 	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
 	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
-
 	auto planeMesh = new PlaneMesh();
+
 	renderPanel_ = new ShapeNode(world_node_, planeMesh, renderMat_);
 	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
 	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
 	renderPanel_->translateY(2);
 	//renderPanel->pitch(90);
+
+	//PORTAL PANEL
+	rt_portalPanel_ = new RenderTarget();
+	rt_portalPanel_->create(vp_screen_);
+	portalTex_ = new Texture();
+	portalTex_->createRenderTargetTexture(rt_portalPanel_);
+	portalMat_ = new SolidMaterial(glm::vec3(0.9f), portalTex_);
+
+	portalPanel_ = new ShapeNode(world_node_, planeMesh, portalMat_);
+	portalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
+	portalPanel_->translateY(1);
+	portalPanel_->translateZ(5);
 
 	//REFERENCE AXIS
 	auto axisMesh = new AxisMesh();
@@ -147,12 +159,37 @@ bool SampleScene::init() {
 	//player->scale(0.8f);
 
 	auto playerBody = new ShapeNode(player, cubeMesh, redCheckerMat);
-	playerBody->scale(0.2);
+	playerBody->scale(0.5);
 
 	//edit camera
 	cam_->setFather(player);
 	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
-	//cam_->yaw(20);
+	//auto camBody_ = new ShapeNode(cam_, cubeMesh, redCheckerMat);
+	//camBody_->scale(0.5);
+
+	//PORTAL EXTRA CAMERA AND FAKE PLAYER
+	auto player2 = new Node(world_node_);
+	player2->setLocalPos(glm::vec3(0.f, 0.f, 10.f));
+	player2->translateX(10.0f);
+	//auto playerBody2 = new ShapeNode(player2, cubeMesh, blueCheckerMat);
+	//playerBody2->scale(0.5);
+
+	portalCam_ = new Camera(proj_);
+	portalCam_->setFather(player2);
+	portalCam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
+	//auto camBody_ = new ShapeNode(portalCam_, cubeMesh, blueCheckerMat);
+	//camBody_->scale(0.5);
+
+	auto axisRGB2 = new ShapeNode(player2, axisMesh, pinkMat_);
+	auto axisSon2 = new Node(axisRGB2);
+	axisSon2->scale(0.25f);
+	float f2 = 1.0f / axisSon2->getLocalScaleX();
+	auto cubeRight2 = new ShapeNode(axisSon2, cubeMesh, redCheckerMat);
+	cubeRight2->translate(Transformation::BASE_RIGHT * f2);
+	//auto cubeUp2 = new ShapeNode(axisSon2, cubeMesh, greenCheckerMat);
+	//cubeUp2->translate(Transformation::BASE_UP * f2);
+	auto cubeBack2 = new ShapeNode(axisSon2, cubeMesh, blueCheckerMat);
+	cubeBack2->translate(Transformation::BASE_BACK * f2);
 
 	//INPUT
 	auto inputMovementNode = new InputFreeMovement(world_node_, player, cam_, false);
@@ -171,8 +208,14 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
-		if (renderPanel_->mat_ == renderMat_) renderPanel_->mat_ = pinkMat_;
-		else renderPanel_->mat_ = renderMat_;
+		if (renderPanel_->mat_ == renderMat_) {
+			renderPanel_->mat_ = pinkMat_;
+			portalPanel_->mat_ = pinkMat_;
+		}
+		else {
+			renderPanel_->mat_ = renderMat_;
+			portalPanel_->mat_ = portalMat_;
+		}
 		return true;
 	}
 
@@ -190,6 +233,17 @@ void SampleScene::render() {
 	//CONFIG COMMON SHADER here for now
 	SolidMaterial::SOLID_MAT_SHADER.bind();
 
+	//PORTAL PANEL first
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, portalCam_->getViewMatrixPtr());
+	rt_PF_->bind(true); //3d depth test enabled
+	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Scene::render(); //edited virtual render_rec
+
+	//EXTRA PASS - copy texture (recycle buffer + avoid writing and reading same buffer)
+	rt_portalPanel_->bind(false);
+	screenPF_->render();
+	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind
+
 	//movable camera
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
@@ -198,12 +252,12 @@ void SampleScene::render() {
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Scene::render(); //edited virtual render_rec
 
-	//SCREEN PASS
-	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
+	//EXTRA PASS - copy texture (avoid writing and reading same buffer)
+	rt_renderPanel_->bind(false);
 	screenPF_->render();
 
-	//EXTRA PASS
-	rt_renderPanel_->bind(false); //3d depth test disable (no need to clear the depth buffer)
+	//SCREEN PASS
+	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
 	screenPF_->render();
 }
 

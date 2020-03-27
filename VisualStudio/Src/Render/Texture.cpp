@@ -3,6 +3,8 @@
 #include <stb.h>
 #include <iostream>
 
+#include "RenderTarget.h"
+
 void Texture::setFlipVerticallyOnLoad(bool mode) {
 	stbi_set_flip_vertically_on_load(mode);
 }
@@ -130,6 +132,9 @@ bool Texture::createRenderTargetTexture(unsigned int framebufferID, int width, i
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind
 	unbind();
 	return true;
+}
+bool Texture::createRenderTargetTexture(const RenderTarget * rt) {
+	return createRenderTargetTexture(rt->getID(), rt->getVP()->getW(), rt->getVP()->getH());
 }
 
 bool Texture::loadError(const std::string & path) const {
