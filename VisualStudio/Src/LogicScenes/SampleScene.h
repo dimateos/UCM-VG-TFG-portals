@@ -11,6 +11,7 @@ class Camera;
 class RenderTarget;
 class ShapeNode;
 class Texture;
+class Mesh;
 
 #include "../Render/Material.h"
 class ScreenPostFiltering;
@@ -38,20 +39,21 @@ protected:
 	ScreenPostFiltering* screenPF_;
 
 	//render panelling
+	Mesh* planeMesh_;
 	ShapeNode* renderPanel_;
 	SolidMaterial *pinkMat_, *renderMat_;
 	RenderTarget *rt_renderPanel_;
 	Texture *renderTex_;
 
 	//blue render portal
+	Camera* bPortalCam_;
 	ShapeNode* bPortalPanel_;
 	SolidMaterial *bPortalMat_;
 	RenderTarget *rt_bPortalPanel_;
 	Texture *bPortalTex_;
 
-	Camera* portalCam_;
-
 	//red render portal
+	Camera* rPortalCam_;
 	ShapeNode* rPortalPanel_;
 	SolidMaterial *rPortalMat_;
 	RenderTarget *rt_rPortalPanel_;

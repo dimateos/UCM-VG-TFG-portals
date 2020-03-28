@@ -22,7 +22,7 @@ protected:
 	void applyFrameRotation();
 	void applyFrameTranslation();
 
-	float speed_ = 1, rotation_speed_ = 50, sprint_scaler_ = 3;
+	float speed_ = 2, rotation_speed_ = 50, sprint_scaler_ = 4;
 	bool sprint_toggleMode_ = false, rotate_toggleMode_ = true;
 
 	bool sprinting_ = false, rotating_ = false;

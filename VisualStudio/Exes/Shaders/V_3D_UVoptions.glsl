@@ -27,6 +27,6 @@ void main()
 
         //do not normalize to [0, 1] screen per vertex
             //it only works if polygons are facing the camera
-        // TexCoord /= w;
+        // TexCoord /= w; //w needs interpolation
     }
 }

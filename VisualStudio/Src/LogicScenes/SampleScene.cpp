@@ -106,9 +106,9 @@ bool SampleScene::init() {
 
 	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
 	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
-	auto planeMesh = new PlaneMesh();
+	planeMesh_ = new PlaneMesh();
 
-	renderPanel_ = new ShapeNode(world_node_, planeMesh, renderMat_);
+	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
 	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
 	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
 	renderPanel_->translateY(2);
@@ -119,10 +119,10 @@ bool SampleScene::init() {
 	rt_bPortalPanel_->create(vp_screen_);
 	bPortalTex_ = new Texture();
 	bPortalTex_->createRenderTargetTexture(rt_bPortalPanel_);
-	bPortalMat_ = new SolidMaterial(glm::vec3(0.9f), bPortalTex_);
+	bPortalMat_ = new SolidMaterial(glm::vec3(1.0f), bPortalTex_);
 	bPortalMat_->option_ = 1;
 
-	bPortalPanel_ = new ShapeNode(world_node_, planeMesh, bPortalMat_);
+	bPortalPanel_ = new ShapeNode(world_node_, planeMesh_, bPortalMat_);
 	bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
 	bPortalPanel_->translateZ(5);
@@ -142,14 +142,15 @@ bool SampleScene::init() {
 	bPortalBorderU->setLocalScaleX(rescale);
 
 	//RED PORTAL PANEL
-	//rt_bPortalPanel_ = new RenderTarget();
-	//rt_bPortalPanel_->create(vp_screen_);
-	//bPortalTex_ = new Texture();
-	//bPortalTex_->createRenderTargetTexture(rt_bPortalPanel_);
-	//bPortalMat_ = new SolidMaterial(glm::vec3(0.9f), bPortalTex_);
+	rt_rPortalPanel_ = new RenderTarget();
+	rt_rPortalPanel_->create(vp_screen_);
+	rPortalTex_ = new Texture();
+	rPortalTex_->createRenderTargetTexture(rt_rPortalPanel_);
+	rPortalMat_ = new SolidMaterial(glm::vec3(1.0f), rPortalTex_);
+	rPortalMat_->option_ = 1;
 
-	rPortalPanel_ = new ShapeNode(world_node_, planeMesh, bPortalMat_);
-	rPortalPanel_->mesh_ = nullptr;
+	rPortalPanel_ = new ShapeNode(world_node_, planeMesh_, rPortalMat_);
+	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	rPortalPanel_->translateX(10);
 
@@ -210,23 +211,31 @@ bool SampleScene::init() {
 	//auto camBody_ = new ShapeNode(cam_, cubeMesh, redCheckerMat);
 	//camBody_->scale(0.5);
 
-	//PORTAL EXTRA CAMERA
-	portalCam_ = new Camera(proj_);
-	portalCam_->setFather(rPortalPanel_);
-	//portalCam_->setLocalPos(glm::vec3(0.f, 0.f, 5.f));
-	//auto camBody_ = new ShapeNode(portalCam_, cubeMesh, blueCheckerMat);
-	//camBody_->scale(0.5);
+	//PORTAL EXTRA CAMERAS
+	bPortalCam_ = new Camera(proj_);
+	bPortalCam_->setFather(rPortalPanel_);
+	auto bAxisRGB = new ShapeNode(bPortalCam_, axisMesh, pinkMat_);
+	auto bAxisSon = new Node(bAxisRGB);
+	bAxisSon->scale(0.20f);
+	float f2 = 0.9f / bAxisSon->getLocalScaleX();
+	auto bCubeRight = new ShapeNode(bAxisSon, cubeMesh, redCheckerMat);
+	bCubeRight->translate(Transformation::BASE_RIGHT * f2);
+	auto bCubeUp = new ShapeNode(bAxisSon, cubeMesh, greenCheckerMat);
+	bCubeUp->translate(Transformation::BASE_UP * f2);
+	auto bCubeBack = new ShapeNode(bAxisSon, cubeMesh, blueCheckerMat);
+	bCubeBack->translate(Transformation::BASE_BACK * f2);
 
-	auto axisRGB2 = new ShapeNode(portalCam_, axisMesh, pinkMat_);
-	auto axisSon2 = new Node(axisRGB2);
-	axisSon2->scale(0.20f);
-	float f2 = 0.9f / axisSon2->getLocalScaleX();
-	auto cubeRight2 = new ShapeNode(axisSon2, cubeMesh, redCheckerMat);
-	cubeRight2->translate(Transformation::BASE_RIGHT * f2);
-	auto cubeUp2 = new ShapeNode(axisSon2, cubeMesh, greenCheckerMat);
-	cubeUp2->translate(Transformation::BASE_UP * f2);
-	auto cubeBack2 = new ShapeNode(axisSon2, cubeMesh, blueCheckerMat);
-	cubeBack2->translate(Transformation::BASE_BACK * f2);
+	rPortalCam_ = new Camera(proj_);
+	rPortalCam_->setFather(bPortalPanel_);
+	auto rAxisRGB = new ShapeNode(rPortalCam_, axisMesh, pinkMat_);
+	auto rAxisSon = new Node(rAxisRGB);
+	rAxisSon->scale(0.20f);
+	auto rCubeRight = new ShapeNode(rAxisSon, cubeMesh, redCheckerMat);
+	rCubeRight->translate(Transformation::BASE_RIGHT * f2);
+	auto rCubeUp = new ShapeNode(rAxisSon, cubeMesh, greenCheckerMat);
+	rCubeUp->translate(Transformation::BASE_UP * f2);
+	auto rCubeBack = new ShapeNode(rAxisSon, cubeMesh, blueCheckerMat);
+	rCubeBack->translate(Transformation::BASE_BACK * f2);
 
 	//INPUT
 	auto inputMovementNode = new InputFreeMovement(world_node_, player_, cam_, false);
@@ -257,10 +266,10 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_i) {
-		//only works once (no deep edited references)
+		//only works once (no deep edited references) used for some random test
 		Camera *aux = cam_;
-		cam_ = portalCam_;
-		portalCam_ = aux;
+		cam_ = bPortalCam_;
+		bPortalCam_ = aux;
 		return true;
 	}
 
@@ -279,28 +288,44 @@ void SampleScene::update() {
 
 	//set player2 position in rPortal local coordinates equal to (P)
 	//player2 is already child of portal
-	portalCam_->setLocalModelMatrix(localMat);
-	portalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
+	bPortalCam_->setLocalModelMatrix(localMat);
+	bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
+
+	//same for the other portal
+	rPortalCam_->setLocalModelMatrix(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+	rPortalCam_->setLocalModelMatrix_Inversed(cam_->getModelMatrix_Inversed() * rPortalPanel_->getModelMatrix());
 
 	//player2_->setLocalPos(player_->getLocalPos());
 	//player2_->translateX(10.0f);
 	//player2_->setLocalRot(player_->getLocalRot());
-
 	//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
 }
 
 void SampleScene::render() {
-	//CONFIG COMMON SHADER here for now
-	SolidMaterial::SOLID_MAT_SHADER.bind();
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, portalCam_->getViewMatrixPtr());
-
-	//PORTAL PANEL pass - draw scene in its buffer
+	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
+	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	rPortalPanel_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
+	rPortalPanel_->mesh_ = planeMesh_;
 
-	//EXTRA PASS - copy texture (recycle buffer + avoid writing and reading same buffer)
+	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_bPortalPanel_->bind(false);
+	screenPF_->render();
+
+	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
+	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
+	rt_PF_->bind(true); //3d depth test enabled
+	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	bPortalPanel_->mesh_ = nullptr;
+	Scene::render(); //edited virtual render_rec
+	bPortalPanel_->mesh_ = planeMesh_;
+
+	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
+	rt_rPortalPanel_->bind(false);
 	screenPF_->render();
 
 	//main camera active
