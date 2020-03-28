@@ -18,6 +18,11 @@ public:
 	glm::mat4 const& getModelMatrix_Inversed();
 	const glm::f32* getModelMatrix_Inversed_ptr();
 
+	//temporary manually set matrix
+	void setLocalModelMatrix(glm::mat4 const& mat);
+	void setLocalModelMatrix_Inversed(glm::mat4 const& mat);
+
+
 	//whole transformation interface
 	inline Transformation const& getLocalTrans() const { return local_trans_; }
 	inline void setLocalTrans(Transformation const& trans) { local_trans_ = trans; setOutDated(); }
@@ -88,6 +93,7 @@ private:
 	Transformable* father_transform_;
 
 	//keep the values up to date when requested
+	bool manualMatrix_ = false; //temporary use externally set matrix
 	enum Flag { MATRIX, MATRIX_INVERSED, _enum_Flag_COUNT_ };
 	bool outdated_flags_[_enum_Flag_COUNT_];
 	inline void setOutDated() { for (size_t i = 0; i < _enum_Flag_COUNT_; i++) outdated_flags_[i] = true; }

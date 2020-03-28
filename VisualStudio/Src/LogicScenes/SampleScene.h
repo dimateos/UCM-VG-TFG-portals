@@ -43,12 +43,22 @@ protected:
 	RenderTarget *rt_renderPanel_;
 	Texture *renderTex_;
 
-	//render portal
-	ShapeNode* portalPanel_;
-	SolidMaterial *portalMat_;
-	RenderTarget *rt_portalPanel_;
-	Texture *portalTex_;
+	//blue render portal
+	ShapeNode* bPortalPanel_;
+	SolidMaterial *bPortalMat_;
+	RenderTarget *rt_bPortalPanel_;
+	Texture *bPortalTex_;
+
 	Camera* portalCam_;
+
+	//red render portal
+	ShapeNode* rPortalPanel_;
+	SolidMaterial *rPortalMat_;
+	RenderTarget *rt_rPortalPanel_;
+	Texture *rPortalTex_;
+
+	//camera mimic
+	Node *player_;
 
 	//common here now
 	Texture checkersTex_, blankTex_;

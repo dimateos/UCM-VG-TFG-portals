@@ -18,6 +18,9 @@ void ShapeNode::render() {
 	//glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, getModelMatrix_ptr());
 
 	//draw
-	mat_->bind();
-	mesh_->draw();
+	if (mat_ != nullptr && mesh_ != nullptr) {
+		mat_->bind();
+		mesh_->draw();
+	}
+	else if (mesh_ != nullptr) mesh_->draw();
 }

@@ -64,11 +64,19 @@ void main()
 
     //kernel usage
     else if (option == 4) {
-    vec3 color = vec3(0.0);
-    for(int i = 0; i < 9; i++)
-        color += vec3(texture(screenTexture, TexCoords.st + offsets[i])) * kernel_edges[i];
+        vec3 color = vec3(0.0);
+        for(int i = 0; i < 9; i++)
+            color += vec3(texture(screenTexture, TexCoords.st + offsets[i])) * kernel_edges[i];
 
-    FragColor = vec4(color, 1.0);
+        FragColor = vec4(color, 1.0);
+    }
+
+    //limbo (draw linear depth) - doesnt work on the postfilter quad (no depth)
+    else if (option == 5) {
+        float near = 0.1, far  = 100.0;
+        float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
+        float linearZ = (2.0 * near * far) / (far + near - z * (far - near));
+        FragColor = vec4(vec3(linearZ / far), 1.0);
     }
 
     //no effect fallback

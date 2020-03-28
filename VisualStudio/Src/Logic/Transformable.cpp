@@ -17,7 +17,7 @@ void Transformable::forceUpdateTransformable() {
 }
 
 glm::mat4 const& Transformable::getModelMatrix() {
-	if (outdated_flags_[MATRIX]) {
+	if (!manualMatrix_ && outdated_flags_[MATRIX]) {
 		local_computedMatrix_ = local_trans_.matrix();
 		outdated_flags_[MATRIX] = false;
 	}
@@ -33,7 +33,7 @@ const glm::f32 * Transformable::getModelMatrix_ptr() {
 }
 
 glm::mat4 const& Transformable::getModelMatrix_Inversed() {
-	if (outdated_flags_[MATRIX_INVERSED]) {
+	if (!manualMatrix_ && outdated_flags_[MATRIX_INVERSED]) {
 		local_computedMatrix_Inversed_ = local_trans_.matrix_Inversed();
 		outdated_flags_[MATRIX_INVERSED] = false;
 	}
@@ -45,6 +45,16 @@ glm::mat4 const& Transformable::getModelMatrix_Inversed() {
 }
 const glm::f32 * Transformable::getModelMatrix_Inversed_ptr() {
 	return glm::value_ptr(getModelMatrix_Inversed());
+}
+
+void Transformable::setLocalModelMatrix(glm::mat4 const & mat) {
+	manualMatrix_ = true;
+	local_computedMatrix_ = mat;
+}
+
+void Transformable::setLocalModelMatrix_Inversed(glm::mat4 const & mat) {
+	manualMatrix_ = true;
+	local_computedMatrix_Inversed_ = mat;
 }
 
 
