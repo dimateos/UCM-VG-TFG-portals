@@ -22,8 +22,9 @@ public:
 	virtual void bind();
 
 	static Shader SOLID_MAT_SHADER; //for now
-	static unsigned int UNIFORM_COLOR;
+	static unsigned int UNIFORM_COLOR, UNIFORM_OPTION;
 
 	glm::vec3 color_;
 	Texture* tex_;
+	int option_ = 0; //quick hack to test shader options for portals
 };

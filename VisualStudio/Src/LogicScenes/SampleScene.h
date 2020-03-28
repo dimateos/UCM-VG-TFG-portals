@@ -62,6 +62,6 @@ protected:
 
 	//common here now
 	Texture checkersTex_, blankTex_;
-	unsigned int uniformModel_, uniformView_;
+	unsigned int uniformModel_, uniformView_, uniformProj_;
 	virtual void render_rec(Node* n);
 };

@@ -61,15 +61,17 @@ bool SampleScene::init() {
 	checkersTex_.load("../Assets/checker_gray.bmp", GL_TEXTURE_2D);
 	blankTex_.load("../Assets/blank_white.bmp", GL_TEXTURE_2D);
 
-	SolidMaterial::SOLID_MAT_SHADER.build("../Shaders/_basic/V_3D.glsl", "../Shaders/_basic/F_solid.glsl");
+	SolidMaterial::SOLID_MAT_SHADER.build("../Shaders/V_3D_UVoptions.glsl", "../Shaders/F_solid_UVoptions.glsl");
 	SolidMaterial::SOLID_MAT_SHADER.bind();
 	SolidMaterial::UNIFORM_COLOR = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("color");
+	SolidMaterial::UNIFORM_OPTION = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("option");
 	SolidMaterial::SOLID_MAT_SHADER.setInt("texture0", 0);
 
 	uniformModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("model");
 	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
-	//fixed projection
-	glUniformMatrix4fv(SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection"), 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
+	uniformProj_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection");
+	//fixed projection (ramains set to shader on binding / unbinding)
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
 
 	//OBJECTS
 	auto cubeMesh = new CubeMesh();
@@ -118,6 +120,7 @@ bool SampleScene::init() {
 	bPortalTex_ = new Texture();
 	bPortalTex_->createRenderTargetTexture(rt_bPortalPanel_);
 	bPortalMat_ = new SolidMaterial(glm::vec3(0.9f), bPortalTex_);
+	bPortalMat_->option_ = 1;
 
 	bPortalPanel_ = new ShapeNode(world_node_, planeMesh, bPortalMat_);
 	bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
@@ -249,7 +252,15 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		else {
 			renderPanel_->mat_ = renderMat_;
 			bPortalPanel_->mat_ = bPortalMat_;
+			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 		}
+		return true;
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_i) {
+		//only works once (no deep edited references)
+		Camera *aux = cam_;
+		cam_ = portalCam_;
+		portalCam_ = aux;
 		return true;
 	}
 
@@ -281,9 +292,9 @@ void SampleScene::update() {
 void SampleScene::render() {
 	//CONFIG COMMON SHADER here for now
 	SolidMaterial::SOLID_MAT_SHADER.bind();
-
-	//PORTAL PANEL first
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, portalCam_->getViewMatrixPtr());
+
+	//PORTAL PANEL pass - draw scene in its buffer
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Scene::render(); //edited virtual render_rec
@@ -291,21 +302,22 @@ void SampleScene::render() {
 	//EXTRA PASS - copy texture (recycle buffer + avoid writing and reading same buffer)
 	rt_bPortalPanel_->bind(false);
 	screenPF_->render();
-	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind
 
-	//movable camera
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
+	//main camera active
+	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
 
-	//LAST PASS - postfilters
+	//LAST PASS - all the portals have view textures
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Scene::render(); //edited virtual render_rec
 
-	//EXTRA PASS - copy texture (avoid writing and reading same buffer)
+	//EXTRA PASS - copy texture for the render panel (avoid writing and reading same buffer)
+	//no need of model uniform in the shaders
 	rt_renderPanel_->bind(false);
 	screenPF_->render();
 
-	//SCREEN PASS
+	//SCREEN PASS - with the postfilters
 	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
 	screenPF_->render();
 }
