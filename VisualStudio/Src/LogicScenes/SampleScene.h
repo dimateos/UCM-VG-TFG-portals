@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Logic/Scene.h"
+#include "../Logic/Transformation.h"
 
 #include "../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
@@ -12,6 +13,7 @@ class RenderTarget;
 class ShapeNode;
 class Texture;
 class Mesh;
+class InputFreeMovement;
 
 #include "../Render/Material.h"
 class ScreenPostFiltering;
@@ -61,6 +63,12 @@ protected:
 
 	//camera mimic
 	Node *player_;
+	InputFreeMovement* controller_;
+
+	//portal teleporting
+	float sqCloseDistance_ = 2*2;
+	glm::vec3 playerPosOld_;
+	glm::quat camRotOld_;
 
 	//common here now
 	Texture checkersTex_, blankTex_;

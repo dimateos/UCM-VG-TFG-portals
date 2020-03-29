@@ -14,8 +14,9 @@ public:
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void update();
 
-protected:
 	Node *target_, *rotationReference_;
+
+protected:
 	Transformation initialTrans_;
 
 	bool disable_rotation_; //maybe separated node?

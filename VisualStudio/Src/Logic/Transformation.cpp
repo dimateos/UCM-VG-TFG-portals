@@ -1,5 +1,6 @@
 #include "Transformation.h"
 
+#include <gtc/epsilon.hpp>
 #include <gtc/matrix_transform.hpp>
 using namespace glm;
 
@@ -30,4 +31,13 @@ glm::mat4 Transformation::matrix_Inversed() const {
 	glm::mat4 s = glm::scale(IDENTITY_MAT, 1.0f / scale);
 
 	return s * r * t;
+}
+
+bool Transformation::operator==(const Transformation & other) const {
+	return glm::all(glm::epsilonEqual(postion, other.postion, EPSILON))
+		&& glm::all(glm::epsilonEqual(rotation, other.rotation, EPSILON))
+		&& glm::all(glm::epsilonEqual(scale, other.scale, EPSILON));
+}
+bool Transformation::operator!=(const Transformation & other) const {
+	return !(*this == other);
 }
