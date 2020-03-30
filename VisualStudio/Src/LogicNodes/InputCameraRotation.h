@@ -14,11 +14,17 @@ public:
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void update();
 
+	void setInputRot(glm::quat const & q);
+
 protected:
 	Camera * cam_;
 	bool focus_ = true;
 
 	float sens_ = 1;
-	int rotY_ = 0, rotX_ = 0;
-	float total_rotY_ = 0, total_rotX_ = 0, maxRotX_ = 90;
+	int frame_yaw_ = 0, frame_pitch_ = 0;
+	float total_yaw_ = 0, total_pitch_ = 0;
+
+	bool cappedPitch_ = false;
+	float maxPitch_ = 90;
+	void capPitch();
 };

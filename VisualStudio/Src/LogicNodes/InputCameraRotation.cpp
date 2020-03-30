@@ -22,13 +22,13 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_MOUSEMOTION) {
-		rotY_ = e.motion.xrel;
-		rotX_ = e.motion.yrel;
+		frame_yaw_ = e.motion.xrel;
+		frame_pitch_ = e.motion.yrel;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LALT) {
 		focus_ = !focus_;
 		SDL_SetRelativeMouseMode(focus_ ? SDL_TRUE : SDL_FALSE);
-		rotY_ = rotX_ = 0;
+		frame_yaw_ = frame_pitch_ = 0;
 	}
 	else handled = false;
 
@@ -38,34 +38,72 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 
 void InputCameraRotation::update() {
 	if (!focus_) return;
-	if (rotY_ == 0 && rotX_ == 0) return;
+	if (frame_yaw_ == 0 && frame_pitch_ == 0) return;
+
+	//limit the vertical rotation (x axis)
+	if (frame_pitch_ != 0) {
+		total_pitch_ += sens_ * -frame_pitch_;
+		if (cappedPitch_) capPitch();
+		//ucapped may get over 360
+		else total_pitch_ = fmod(total_pitch_, 360.0f);
+
+		frame_pitch_ = 0;
+	}
 
 	//horizontal rotation
-	if (rotY_ != 0) {
-		float frame_rotY = sens_ * -rotY_;
-		total_rotY_ += frame_rotY;
+	if (frame_yaw_ != 0) {
+		if (cappedPitch_) total_yaw_ += sens_ * -frame_yaw_;
+		//with uncapped pitch maybe upside down yaw
+		else total_yaw_ += sens_ * (glm::abs(total_pitch_) < 90 ? -frame_yaw_ : frame_yaw_);
 
-		rotY_ = 0;
-	}
-	//limit the vertical rotation (x axis)
-	if (rotX_ != 0) {
-		float frame_rotX = sens_ * -rotX_;
-		total_rotX_ += frame_rotX;
-
-		if (total_rotX_ > maxRotX_) {
-			//frame_rotX -= total_rotX_ - maxRotX_;
-			total_rotX_ = maxRotX_;
-		}
-		else if (total_rotX_ < -maxRotX_) {
-			//frame_rotX -= total_rotX_ + maxRotX_;
-			total_rotX_ = -maxRotX_;
-		}
-
-		rotX_ = 0;
+		frame_yaw_ = 0;
+		total_yaw_ = fmod(total_yaw_, 360.0f); //better to store it clean?
 	}
 
 	//reset and apply frist yaw to avoid rolling
 	cam_->setLocalRot(Transformation::BASE_ROT);
-	cam_->yaw(total_rotY_);
-	cam_->pitch(total_rotX_);
+	cam_->yaw(total_yaw_);
+	cam_->pitch(total_pitch_);
+}
+
+void InputCameraRotation::setInputRot(glm::quat const & q) {
+	//return pitch(x), yaw(y), roll(z)
+	auto eulers = glm::degrees(glm::eulerAngles(q));
+	//printf("camera set: %f %f %f\n", eulers.x, eulers.y, eulers.z);
+
+	//possible undesired euler angles (non-null roll)
+	if (glm::abs(eulers.z) >= 90) { //epsilon compareison?
+		total_yaw_ = 180.f - eulers.y;
+		total_pitch_ = 180.f + eulers.x;
+
+		//possibly incorrect pitch sing (later capped by max pitch)
+		if (cappedPitch_) {
+			if (total_pitch_ > maxPitch_) {
+				total_pitch_ = -360 + total_pitch_;
+			}
+			else if (total_pitch_ < -maxPitch_) {
+				total_pitch_ = 360 + total_pitch_;
+			}
+		}
+		//printf("end %f %f\n", total_pitch_, total_yaw_);
+	}
+	else {
+		//printf("camera set - it was correct lol\n");
+		total_yaw_ = eulers.y;
+		total_pitch_ = eulers.x;
+	}
+
+	//update the rotation (maybe other logic node reads the camera before updated)
+	cam_->setLocalRot(Transformation::BASE_ROT);
+	cam_->yaw(total_yaw_);
+	cam_->pitch(total_pitch_);
+}
+
+void InputCameraRotation::capPitch() {
+	if (total_pitch_ > maxPitch_) {
+		total_pitch_ = maxPitch_;
+	}
+	else if (total_pitch_ < -maxPitch_) {
+		total_pitch_ = -maxPitch_;
+	}
 }
