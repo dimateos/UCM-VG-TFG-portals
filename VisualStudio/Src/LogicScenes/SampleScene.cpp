@@ -73,8 +73,10 @@ bool SampleScene::init() {
 	//fixed projection (ramains set to shader on binding / unbinding)
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
 
+	cubeMesh_ = new CubeMesh();
+	planeMesh_ = new PlaneMesh();
+
 	//OBJECTS
-	auto cubeMesh = new CubeMesh();
 	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
 	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
@@ -82,19 +84,19 @@ bool SampleScene::init() {
 	auto greenCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.2f), &checkersTex_);
 	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 
-	auto redCube = new ShapeNode(world_node_, cubeMesh, redCheckerMat);
-	auto redFloor = new ShapeNode(world_node_, cubeMesh, orangeCheckerMat);
+	auto redCube = new ShapeNode(world_node_, cubeMesh_, redCheckerMat);
+	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
 	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
 	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
 
-	auto blueCube = new ShapeNode(world_node_, cubeMesh, blueCheckerMat);
+	auto blueCube = new ShapeNode(world_node_, cubeMesh_, blueCheckerMat);
 	blueCube->translateX(10.0f);
-	auto blueFloor = new ShapeNode(world_node_, cubeMesh, cyanCheckerMat);
+	auto blueFloor = new ShapeNode(world_node_, cubeMesh_, cyanCheckerMat);
 	blueFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
 	blueFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
 	blueFloor->translateX(10.0f);
 
-	auto whiteFloor = new ShapeNode(world_node_, cubeMesh, whiteCheckerMat);
+	auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
 	whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
 	whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
@@ -106,7 +108,6 @@ bool SampleScene::init() {
 
 	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
 	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
-	planeMesh_ = new PlaneMesh();
 
 	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
 	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
@@ -122,22 +123,33 @@ bool SampleScene::init() {
 	bPortalMat_ = new SolidMaterial(glm::vec3(1.0f), bPortalTex_);
 	bPortalMat_->option_ = 1;
 
-	bPortalPanel_ = new ShapeNode(world_node_, planeMesh_, bPortalMat_);
+	auto bPortalFather_ = new ShapeNode(world_node_, cubeMesh_, bPortalMat_);
+
+	//bPortalPanel_ = new ShapeNode(world_node_, planeMesh_, bPortalMat_);
+	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
+	//bPortalPanel_->translateY(1);
+	//bPortalPanel_->translateZ(5);
+
+	bPortalPanel_ = new Node(world_node_);
 	bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
 	bPortalPanel_->translateZ(5);
+
+	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
+	bPortalCube_->setLocalScale(glm::vec3(1.75, 1.825, 0.1));
+	bPortalCube_->translateY(-0.05);
 
 	auto bPortalBorders = new Node(bPortalPanel_);
 	bPortalBorders->scale(0.25f);
 	float separation = 1.0f / bPortalBorders->getLocalScaleX();
 	float rescale = 2 / bPortalBorders->getLocalScaleX();
-	auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh, blueCheckerMat);
+	auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	bPortalBorderL->setLocalScaleY(rescale);
-	auto bPortalBorderR = new ShapeNode(bPortalBorders, cubeMesh, blueCheckerMat);
+	auto bPortalBorderR = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	bPortalBorderR->setLocalScaleY(rescale);
-	auto bPortalBorderU = new ShapeNode(bPortalBorders, cubeMesh, blueCheckerMat);
+	auto bPortalBorderU = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
 
@@ -153,19 +165,18 @@ bool SampleScene::init() {
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	rPortalPanel_->translateX(10);
-	rPortalPanel_->yaw(90.f);
-	rPortalPanel_->pitch(180.f);
-
+	rPortalPanel_->yaw(180.f);
+	//rPortalPanel_->pitch(180.f);
 
 	auto rPortalBorders = new Node(rPortalPanel_);
 	rPortalBorders->scale(0.25f);
-	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh, redCheckerMat);
+	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	rPortalBorderL->setLocalScaleY(rescale);
-	auto rPortalBorderR = new ShapeNode(rPortalBorders, cubeMesh, redCheckerMat);
+	auto rPortalBorderR = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	rPortalBorderR->setLocalScaleY(rescale);
-	auto rPortalBorderU = new ShapeNode(rPortalBorders, cubeMesh, redCheckerMat);
+	auto rPortalBorderU = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderU->translate(Transformation::BASE_UP * separation);
 	rPortalBorderU->setLocalScaleX(rescale);
 
@@ -175,11 +186,11 @@ bool SampleScene::init() {
 	auto axisSon = new Node(axisRGB);
 	axisSon->scale(0.25f);
 	float f = 1.0f / axisSon->getLocalScaleX();
-	auto cubeRight = new ShapeNode(axisSon, cubeMesh, redCheckerMat);
+	auto cubeRight = new ShapeNode(axisSon, cubeMesh_, redCheckerMat);
 	cubeRight->translate(Transformation::BASE_RIGHT * f);
-	auto cubeUp = new ShapeNode(axisSon, cubeMesh, greenCheckerMat);
+	auto cubeUp = new ShapeNode(axisSon, cubeMesh_, greenCheckerMat);
 	cubeUp->translate(Transformation::BASE_UP * f);
-	auto cubeBack = new ShapeNode(axisSon, cubeMesh, blueCheckerMat);
+	auto cubeBack = new ShapeNode(axisSon, cubeMesh_, blueCheckerMat);
 	cubeBack->translate(Transformation::BASE_BACK * f);
 
 	//OTHER TESTING OBJECTS
@@ -206,13 +217,13 @@ bool SampleScene::init() {
 	//player->yaw(20);
 	//player->scale(0.8f);
 
-	auto playerBody = new ShapeNode(player_, cubeMesh, redCheckerMat);
+	auto playerBody = new ShapeNode(player_, cubeMesh_, redCheckerMat);
 	playerBody->scale(0.5);
 
 	//edit camera
 	cam_->setFather(player_);
 	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
-	//auto camBody_ = new ShapeNode(cam_, cubeMesh, redCheckerMat);
+	//auto camBody_ = new ShapeNode(cam_, cubeMesh_, redCheckerMat);
 	//camBody_->scale(0.5);
 
 	playerPosOld_ = player_->getLocalPos();
@@ -225,11 +236,11 @@ bool SampleScene::init() {
 	auto bAxisSon = new Node(bAxisRGB);
 	bAxisSon->scale(0.20f);
 	float f2 = 0.9f / bAxisSon->getLocalScaleX();
-	auto bCubeRight = new ShapeNode(bAxisSon, cubeMesh, redCheckerMat);
+	auto bCubeRight = new ShapeNode(bAxisSon, cubeMesh_, redCheckerMat);
 	bCubeRight->translate(Transformation::BASE_RIGHT * f2);
-	auto bCubeUp = new ShapeNode(bAxisSon, cubeMesh, greenCheckerMat);
+	auto bCubeUp = new ShapeNode(bAxisSon, cubeMesh_, greenCheckerMat);
 	bCubeUp->translate(Transformation::BASE_UP * f2);
-	auto bCubeBack = new ShapeNode(bAxisSon, cubeMesh, blueCheckerMat);
+	auto bCubeBack = new ShapeNode(bAxisSon, cubeMesh_, blueCheckerMat);
 	bCubeBack->translate(Transformation::BASE_BACK * f2);
 
 	rPortalCam_ = new Camera(proj_);
@@ -237,11 +248,11 @@ bool SampleScene::init() {
 	auto rAxisRGB = new ShapeNode(rPortalCam_, axisMesh, pinkMat_);
 	auto rAxisSon = new Node(rAxisRGB);
 	rAxisSon->scale(0.20f);
-	auto rCubeRight = new ShapeNode(rAxisSon, cubeMesh, redCheckerMat);
+	auto rCubeRight = new ShapeNode(rAxisSon, cubeMesh_, redCheckerMat);
 	rCubeRight->translate(Transformation::BASE_RIGHT * f2);
-	auto rCubeUp = new ShapeNode(rAxisSon, cubeMesh, greenCheckerMat);
+	auto rCubeUp = new ShapeNode(rAxisSon, cubeMesh_, greenCheckerMat);
 	rCubeUp->translate(Transformation::BASE_UP * f2);
-	auto rCubeBack = new ShapeNode(rAxisSon, cubeMesh, blueCheckerMat);
+	auto rCubeBack = new ShapeNode(rAxisSon, cubeMesh_, blueCheckerMat);
 	rCubeBack->translate(Transformation::BASE_BACK * f2);
 
 	//INPUT
@@ -263,12 +274,14 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
 		if (renderPanel_->mat_ == renderMat_) {
 			renderPanel_->mat_ = pinkMat_;
-			bPortalPanel_->mat_ = pinkMat_;
+			//bPortalPanel_->mat_ = pinkMat_;
+			bPortalCube_->mat_ = pinkMat_;
 			rPortalPanel_->mat_ = pinkMat_;
 		}
 		else {
 			renderPanel_->mat_ = renderMat_;
-			bPortalPanel_->mat_ = bPortalMat_;
+			//bPortalPanel_->mat_ = bPortalMat_;
+			bPortalCube_->mat_ = bPortalMat_;
 			rPortalPanel_->mat_ = rPortalMat_;
 			renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
 			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
@@ -419,9 +432,10 @@ void SampleScene::render() {
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	bPortalPanel_->mesh_ = nullptr;
+	//bPortalPanel_->mesh_ = nullptr;
+	bPortalCube_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
-	bPortalPanel_->mesh_ = planeMesh_;
+	bPortalCube_->mesh_ = cubeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_rPortalPanel_->bind(false);

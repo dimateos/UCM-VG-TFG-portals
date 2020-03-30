@@ -54,7 +54,8 @@ void InputCameraRotation::update() {
 	if (frame_yaw_ != 0) {
 		if (cappedPitch_) total_yaw_ += sens_ * -frame_yaw_;
 		//with uncapped pitch maybe upside down yaw
-		else total_yaw_ += sens_ * (glm::abs(total_pitch_) < 90 ? -frame_yaw_ : frame_yaw_);
+		else if (glm::abs(total_pitch_) < 90) total_yaw_ += sens_ * -frame_yaw_;
+		else total_yaw_ += sens_ * frame_yaw_;
 
 		frame_yaw_ = 0;
 		total_yaw_ = fmod(total_yaw_, 360.0f); //better to store it clean?
@@ -85,6 +86,11 @@ void InputCameraRotation::setInputRot(glm::quat const & q) {
 				total_pitch_ = 360 + total_pitch_;
 			}
 		}
+
+		//lower values
+		total_yaw_ = fmod(total_yaw_, 360.0f);
+		total_pitch_ = fmod(total_pitch_, 360.0f);
+
 		//printf("end %f %f\n", total_pitch_, total_yaw_);
 	}
 	else {

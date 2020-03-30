@@ -42,7 +42,7 @@ protected:
 	ScreenPostFiltering* screenPF_;
 
 	//render panelling
-	Mesh* planeMesh_;
+	Mesh* planeMesh_, *cubeMesh_;
 	ShapeNode* renderPanel_;
 	SolidMaterial *pinkMat_, *renderMat_;
 	RenderTarget *rt_renderPanel_;
@@ -50,7 +50,8 @@ protected:
 
 	//blue render portal
 	Camera* bPortalCam_;
-	ShapeNode* bPortalPanel_;
+	Node* bPortalPanel_;
+	ShapeNode* bPortalCube_;
 	SolidMaterial *bPortalMat_;
 	RenderTarget *rt_bPortalPanel_;
 	Texture *bPortalTex_;
