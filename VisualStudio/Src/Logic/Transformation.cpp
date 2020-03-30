@@ -4,6 +4,8 @@
 #include <gtc/matrix_transform.hpp>
 using namespace glm;
 
+#include <gtx/matrix_decompose.hpp> //for now
+
 const glm::vec3 Transformation::BASE_UP = Y;
 const glm::vec3 Transformation::BASE_RIGHT = X;
 const glm::vec3 Transformation::BASE_BACK = Z;
@@ -31,6 +33,17 @@ glm::mat4 Transformation::matrix_Inversed() const {
 	glm::mat4 s = glm::scale(IDENTITY_MAT, 1.0f / scale);
 
 	return s * r * t;
+}
+
+Transformation Transformation::getDescomposed(glm::mat4 const & trans) {
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(trans, scale, rotation, translation, skew, perspective);
+
+	return { translation, rotation, scale };
 }
 
 bool Transformation::operator==(const Transformation & other) const {

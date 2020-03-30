@@ -35,6 +35,8 @@ public:
 	static const glm::quat BASE_ROT;
 	static const Transformation BASE;
 
+	static Transformation getDescomposed(glm::mat4 const & trans);
+
 	//operations
 	bool operator== (const Transformation &other) const;
 	bool operator!= (const Transformation &other) const;

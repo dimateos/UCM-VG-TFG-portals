@@ -14,6 +14,7 @@ class ShapeNode;
 class Texture;
 class Mesh;
 class InputFreeMovement;
+class InputCameraRotation;
 
 #include "../Render/Material.h"
 class ScreenPostFiltering;
@@ -63,7 +64,8 @@ protected:
 
 	//camera mimic
 	Node *player_;
-	InputFreeMovement* controller_;
+	InputFreeMovement* movController_;
+	InputCameraRotation* camController_;
 
 	//portal teleporting
 	float sqCloseDistance_ = 2*2;

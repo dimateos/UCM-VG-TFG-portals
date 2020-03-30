@@ -153,6 +153,9 @@ bool SampleScene::init() {
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	rPortalPanel_->translateX(10);
+	rPortalPanel_->yaw(90.f);
+	rPortalPanel_->pitch(180.f);
+
 
 	auto rPortalBorders = new Node(rPortalPanel_);
 	rPortalBorders->scale(0.25f);
@@ -242,8 +245,8 @@ bool SampleScene::init() {
 	rCubeBack->translate(Transformation::BASE_BACK * f2);
 
 	//INPUT
-	controller_ = new InputFreeMovement(world_node_, player_, cam_, false);
-	auto inputCameraNode = new InputCameraRotation(world_node_, cam_);
+	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
+	camController_ = new InputCameraRotation(world_node_, cam_);
 
 	return true;
 }
@@ -281,7 +284,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_k) {
-		controller_->target_ = controller_->target_ != player_ ? player_ : rPortalPanel_;
+		movController_->target_ = movController_->target_ != player_ ? player_ : rPortalPanel_;
 		return true;
 	}
 
@@ -301,14 +304,15 @@ void SampleScene::update() {
 	if (diffPos || diffRot) {
 		//printf("scene - updating cameras \n");
 
-		//get position (P) in bPortal local coordinates of player
+		//get position (P) in bPortal local coordinates of player (player camera position and rotation)
 		//we also get the inversed for the camera
 			//atm setting the matrix doesnt update the transformation so we cannot calculate the inversed
 		glm::mat4 localMat = bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix();
 		glm::mat4 localMat_inversed = cam_->getModelMatrix_Inversed() * bPortalPanel_->getModelMatrix();
+		//auto s = sizeof(localMat) / sizeof(float);
 
-		//set player2 position in rPortal local coordinates equal to (P)
-		//player2 is already child of portal
+		//set portal camera position in rPortal local coordinates equal to (P)
+		//portal camera is already child of portal - no conversion needed
 		bPortalCam_->setLocalModelMatrix(localMat);
 		bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
 
@@ -320,7 +324,16 @@ void SampleScene::update() {
 		//player2_->translateX(10.0f);
 		//player2_->setLocalRot(player_->getLocalRot());
 		//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
+
+		//player_->setLocalPos(glm::vec3(10.0f));
+		//player_->setLocalScale(glm::vec3(2.0f));
+		//player_->setLocalRot(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
+		//auto playerM = player_->getModelMatrix();
+		//Transformation t = Transformation::getDescomposed(playerM);
 	}
+
+	static int tpc = 0;
+	bool tp = false;
 
 	//check tp for each close portal
 	if (diffPos) {
@@ -331,30 +344,44 @@ void SampleScene::update() {
 		glm::vec3 bPortalOffset = playerPos - bPortalPos;
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
-			glm::vec3 bPortalOffsetOld = playerPosOld_ - bPortalPos; //could store between frames
+			glm::vec3 bPortalOffsetOld = playerPosOld_ - bPortalPos;
 			bool side = glm::dot(bPortalOffset, bPortalPanel_->back()) < 0;
-			bool sideOld = glm::dot(bPortalOffsetOld, bPortalPanel_->back()) < 0;
+			bool sideOld = glm::dot(bPortalOffsetOld, bPortalPanel_->back()) < 0; //could store between frames
 
 			//diff sides so tp
 			if (side != sideOld) {
-				//printf("scene - TP \n");
-				player_->setLocalPos(rPortalPanel_->getLocalPos() + bPortalOffset); //no correct rotation atm
+				printf("%i - TP blue \n", tpc++);
+				//player_->setLocalPos(rPortalPanel_->getLocalPos() + bPortalOffset); //no correct rotation atm
+
+				//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+				Transformation t = Transformation::getDescomposed(bPortalCam_->getModelMatrix());
+				playerPos = t.postion - cam_->getLocalPos(); //overwrite prev pos
+				player_->setLocalPos(playerPos);
+				camController_->setInputRot(t.rotation);
+
+				tp = true;
 			}
 		}
 
-		//red portal
-		auto rPortalPos = rPortalPanel_->getLocalPos();
-		glm::vec3 rPortalOffset = playerPos - rPortalPos;
-		//close enough
-		if (glm::length2(rPortalOffset) < sqCloseDistance_) {
-			glm::vec3 rPortalOffsetOld = playerPosOld_ - rPortalPos; //could store between frames
-			bool side = glm::dot(rPortalOffset, rPortalPanel_->back()) < 0;
-			bool sideOld = glm::dot(rPortalOffsetOld, rPortalPanel_->back()) < 0;
+		if (!tp) { //edit sing between frames
+			//red portal
+			auto rPortalPos = rPortalPanel_->getLocalPos();
+			glm::vec3 rPortalOffset = playerPos - rPortalPos;
+			//close enough
+			if (glm::length2(rPortalOffset) < sqCloseDistance_) {
+				glm::vec3 rPortalOffsetOld = playerPosOld_ - rPortalPos;
+				bool side = glm::dot(rPortalOffset, rPortalPanel_->back()) < 0;
+				bool sideOld = glm::dot(rPortalOffsetOld, rPortalPanel_->back()) < 0; //could store between frames
 
-			//diff sides so tp
-			if (side != sideOld) {
-				//printf("scene - TP \n");
-				player_->setLocalPos(bPortalPanel_->getLocalPos() + rPortalOffset); //no correct rotation atm
+				//diff sides so tp
+				if (side != sideOld) {
+					printf("%i - TP red \n", tpc++);
+					//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+					Transformation t = Transformation::getDescomposed(rPortalCam_->getModelMatrix());
+					playerPos = t.postion - cam_->getLocalPos(); //overwrite prev pos
+					player_->setLocalPos(playerPos);
+					camController_->setInputRot(t.rotation);
+				}
 			}
 		}
 
