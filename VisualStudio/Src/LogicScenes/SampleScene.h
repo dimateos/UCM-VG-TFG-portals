@@ -33,7 +33,7 @@ public:
 
 protected:
 	//for now here
-	Projection* proj_;
+	Projection* proj_, *testPorj_;
 	Camera* cam_;
 
 	Viewport *vp_screen_, *vp_PF_;
@@ -77,4 +77,14 @@ protected:
 	Texture checkersTex_, blankTex_;
 	unsigned int uniformModel_, uniformView_, uniformProj_;
 	virtual void render_rec(Node* n);
+
+	//some oblique here for now
+	inline float sgn(float f) {
+		if (f > 0.0F) return (1.0F);
+		if (f < 0.0F) return (-1.0F);
+		return (0.0F);
+	}
+
+	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);
+	void modifyProjectionMatrix2(glm::mat4 & proj, glm::vec4 const & clipPlane);
 };

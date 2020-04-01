@@ -19,6 +19,10 @@
 #include "../Render/Projection.h"
 #include "../Logic/Camera.h"
 
+//some testing cor oblique
+#include <gtx/string_cast.hpp>
+#include <iostream>
+
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
 SampleScene::~SampleScene() {
@@ -28,6 +32,9 @@ SampleScene::~SampleScene() {
 bool SampleScene::init() {
 	Scene::init();
 	glDepthFunc(GL_LESS);
+
+	//glDisable(GL_CULL_FACE); //cube not correct vertices
+	//glEnable(GL_CULL_FACE);
 
 	//SCENE INPUT
 	Platform_SDL::platformEventEmitter_.registerListener(this);
@@ -47,12 +54,14 @@ bool SampleScene::init() {
 	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
 
 	//CAMERA
-	proj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.001f);
+	proj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.01f); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 
-	//glDisable(GL_CULL_FACE); //cube not correct vertices
-	//glEnable(GL_CULL_FACE);
+	//extra projections for testing
+	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
+	testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.01f);
+	//modifyProjectionMatrix(p, glm::vec4());
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -70,8 +79,6 @@ bool SampleScene::init() {
 	uniformModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("model");
 	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
 	uniformProj_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection");
-	//fixed projection (ramains set to shader on binding / unbinding)
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, Node::ROOT_CAM->getProj()->getProjMatrixPtr());
 
 	cubeMesh_ = new CubeMesh();
 	planeMesh_ = new PlaneMesh();
@@ -123,21 +130,14 @@ bool SampleScene::init() {
 	bPortalMat_ = new SolidMaterial(glm::vec3(1.0f), bPortalTex_);
 	bPortalMat_->option_ = 1;
 
-	auto bPortalFather_ = new ShapeNode(world_node_, cubeMesh_, bPortalMat_);
-
-	//bPortalPanel_ = new ShapeNode(world_node_, planeMesh_, bPortalMat_);
-	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	//bPortalPanel_->translateY(1);
-	//bPortalPanel_->translateZ(5);
-
 	bPortalPanel_ = new Node(world_node_);
 	bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
 	bPortalPanel_->translateZ(5);
 
-	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
-	bPortalCube_->setLocalScale(glm::vec3(1.75, 1.825, 0.1));
-	bPortalCube_->translateY(-0.05);
+	bPortalCube_ = new ShapeNode(bPortalPanel_, planeMesh_, bPortalMat_);
+	//bPortalCube_->setLocalScale(glm::vec3(1.75, 1.825, 0.1));
+	//bPortalCube_->translateY(-0.05);
 
 	auto bPortalBorders = new Node(bPortalPanel_);
 	bPortalBorders->scale(0.25f);
@@ -223,8 +223,42 @@ bool SampleScene::init() {
 	//edit camera
 	cam_->setFather(player_);
 	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
-	//auto camBody_ = new ShapeNode(cam_, cubeMesh_, redCheckerMat);
-	//camBody_->scale(0.5);
+	auto camBody_ = new ShapeNode(cam_, cubeMesh_, whiteCheckerMat);
+	camBody_->scale(0.25f);
+	camBody_->setLocalPos(glm::vec3(0.f, 0.f, -5.f));
+	camBody_->yaw(45);
+
+	auto fore = -camBody_->back();
+	auto clipPlane = glm::vec4(
+		fore.x, fore.y, fore.z, glm::dot(-fore, camBody_->getLocalPos())
+	);
+
+	testPorj_->updateProjMatrix();
+	auto copy = testPorj_->computedProjMatrix_;
+	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
+
+	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
+
+	modifyProjectionMatrix(testPorj_->computedProjMatrix_, clipPlane);
+	modifyProjectionMatrix2(copy, clipPlane);
+	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
+
+	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
+
+	testPorj_->updateProjMatrix();
+	std::cout << "base:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+
+	testPorj_->near = 5.0;
+	testPorj_->updateProjMatrix();
+	std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+
+	modifyProjectionMatrix(testPorj_->computedProjMatrix_, clipPlane);
+
 
 	playerPosOld_ = player_->getLocalPos();
 	//camRotOld_ = cam_->getLocalRot(); //force first render
@@ -414,8 +448,10 @@ void SampleScene::update() {
 }
 
 void SampleScene::render() {
+
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, bPortalCam_->getProj()->getProjMatrixPtr());
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -429,13 +465,14 @@ void SampleScene::render() {
 
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, rPortalCam_->getProj()->getProjMatrixPtr());
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//bPortalPanel_->mesh_ = nullptr;
 	bPortalCube_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
-	bPortalCube_->mesh_ = cubeMesh_;
+	bPortalCube_->mesh_ = planeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_rPortalPanel_->bind(false);
@@ -443,6 +480,7 @@ void SampleScene::render() {
 
 	//main camera active
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
 
 	//LAST PASS - all the portals have view textures
@@ -451,7 +489,7 @@ void SampleScene::render() {
 	Scene::render(); //edited virtual render_rec
 
 	//EXTRA PASS - copy texture for the render panel (avoid writing and reading same buffer)
-	//no need of model uniform in the shaders
+	//no need of model uniform in the shaders - nor camera matrices
 	rt_renderPanel_->bind(false);
 	screenPF_->render();
 
@@ -465,4 +503,42 @@ void SampleScene::render_rec(Node * n) {
 	glUniformMatrix4fv(uniformModel_, 1, GL_FALSE, n->getModelMatrix_ptr());
 	n->render();
 	for (auto c : n->getChildren()) render_rec(c);
+}
+
+//http://terathon.com/code/oblique.html - edited for glm
+void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane) {
+	// Calculate the clip-space corner point opposite the clipping plane as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1)
+	// and transform it into camera space by multiplying it by the inverse of the projection matrix
+	glm::vec4 q;
+	q.x = (sgn(clipPlane.x) + proj[2][0]) / proj[0][0]; //optimized multiplying by inverse
+	q.y = (sgn(clipPlane.y) + proj[2][1]) / proj[1][1];
+	q.z = -1.0F;
+	q.w = (1.0F + proj[2][2]) / proj[3][2];
+
+	// Calculate the scaled plane vector
+	glm::vec4 c = clipPlane * (2.0F / glm::dot(clipPlane, q));
+
+	// Replace the third row of the projection matrix
+	proj[0][2] = c.x;
+	proj[1][2] = c.y;
+	proj[2][2] = c.z + 1.0F;
+	proj[3][2] = c.w;
+}
+
+void SampleScene::modifyProjectionMatrix2(glm::mat4 & proj, glm::vec4 const & clipPlane) {
+	glm::vec4 q = glm::inverse(proj) * glm::vec4(
+		sgn(clipPlane.x),
+		sgn(clipPlane.y),
+		1.0f,
+		1.0f
+	);
+
+	// Calculate the scaled plane vector
+	glm::vec4 c = clipPlane * (2.0F / (glm::dot(clipPlane, q)));
+
+	// third row = clip plane - fourth row
+	proj[0][2] = c.x - proj[0][3];
+	proj[1][2] = c.y - proj[1][3];
+	proj[2][2] = c.z - proj[2][3];
+	proj[3][2] = c.w - proj[3][3];
 }

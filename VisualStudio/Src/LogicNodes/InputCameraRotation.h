@@ -24,7 +24,7 @@ protected:
 	int frame_yaw_ = 0, frame_pitch_ = 0;
 	float total_yaw_ = 0, total_pitch_ = 0;
 
-	bool cappedPitch_ = false;
+	bool cappedPitch_ = true;
 	float maxPitch_ = 90;
 	void capPitch();
 };

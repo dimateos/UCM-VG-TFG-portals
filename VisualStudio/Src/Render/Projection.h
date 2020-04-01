@@ -13,6 +13,6 @@ public:
 	glm::mat4 getProjMatrix() const;
 	const glm::f32* getProjMatrixPtr() const;
 
-private:
 	glm::mat4 computedProjMatrix_;
+private:
 };
