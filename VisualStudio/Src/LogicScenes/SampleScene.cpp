@@ -61,7 +61,7 @@ bool SampleScene::init() {
 	//extra projections for testing
 	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
 	testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.01f);
-	//modifyProjectionMatrix(p, glm::vec4());
+	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -131,15 +131,16 @@ bool SampleScene::init() {
 	bPortalMat_->option_ = 1;
 
 	bPortalPanel_ = new Node(world_node_);
-	bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
+	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
 	bPortalPanel_->translateZ(5);
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, planeMesh_, bPortalMat_);
+	bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	//bPortalCube_->setLocalScale(glm::vec3(1.75, 1.825, 0.1));
 	//bPortalCube_->translateY(-0.05);
 
-	auto bPortalBorders = new Node(bPortalPanel_);
+	auto bPortalBorders = new Node(bPortalCube_);
 	bPortalBorders->scale(0.25f);
 	float separation = 1.0f / bPortalBorders->getLocalScaleX();
 	float rescale = 2 / bPortalBorders->getLocalScaleX();
@@ -161,14 +162,17 @@ bool SampleScene::init() {
 	rPortalMat_ = new SolidMaterial(glm::vec3(1.0f), rPortalTex_);
 	rPortalMat_->option_ = 1;
 
-	rPortalPanel_ = new ShapeNode(world_node_, planeMesh_, rPortalMat_);
+	rPortalPanel_ = new Node(world_node_);
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	rPortalPanel_->translateX(10);
-	rPortalPanel_->yaw(180.f);
+	//rPortalPanel_->yaw(180.f);
 	//rPortalPanel_->pitch(180.f);
 
-	auto rPortalBorders = new Node(rPortalPanel_);
+	rPortalCube_ = new ShapeNode(rPortalPanel_, planeMesh_, rPortalMat_);
+	rPortalCube_->setLocalTrans(bPortalCube_->getLocalTrans());
+
+	auto rPortalBorders = new Node(rPortalCube_);
 	rPortalBorders->scale(0.25f);
 	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
@@ -223,42 +227,42 @@ bool SampleScene::init() {
 	//edit camera
 	cam_->setFather(player_);
 	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
-	auto camBody_ = new ShapeNode(cam_, cubeMesh_, whiteCheckerMat);
-	camBody_->scale(0.25f);
-	camBody_->setLocalPos(glm::vec3(0.f, 0.f, -5.f));
-	camBody_->yaw(45);
 
-	auto fore = -camBody_->back();
-	auto clipPlane = glm::vec4(
-		fore.x, fore.y, fore.z, glm::dot(-fore, camBody_->getLocalPos())
-	);
+	//testing oblique projections
+	//auto camBody_ = new ShapeNode(cam_, cubeMesh_, whiteCheckerMat);
+	//camBody_->scale(0.25f);
+	//camBody_->setLocalPos(glm::vec3(0.f, 0.f, -5.f));
+	//camBody_->yaw(89);
 
-	testPorj_->updateProjMatrix();
-	auto copy = testPorj_->computedProjMatrix_;
-	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
-	std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
+	//auto fore = -camBody_->back();
+	//auto clipPlane = glm::vec4(
+	//	fore.x, fore.y, fore.z, glm::dot(-fore, camBody_->getLocalPos())
+	//);
 
-	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
-	std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
+	//testPorj_->updateProjMatrix();
+	//auto copy = testPorj_->computedProjMatrix_;
+	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	//std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
 
-	modifyProjectionMatrix(testPorj_->computedProjMatrix_, clipPlane);
-	modifyProjectionMatrix2(copy, clipPlane);
-	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
-	std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
+	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	//std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
 
-	std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
-	std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
+	//modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	//modifyProjectionMatrix(copy, clipPlane);
+	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	//std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
 
-	testPorj_->updateProjMatrix();
-	std::cout << "base:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	//std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
 
-	testPorj_->near = 5.0;
-	testPorj_->updateProjMatrix();
-	std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
-	std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+	//testPorj_->updateProjMatrix();
+	//std::cout << "base:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
 
-	modifyProjectionMatrix(testPorj_->computedProjMatrix_, clipPlane);
-
+	//testPorj_->near = 5.0;
+	//testPorj_->updateProjMatrix();
+	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+	//modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
 
 	playerPosOld_ = player_->getLocalPos();
 	//camRotOld_ = cam_->getLocalRot(); //force first render
@@ -310,13 +314,13 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			renderPanel_->mat_ = pinkMat_;
 			//bPortalPanel_->mat_ = pinkMat_;
 			bPortalCube_->mat_ = pinkMat_;
-			rPortalPanel_->mat_ = pinkMat_;
+			rPortalCube_->mat_ = pinkMat_;
 		}
 		else {
 			renderPanel_->mat_ = renderMat_;
 			//bPortalPanel_->mat_ = bPortalMat_;
 			bPortalCube_->mat_ = bPortalMat_;
-			rPortalPanel_->mat_ = rPortalMat_;
+			rPortalCube_->mat_ = rPortalMat_;
 			renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
 			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 			rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
@@ -355,17 +359,27 @@ void SampleScene::update() {
 		//we also get the inversed for the camera
 			//atm setting the matrix doesnt update the transformation so we cannot calculate the inversed
 		glm::mat4 localMat = bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix();
-		glm::mat4 localMat_inversed = cam_->getModelMatrix_Inversed() * bPortalPanel_->getModelMatrix();
+		//glm::mat4 localMat_inversed = cam_->getModelMatrix_Inversed() * bPortalPanel_->getModelMatrix();
 		//auto s = sizeof(localMat) / sizeof(float);
 
 		//set portal camera position in rPortal local coordinates equal to (P)
 		//portal camera is already child of portal - no conversion needed
-		bPortalCam_->setLocalModelMatrix(localMat);
-		bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
+		//bPortalCam_->setLocalModelMatrix(localMat);
+		//bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
+
+		//set correct position and rotation (decomposed from matrices for now) - ignoring scale atm
+		Transformation t = Transformation::getDescomposed(localMat);
+		bPortalCam_->setLocalTrans(t);
+		//bPortalCam_->setLocalPos(t.postion);
+		//bPortalCam_->setLocalRot(t.rotation);
+		//bPortalCam_->setLocalScale(t.scale);
 
 		//same for the other portal
-		rPortalCam_->setLocalModelMatrix(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
-		rPortalCam_->setLocalModelMatrix_Inversed(cam_->getModelMatrix_Inversed() * rPortalPanel_->getModelMatrix());
+		//rPortalCam_->setLocalModelMatrix(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+		//rPortalCam_->setLocalModelMatrix_Inversed(cam_->getModelMatrix_Inversed() * rPortalPanel_->getModelMatrix());
+
+		//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+		rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 
 		//player2_->setLocalPos(player_->getLocalPos());
 		//player2_->translateX(10.0f);
@@ -451,13 +465,19 @@ void SampleScene::render() {
 
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, bPortalCam_->getProj()->getProjMatrixPtr());
+
+	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
+	auto clipN = -bPortalCam_->getLocalRot() * rPortalPanel_->back();
+	auto clipPlane = glm::vec4( clipN.x, clipN.y, clipN.z, glm::dot(-clipN, -bPortalCam_->getLocalPos()) );
+	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	rPortalPanel_->mesh_ = nullptr;
+	rPortalCube_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
-	rPortalPanel_->mesh_ = planeMesh_;
+	rPortalCube_->mesh_ = planeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_bPortalPanel_->bind(false);
@@ -465,7 +485,13 @@ void SampleScene::render() {
 
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, rPortalCam_->getProj()->getProjMatrixPtr());
+
+	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
+	clipN = -rPortalCam_->getLocalRot() * bPortalPanel_->back();
+	clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, glm::dot(-clipN, -rPortalCam_->getLocalPos()));
+	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -480,7 +506,7 @@ void SampleScene::render() {
 
 	//main camera active
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
 
 	//LAST PASS - all the portals have view textures
@@ -505,8 +531,8 @@ void SampleScene::render_rec(Node * n) {
 	for (auto c : n->getChildren()) render_rec(c);
 }
 
-//http://terathon.com/code/oblique.html - edited for glm
-void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane) {
+//http://terathon.com/code/oblique.html - edited for glm matrix layout and opengl version
+void SampleScene::modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane) {
 	// Calculate the clip-space corner point opposite the clipping plane as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1)
 	// and transform it into camera space by multiplying it by the inverse of the projection matrix
 	glm::vec4 q;
@@ -525,7 +551,7 @@ void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & cli
 	proj[3][2] = c.w;
 }
 
-void SampleScene::modifyProjectionMatrix2(glm::mat4 & proj, glm::vec4 const & clipPlane) {
+void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane) {
 	glm::vec4 q = glm::inverse(proj) * glm::vec4(
 		sgn(clipPlane.x),
 		sgn(clipPlane.y),

@@ -58,7 +58,8 @@ protected:
 
 	//red render portal
 	Camera* rPortalCam_;
-	ShapeNode* rPortalPanel_;
+	Node* rPortalPanel_;
+	ShapeNode* rPortalCube_;
 	SolidMaterial *rPortalMat_;
 	RenderTarget *rt_rPortalPanel_;
 	Texture *rPortalTex_;
@@ -85,6 +86,6 @@ protected:
 		return (0.0F);
 	}
 
+	void modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane);
 	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);
-	void modifyProjectionMatrix2(glm::mat4 & proj, glm::vec4 const & clipPlane);
 };

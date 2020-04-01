@@ -29,6 +29,7 @@ glm::mat4 Transformation::matrix() const {
 glm::mat4 Transformation::matrix_Inversed() const {
 	//multiply ordered matrices with the inverse operations
 	glm::mat4 t = glm::translate(IDENTITY_MAT, -postion);
+	//for our purposes conjugate can do (cheaper than inverse)
 	glm::mat4 r = glm::mat4_cast(glm::conjugate(rotation));
 	glm::mat4 s = glm::scale(IDENTITY_MAT, 1.0f / scale);
 
