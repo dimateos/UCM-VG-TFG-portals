@@ -167,13 +167,13 @@ bool SampleScene::init() {
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	rPortalPanel_->translateX(10);
-	//rPortalPanel_->yaw(180.f);
+	rPortalPanel_->yaw(90.f);
 	//rPortalPanel_->pitch(180.f);
 
 	rPortalCube_ = new ShapeNode(rPortalPanel_, planeMesh_, rPortalMat_);
 	rPortalCube_->setLocalTrans(bPortalCube_->getLocalTrans());
-	auto rPortalWall = new ShapeNode(rPortalCube_, planeMesh_, whiteCheckerMat);
-	rPortalWall->translateZ(0.5);
+	//auto rPortalWall = new ShapeNode(rPortalCube_, planeMesh_, whiteCheckerMat);
+	//rPortalWall->translateZ(0.5);
 
 	auto rPortalBorders = new Node(rPortalCube_);
 	rPortalBorders->scale(0.25f);
@@ -470,16 +470,17 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	auto planeN = -rPortalPanel_->back();
+	//auto planeN = -rPortalPanel_->back(); //camera is child of plane so acually no
+	auto planeN = -Transformation::BASE_BACK;
 	//camera must always be behind plane so check so check dot
 	//float side = fsgn(glm::dot(planeN, -bPortalCam_->back()));
 	float side = fsgn(glm::dot(planeN, -bPortalCam_->getLocalPos()));
 	//plane normal and position - use position to calculate Q
 	auto camRot_i = glm::conjugate(bPortalCam_->getLocalRot());
-	auto clipP = camRot_i  * (-bPortalCam_->getLocalPos());
+	auto clipP = camRot_i * (-bPortalCam_->getLocalPos());
 	auto clipN = camRot_i * (side * planeN);
 	float Q = glm::dot(-clipN, clipP);
-	printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
+	//printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
 	//create clip plane and modfy the projection matrix
 	auto clipPlane = glm::vec4( clipN.x, clipN.y, clipN.z, Q);
 	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
@@ -502,7 +503,7 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	planeN = -bPortalPanel_->back();
+	planeN = -Transformation::BASE_BACK;
 	side = fsgn(glm::dot(planeN, -rPortalCam_->getLocalPos()));
 	camRot_i = glm::conjugate(rPortalCam_->getLocalRot());
 	clipP = camRot_i * (-rPortalCam_->getLocalPos());
