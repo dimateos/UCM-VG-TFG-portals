@@ -80,10 +80,15 @@ protected:
 	virtual void render_rec(Node* n);
 
 	//some oblique here for now
-	inline float sgn(float f) {
-		if (f > 0.0F) return (1.0F);
-		if (f < 0.0F) return (-1.0F);
+	inline float fsgn(float f) {
+		if (f > EPSILON) return (1.0F);
+		if (f < -EPSILON) return (-1.0F);
 		return (0.0F);
+	}
+	inline int sgn(float f) {
+		if (f > EPSILON) return 1;
+		if (f < -EPSILON) return -1;
+		return 0;
 	}
 
 	void modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane);

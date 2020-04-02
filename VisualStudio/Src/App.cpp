@@ -21,7 +21,7 @@ bool App::init(int window_w, int window_h) {
 	success = Platform_SDL::init();
 	if (!success) return false;
 
-	success = Window_SDL_GL::init("TFG_dimateos", window_w, window_h, 100, 100, 3, 3);
+	success = Window_SDL_GL::init("TFG_dimateos", window_w, window_h, 400, 30, 3, 3);
 	if (!success) return false;
 
 	scene_ = new SampleScene(this);

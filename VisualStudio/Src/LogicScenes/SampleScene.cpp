@@ -134,6 +134,7 @@ bool SampleScene::init() {
 	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
 	bPortalPanel_->translateZ(5);
+	//bPortalPanel_->yaw(180.f);
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, planeMesh_, bPortalMat_);
 	bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
@@ -171,6 +172,8 @@ bool SampleScene::init() {
 
 	rPortalCube_ = new ShapeNode(rPortalPanel_, planeMesh_, rPortalMat_);
 	rPortalCube_->setLocalTrans(bPortalCube_->getLocalTrans());
+	auto rPortalWall = new ShapeNode(rPortalCube_, planeMesh_, whiteCheckerMat);
+	rPortalWall->translateZ(0.5);
 
 	auto rPortalBorders = new Node(rPortalCube_);
 	rPortalBorders->scale(0.25f);
@@ -406,8 +409,8 @@ void SampleScene::update() {
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 			glm::vec3 bPortalOffsetOld = playerPosOld_ - bPortalPos;
-			bool side = glm::dot(bPortalOffset, bPortalPanel_->back()) < 0;
-			bool sideOld = glm::dot(bPortalOffsetOld, bPortalPanel_->back()) < 0; //could store between frames
+			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
+			int sideOld = sgn(glm::dot(bPortalOffsetOld, bPortalPanel_->back())); //could store between frames
 
 			//diff sides so tp
 			if (side != sideOld) {
@@ -431,8 +434,8 @@ void SampleScene::update() {
 			//close enough
 			if (glm::length2(rPortalOffset) < sqCloseDistance_) {
 				glm::vec3 rPortalOffsetOld = playerPosOld_ - rPortalPos;
-				bool side = glm::dot(rPortalOffset, rPortalPanel_->back()) < 0;
-				bool sideOld = glm::dot(rPortalOffsetOld, rPortalPanel_->back()) < 0; //could store between frames
+				int side = sgn(glm::dot(rPortalOffset, rPortalPanel_->back()));
+				int sideOld = sgn(glm::dot(rPortalOffsetOld, rPortalPanel_->back())); //could store between frames
 
 				//diff sides so tp
 				if (side != sideOld) {
@@ -467,10 +470,22 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	auto clipN = -bPortalCam_->getLocalRot() * rPortalPanel_->back();
-	auto clipPlane = glm::vec4( clipN.x, clipN.y, clipN.z, glm::dot(-clipN, -bPortalCam_->getLocalPos()) );
+	auto planeN = -rPortalPanel_->back();
+	//camera must always be behind plane so check so check dot
+	//float side = fsgn(glm::dot(planeN, -bPortalCam_->back()));
+	float side = fsgn(glm::dot(planeN, -bPortalCam_->getLocalPos()));
+	//plane normal and position - use position to calculate Q
+	auto camRot_i = glm::conjugate(bPortalCam_->getLocalRot());
+	auto clipP = camRot_i  * (-bPortalCam_->getLocalPos());
+	auto clipN = camRot_i * (side * planeN);
+	float Q = glm::dot(-clipN, clipP);
+	printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
+	//create clip plane and modfy the projection matrix
+	auto clipPlane = glm::vec4( clipN.x, clipN.y, clipN.z, Q);
 	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	//load the matrix and the restore it
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
@@ -487,10 +502,17 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	clipN = -rPortalCam_->getLocalRot() * bPortalPanel_->back();
-	clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, glm::dot(-clipN, -rPortalCam_->getLocalPos()));
+	planeN = -bPortalPanel_->back();
+	side = fsgn(glm::dot(planeN, -rPortalCam_->getLocalPos()));
+	camRot_i = glm::conjugate(rPortalCam_->getLocalRot());
+	clipP = camRot_i * (-rPortalCam_->getLocalPos());
+	clipN = camRot_i * (side * planeN);
+	Q = glm::dot(-clipN, clipP);
+	//printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
+	clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, Q);
 	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
@@ -533,11 +555,11 @@ void SampleScene::render_rec(Node * n) {
 
 //http://terathon.com/code/oblique.html - edited for glm matrix layout and opengl version
 void SampleScene::modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane) {
-	// Calculate the clip-space corner point opposite the clipping plane as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1)
+	// Calculate the clip-space corner point opposite the clipping plane as (fsgn(clipPlane.x), fsgn(clipPlane.y), 1, 1)
 	// and transform it into camera space by multiplying it by the inverse of the projection matrix
 	glm::vec4 q;
-	q.x = (sgn(clipPlane.x) + proj[2][0]) / proj[0][0]; //optimized multiplying by inverse
-	q.y = (sgn(clipPlane.y) + proj[2][1]) / proj[1][1];
+	q.x = (fsgn(clipPlane.x) + proj[2][0]) / proj[0][0]; //optimized multiplying by inverse
+	q.y = (fsgn(clipPlane.y) + proj[2][1]) / proj[1][1];
 	q.z = -1.0F;
 	q.w = (1.0F + proj[2][2]) / proj[3][2];
 
@@ -553,8 +575,8 @@ void SampleScene::modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 cons
 
 void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane) {
 	glm::vec4 q = glm::inverse(proj) * glm::vec4(
-		sgn(clipPlane.x),
-		sgn(clipPlane.y),
+		fsgn(clipPlane.x),
+		fsgn(clipPlane.y),
 		1.0f,
 		1.0f
 	);
