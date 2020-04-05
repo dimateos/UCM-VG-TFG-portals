@@ -156,18 +156,19 @@ bool SampleScene::init() {
 	bPortalPanel_->translateZ(5);
 	//bPortalPanel_->yaw(180.f);
 
-	bPortalCube_ = new ShapeNode(bPortalPanel_, planeMesh_, bPortalMat_);
-	bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	//bPortalCube_->setLocalScale(glm::vec3(1.75, 1.825, 0.1));
-	//bPortalCube_->translateY(-0.05);
+	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
+	//bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
+	bPortalCube_->setLocalScale(glm::vec3(3, 3, EPSILON));
+	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ()/2);
 
-	auto bPortalBorders = new Node(bPortalCube_);
+	auto bPortalBorders = new Node(bPortalPanel_);
+	bPortalBorders->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalBorders->scale(0.25f);
-	float separation = 1.0f / bPortalBorders->getLocalScaleX();
-	float rescale = 2 / bPortalBorders->getLocalScaleX();
-	auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
-	bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
-	bPortalBorderL->setLocalScaleY(rescale);
+	float separation = 1.5f / bPortalBorders->getLocalScaleX();
+	float rescale = 3 / bPortalBorders->getLocalScaleX();
+	//auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	//bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
+	//bPortalBorderL->setLocalScaleY(rescale);
 	auto bPortalBorderR = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	bPortalBorderR->setLocalScaleY(rescale);
@@ -190,13 +191,13 @@ bool SampleScene::init() {
 	rPortalPanel_->yaw(90.f);
 	//rPortalPanel_->pitch(180.f);
 
-	rPortalCube_ = new ShapeNode(rPortalPanel_, planeMesh_, rPortalMat_);
+	rPortalCube_ = new ShapeNode(rPortalPanel_, cubeMesh_, rPortalMat_);
 	rPortalCube_->setLocalTrans(bPortalCube_->getLocalTrans());
 	//auto rPortalWall = new ShapeNode(rPortalCube_, planeMesh_, whiteCheckerMat);
 	//rPortalWall->translateZ(0.5);
 
-	auto rPortalBorders = new Node(rPortalCube_);
-	rPortalBorders->scale(0.25f);
+	auto rPortalBorders = new Node(rPortalPanel_);
+	rPortalBorders->setLocalTrans(bPortalBorders->getLocalTrans());
 	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	rPortalBorderL->setLocalScaleY(rescale);
@@ -419,34 +420,34 @@ void SampleScene::update() {
 	}
 
 	//avoid clipping the portal plane - only when moving because we assume worst rotation
+		//strategy A: reduce near distance - downside is editting the projection matrx too much
+		//strategy B: portals are small scaled cubes with face cullling off so any clipping stays within the cube
+			//done within portal tp checking
+	/*
 	if (diffPos) {
 		//check distance to portals
 		glm::vec3 rCamOffset = player_->getLocalPos() + cam_->getLocalPos() - bPortalPanel_->getLocalPos();
 		float rCamDot = glm::dot(rCamOffset, bPortalPanel_->back());
 
-		bool stratA = false;
-		//strategy A: reduce near distance - downside is editting the projection matrx too much
-		if (stratA) {
-			float rCamDistance = glm::abs(rCamDot);
-			float diff = rCamDistance - initialNearCornerDistance_;
+		float rCamDistance = glm::abs(rCamDot);
+		float diff = rCamDistance - initialNearCornerDistance_;
 
-			//near plane is too close
-			if (diff <= 0) {
-				//set proportionally smaller
-				proj_->near = initialNear_ + (diff * 1.25f - EPSILON); //reduce by chunks and add EPSILON for diff==0 case
-				if (proj_->near < EPSILON) proj_->near = 1E-5; //minimun
+		//near plane is too close
+		if (diff <= 0) {
+			//set proportionally smaller
+			proj_->near = initialNear_ + (diff * 1.25f - EPSILON); //reduce by chunks and add EPSILON for diff==0 case
+			if (proj_->near < EPSILON) proj_->near = 1E-5; //minimun
 
-				proj_->updateProjMatrix();
-				printf(" rCamDistance: %f - nearCornerDistance: %f - diff: %f - new near: %f\n", rCamDistance, initialNearCornerDistance_, diff, proj_->near);
-			}
-			//restore plane near
-			else {
-				proj_->near = initialNear_;
-				proj_->updateProjMatrix();
-			}
+			proj_->updateProjMatrix();
+			printf(" rCamDistance: %f - nearCornerDistance: %f - diff: %f - new near: %f\n", rCamDistance, initialNearCornerDistance_, diff, proj_->near);
 		}
-
+		//restore plane near
+		else {
+			proj_->near = initialNear_;
+			proj_->updateProjMatrix();
+		}
 	}
+	*/
 
 	//check tp for each close portal
 	if (diffPos) {
@@ -459,7 +460,11 @@ void SampleScene::update() {
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
-			//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+			printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+
+			//avoid clip strategy B
+			//bPortalCube_->setLocalScale(glm::vec3(3, 3, 0.125));
+			bPortalCube_->setLocalPosZ(side * -bPortalCube_->getLocalScaleZ() / 2);
 
 			//diff sides so tp
 			if (side * bSideOld_ == -1) {
@@ -551,7 +556,7 @@ void SampleScene::render() {
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	rPortalCube_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
-	rPortalCube_->mesh_ = planeMesh_;
+	rPortalCube_->mesh_ = cubeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_bPortalPanel_->bind(false);
@@ -579,7 +584,7 @@ void SampleScene::render() {
 	//bPortalPanel_->mesh_ = nullptr;
 	bPortalCube_->mesh_ = nullptr;
 	Scene::render(); //edited virtual render_rec
-	bPortalCube_->mesh_ = planeMesh_;
+	bPortalCube_->mesh_ = cubeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_rPortalPanel_->bind(false);
