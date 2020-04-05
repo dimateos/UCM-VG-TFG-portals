@@ -73,6 +73,7 @@ protected:
 	float sqCloseDistance_ = 2*2;
 	glm::vec3 playerPosOld_;
 	glm::quat camRotOld_;
+	int rSideOld_ = 0, bSideOld_ = 0;
 
 	//common here now
 	Texture checkersTex_, blankTex_;

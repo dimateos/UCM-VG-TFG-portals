@@ -7,7 +7,7 @@
 enum Direction { RIGHT, LEFT, DOWN, UP, BACK, FORE }; //ordered as SDL enums
 
 //epsilon used for comparisons
-const float EPSILON = 1E-3; //same precision as vector
+const float EPSILON = 1E-4; //same precision as vector
 
 //common vectors
 const glm::vec3 X = glm::vec3(1.0f, 0.0f, 0.0f);

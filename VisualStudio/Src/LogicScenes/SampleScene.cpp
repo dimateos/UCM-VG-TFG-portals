@@ -54,13 +54,13 @@ bool SampleScene::init() {
 	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
 
 	//CAMERA
-	proj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.01f); //affects clipping on portal pannels
+	proj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.001f); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 
 	//extra projections for testing
 	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
-	testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.01f);
+	testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.001f);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//COMMON TEXTURES AND MATERIALS
@@ -396,67 +396,75 @@ void SampleScene::update() {
 		//Transformation t = Transformation::getDescomposed(playerM);
 	}
 
-	static int tpc = 0;
-	bool tp = false;
-
 	//check tp for each close portal
 	if (diffPos) {
 		//printf("scene - checking tp \n");
+		static int tpc = 0;
 
 		//blue portal
 		auto bPortalPos = bPortalPanel_->getLocalPos();
 		glm::vec3 bPortalOffset = playerPos - bPortalPos;
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
-			glm::vec3 bPortalOffsetOld = playerPosOld_ - bPortalPos;
 			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
-			int sideOld = sgn(glm::dot(bPortalOffsetOld, bPortalPanel_->back())); //could store between frames
+			printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_,
+				bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 			//diff sides so tp
-			if (side != sideOld) {
-				printf("%i - TP blue \n", tpc++);
+			if (side * bSideOld_ == -1) {
+				printf("%i - TP blue \n", ++tpc);
 				//player_->setLocalPos(rPortalPanel_->getLocalPos() + bPortalOffset); //no correct rotation atm
 
 				//set correct position and rotation (decomposed from matrices for now) - ignoring scale
 				Transformation t = Transformation::getDescomposed(bPortalCam_->getModelMatrix());
-				playerPos = t.postion - cam_->getLocalPos(); //overwrite prev pos
+				//update player pos (although atm no tp chaining)
+				playerPos = t.postion - cam_->getLocalPos();
 				player_->setLocalPos(playerPos);
 				camController_->setInputRot(t.rotation);
 
-				tp = true;
+				//invalid previous sides
+				bSideOld_ = 0;
+				rSideOld_ = 0;
+
+				//update cameras atm here
+				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 			}
+			//store new valid side
+			else if (bSideOld_ == 0) bSideOld_ = side;
 		}
+		else bSideOld_ = 0; //player is out of zone so invalid previous
 
-		if (!tp) { //edit sing between frames
-			//red portal
-			auto rPortalPos = rPortalPanel_->getLocalPos();
-			glm::vec3 rPortalOffset = playerPos - rPortalPos;
-			//close enough
-			if (glm::length2(rPortalOffset) < sqCloseDistance_) {
-				glm::vec3 rPortalOffsetOld = playerPosOld_ - rPortalPos;
-				int side = sgn(glm::dot(rPortalOffset, rPortalPanel_->back()));
-				int sideOld = sgn(glm::dot(rPortalOffsetOld, rPortalPanel_->back())); //could store between frames
+		//red portal
+		auto rPortalPos = rPortalPanel_->getLocalPos();
+		glm::vec3 rPortalOffset = playerPos - rPortalPos;
+		//close enough
+		if (glm::length2(rPortalOffset) < sqCloseDistance_) {
+			int side = sgn(glm::dot(rPortalOffset, rPortalPanel_->back()));
+			printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_,
+				rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
 
-				//diff sides so tp
-				if (side != sideOld) {
-					printf("%i - TP red \n", tpc++);
-					//set correct position and rotation (decomposed from matrices for now) - ignoring scale
-					Transformation t = Transformation::getDescomposed(rPortalCam_->getModelMatrix());
-					playerPos = t.postion - cam_->getLocalPos(); //overwrite prev pos
-					player_->setLocalPos(playerPos);
-					camController_->setInputRot(t.rotation);
-				}
+			//diff sides so tp
+			if (side * rSideOld_ == -1) {
+				printf("%i - TP red \n", ++tpc);
+				//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+				Transformation t = Transformation::getDescomposed(rPortalCam_->getModelMatrix());
+				playerPos = t.postion - cam_->getLocalPos();
+				player_->setLocalPos(playerPos);
+				camController_->setInputRot(t.rotation);
+
+				//invalid previous sides
+				bSideOld_ = 0;
+				rSideOld_ = 0;
+
+				//update cameras atm here
+				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 			}
+			//store new valid side
+			else if (rSideOld_ == 0) rSideOld_ = side;
 		}
-
-		//printf(" bPortalPos x z: %f %f | playerPos x z: %f %f | playerPosOld_ x z: %f %f \n",
-		//	bPortalPos.x, bPortalPos.z, playerPos.x, playerPos.z, playerPosOld_.x, playerPosOld_.z);
-
-		//printf(" bPortalPanel_->back() x y z: %f %f %f\n",
-		//	bPortalPanel_->back().x, bPortalPanel_->back().y, bPortalPanel_->back().z);
-
-		//printf(" bPortalOffset x z: %f %f %i | bPortalOffsetOld x z: %f %f %i\n",
-		//	bPortalOffset.x, bPortalOffset.z, side, bPortalOffsetOld.x, bPortalOffsetOld.z, sideOld);
+		else rSideOld_ = 0; //player is out of zone so invalid previous
 	}
 
 	//update previous
@@ -482,7 +490,7 @@ void SampleScene::render() {
 	float Q = glm::dot(-clipN, clipP);
 	//printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
 	//create clip plane and modfy the projection matrix
-	auto clipPlane = glm::vec4( clipN.x, clipN.y, clipN.z, Q);
+	auto clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, Q);
 	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
 	//load the matrix and the restore it
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
