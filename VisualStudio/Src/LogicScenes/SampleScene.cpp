@@ -54,14 +54,34 @@ bool SampleScene::init() {
 	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
 
 	//CAMERA
-	proj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.001f); //affects clipping on portal pannels
+	proj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.5f); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 
 	//extra projections for testing
 	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
-	testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 0.001f);
+	testPorj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.5f);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
+
+	//AVOIDING CAMERA CLIPPING PORTALS
+	initialNear_ = proj_->near;
+
+	//calculating all plane points (do not need all the info but atm nice to check)
+	float fovY = proj_->fov;
+	float angleYHalf = glm::radians(fovY) / 2;
+
+	//nearTop / near = tan(angleYHalf) and then aspect ratio to get nearRight
+	float nearTop = tanf(angleYHalf) * initialNear_;
+	float nearRight = nearTop * proj_->aspect;
+	float farTop = tanf(angleYHalf) * proj_->far;
+	float farRight = farTop * proj_->aspect;
+
+	//calculate fov X: nearRight / near = tan(angleXHalf) so angleXHalf = atan(nearRight / near)
+	float angleXHalf = atanf(nearRight / initialNear_);
+	float fovX = glm::degrees(angleXHalf * 2);
+
+	//maximun possible near corner distance
+	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_));
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -346,6 +366,8 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	return false;
 }
 
+#include <math.h> //for atan
+
 void SampleScene::update() {
 	Scene::update();
 
@@ -396,6 +418,36 @@ void SampleScene::update() {
 		//Transformation t = Transformation::getDescomposed(playerM);
 	}
 
+	//avoid clipping the portal plane - only when moving because we assume worst rotation
+	if (diffPos) {
+		//check distance to portals
+		glm::vec3 rCamOffset = player_->getLocalPos() + cam_->getLocalPos() - bPortalPanel_->getLocalPos();
+		float rCamDot = glm::dot(rCamOffset, bPortalPanel_->back());
+
+		bool stratA = false;
+		//strategy A: reduce near distance - downside is editting the projection matrx too much
+		if (stratA) {
+			float rCamDistance = glm::abs(rCamDot);
+			float diff = rCamDistance - initialNearCornerDistance_;
+
+			//near plane is too close
+			if (diff <= 0) {
+				//set proportionally smaller
+				proj_->near = initialNear_ + (diff * 1.25f - EPSILON); //reduce by chunks and add EPSILON for diff==0 case
+				if (proj_->near < EPSILON) proj_->near = 1E-5; //minimun
+
+				proj_->updateProjMatrix();
+				printf(" rCamDistance: %f - nearCornerDistance: %f - diff: %f - new near: %f\n", rCamDistance, initialNearCornerDistance_, diff, proj_->near);
+			}
+			//restore plane near
+			else {
+				proj_->near = initialNear_;
+				proj_->updateProjMatrix();
+			}
+		}
+
+	}
+
 	//check tp for each close portal
 	if (diffPos) {
 		//printf("scene - checking tp \n");
@@ -407,8 +459,7 @@ void SampleScene::update() {
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
-			printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_,
-				bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+			//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 			//diff sides so tp
 			if (side * bSideOld_ == -1) {
@@ -441,8 +492,7 @@ void SampleScene::update() {
 		//close enough
 		if (glm::length2(rPortalOffset) < sqCloseDistance_) {
 			int side = sgn(glm::dot(rPortalOffset, rPortalPanel_->back()));
-			printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_,
-				rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
+			//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
 
 			//diff sides so tp
 			if (side * rSideOld_ == -1) {

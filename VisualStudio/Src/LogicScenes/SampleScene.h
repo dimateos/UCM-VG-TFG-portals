@@ -75,6 +75,9 @@ protected:
 	glm::quat camRotOld_;
 	int rSideOld_ = 0, bSideOld_ = 0;
 
+	//avoid portal clipping strategies
+	float initialNear_, initialNearCornerDistance_;
+
 	//common here now
 	Texture checkersTex_, blankTex_;
 	unsigned int uniformModel_, uniformView_, uniformProj_;
