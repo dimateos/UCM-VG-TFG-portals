@@ -54,13 +54,13 @@ bool SampleScene::init() {
 	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
 
 	//CAMERA
-	proj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.5f); //affects clipping on portal pannels
+	proj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.1f); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 
 	//extra projections for testing
 	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
-	testPorj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.5f);
+	testPorj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.1f);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//AVOIDING CAMERA CLIPPING PORTALS
@@ -158,7 +158,8 @@ bool SampleScene::init() {
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
 	//bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalCube_->setLocalScale(glm::vec3(3, 3, EPSILON));
+	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.62, EPSILON));
+	bPortalPanel_->translateY(-0.125);
 	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ()/2);
 
 	auto bPortalBorders = new Node(bPortalPanel_);
@@ -423,6 +424,9 @@ void SampleScene::update() {
 		//strategy A: reduce near distance - downside is editting the projection matrx too much
 		//strategy B: portals are small scaled cubes with face cullling off so any clipping stays within the cube
 			//done within portal tp checking
+			//assume worst case and only tweak when entering / exitting portal close zone
+		//strategy C: could be B but dynamically adjust scale to acually the amount the near plan clipped
+			//probably not worth as the B works perfectly for coherently small near planes
 	/*
 	if (diffPos) {
 		//check distance to portals
@@ -460,11 +464,7 @@ void SampleScene::update() {
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
-			printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
-
-			//avoid clip strategy B
-			//bPortalCube_->setLocalScale(glm::vec3(3, 3, 0.125));
-			bPortalCube_->setLocalPosZ(side * -bPortalCube_->getLocalScaleZ() / 2);
+			//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 			//diff sides so tp
 			if (side * bSideOld_ == -1) {
@@ -481,15 +481,26 @@ void SampleScene::update() {
 				//invalid previous sides
 				bSideOld_ = 0;
 				rSideOld_ = 0;
+				bPortalCube_->setLocalScaleZ(EPSILON);
+				bPortalCube_->setLocalPosZ(0);
 
 				//update cameras atm here
 				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 			}
-			//store new valid side
-			else if (bSideOld_ == 0) bSideOld_ = side;
+			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
+				bSideOld_ = side;
+				//avoid clip strategy B - modify portal scale to fit clipping near plane
+				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+				bPortalCube_->setLocalPosZ(side * -bPortalCube_->getLocalScaleZ() / 2);
+			}
 		}
-		else bSideOld_ = 0; //player is out of zone so invalid previous
+		else { //player is out of zone so invalid previous
+			bSideOld_ = 0;
+			//avoid clip strategy B - modify portal scale to fit clipping near plane
+			bPortalCube_->setLocalScaleZ(EPSILON);
+			bPortalCube_->setLocalPosZ(0);
+		}
 
 		//red portal
 		auto rPortalPos = rPortalPanel_->getLocalPos();
@@ -511,15 +522,26 @@ void SampleScene::update() {
 				//invalid previous sides
 				bSideOld_ = 0;
 				rSideOld_ = 0;
+				rPortalCube_->setLocalScaleZ(EPSILON);
+				rPortalCube_->setLocalPosZ(0);
 
 				//update cameras atm here
 				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 			}
-			//store new valid side
-			else if (rSideOld_ == 0) rSideOld_ = side;
+			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
+				rSideOld_ = side;
+				//avoid clip strategy B - modify portal scale to fit clipping near plane
+				rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+				rPortalCube_->setLocalPosZ(side * -rPortalCube_->getLocalScaleZ() / 2);
+			}
 		}
-		else rSideOld_ = 0; //player is out of zone so invalid previous
+		else { //player is out of zone so invalid previous
+			rSideOld_ = 0;
+			//avoid clip strategy B - modify portal scale to fit clipping near plane
+			rPortalCube_->setLocalScaleZ(EPSILON);
+			rPortalCube_->setLocalPosZ(0);
+		}
 	}
 
 	//update previous
