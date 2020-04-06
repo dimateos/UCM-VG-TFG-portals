@@ -159,17 +159,19 @@ bool SampleScene::init() {
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
 	//bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.62, EPSILON));
-	bPortalPanel_->translateY(-0.125);
-	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ()/2);
+	bPortalPanel_->translateY(-0.13);
+	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ() * 0.5);
+	sqCloseDistance_ = bPortalCube_->getLocalScaleX() * 0.6;
+	sqCloseDistance_ *= sqCloseDistance_;
 
 	auto bPortalBorders = new Node(bPortalPanel_);
 	bPortalBorders->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalBorders->scale(0.25f);
 	float separation = 1.5f / bPortalBorders->getLocalScaleX();
 	float rescale = 3 / bPortalBorders->getLocalScaleX();
-	//auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
-	//bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
-	//bPortalBorderL->setLocalScaleY(rescale);
+	auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
+	bPortalBorderL->setLocalScaleY(rescale);
 	auto bPortalBorderR = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	bPortalBorderR->setLocalScaleY(rescale);
@@ -524,6 +526,10 @@ void SampleScene::update() {
 				rSideOld_ = 0;
 				rPortalCube_->setLocalScaleZ(EPSILON);
 				rPortalCube_->setLocalPosZ(0);
+				//as the blue portal has already been checked move it backards in this frame
+				bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), bPortalPanel_->back()));
+				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+				bPortalCube_->setLocalPosZ(bSideOld_ * -bPortalCube_->getLocalScaleZ() / 2);
 
 				//update cameras atm here
 				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));

@@ -70,7 +70,7 @@ protected:
 	InputCameraRotation* camController_;
 
 	//portal teleporting
-	float sqCloseDistance_ = 2*2;
+	float sqCloseDistance_;
 	glm::vec3 playerPosOld_;
 	glm::quat camRotOld_;
 	int rSideOld_ = 0, bSideOld_ = 0;
