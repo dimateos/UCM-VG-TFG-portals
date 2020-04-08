@@ -19,6 +19,8 @@ class InputCameraRotation;
 #include "../Render/Material.h"
 class ScreenPostFiltering;
 
+#include <vector>
+
 class SampleScene : public Scene, Listener<SDL_Event>
 {
 public:
@@ -78,6 +80,11 @@ protected:
 	//avoid portal clipping strategies
 	float initialNear_, initialNearCornerDistance_;
 
+	//portal recursion testing
+	const int recLimit_ = 6;
+	int startIndex_ = 0;
+	std::vector<Transformation> recTrans_;
+
 	//common here now
 	Texture checkersTex_, blankTex_;
 	unsigned int uniformModel_, uniformView_, uniformProj_;
@@ -94,6 +101,8 @@ protected:
 		if (f < -EPSILON) return -1;
 		return 0;
 	}
+
+	glm::vec4 getClipPlane(Transformation const & panelT, Transformation const & camT);
 
 	void modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane);
 	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);

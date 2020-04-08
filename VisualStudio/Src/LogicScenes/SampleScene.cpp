@@ -83,6 +83,9 @@ bool SampleScene::init() {
 	//maximun possible near corner distance + a little epsilon
 	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_)) + 10*EPSILON;
 
+	//RECURSION STUFF
+	recTrans_.resize(recLimit_);
+
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
 
@@ -153,7 +156,7 @@ bool SampleScene::init() {
 	bPortalPanel_ = new Node(world_node_);
 	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
-	bPortalPanel_->translateZ(5);
+	bPortalPanel_->translateZ(12);
 	//bPortalPanel_->yaw(180.f);
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
@@ -190,8 +193,9 @@ bool SampleScene::init() {
 	rPortalPanel_ = new Node(world_node_);
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
-	rPortalPanel_->translateX(10);
-	rPortalPanel_->yaw(90.f);
+	//rPortalPanel_->translateX(10);
+	//rPortalPanel_->yaw(90.f);
+	bPortalPanel_->translateZ(-6);
 	//rPortalPanel_->pitch(180.f);
 
 	rPortalCube_ = new ShapeNode(rPortalPanel_, cubeMesh_, rPortalMat_);
@@ -387,39 +391,32 @@ void SampleScene::update() {
 		//get position (P) in bPortal local coordinates of player (player camera position and rotation)
 		//we also get the inversed for the camera
 			//atm setting the matrix doesnt update the transformation so we cannot calculate the inversed
-		glm::mat4 localMat = bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix();
+		//glm::mat4 localMat = bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix();
 		//glm::mat4 localMat_inversed = cam_->getModelMatrix_Inversed() * bPortalPanel_->getModelMatrix();
-		//auto s = sizeof(localMat) / sizeof(float);
 
 		//set portal camera position in rPortal local coordinates equal to (P)
-		//portal camera is already child of portal - no conversion needed
+			//portal camera is already child of portal - no conversion needed
 		//bPortalCam_->setLocalModelMatrix(localMat);
 		//bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
 
 		//set correct position and rotation (decomposed from matrices for now) - ignoring scale atm
-		Transformation t = Transformation::getDescomposed(localMat);
-		bPortalCam_->setLocalTrans(t);
-		//bPortalCam_->setLocalPos(t.postion);
-		//bPortalCam_->setLocalRot(t.rotation);
-		//bPortalCam_->setLocalScale(t.scale);
+		//Transformation t = Transformation::getDescomposed(localMat);
+		//bPortalCam_->setLocalTrans(t);
 
 		//same for the other portal
-		//rPortalCam_->setLocalModelMatrix(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
-		//rPortalCam_->setLocalModelMatrix_Inversed(cam_->getModelMatrix_Inversed() * rPortalPanel_->getModelMatrix());
-
-		//set correct position and rotation (decomposed from matrices for now) - ignoring scale
 		rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 
-		//player2_->setLocalPos(player_->getLocalPos());
-		//player2_->translateX(10.0f);
-		//player2_->setLocalRot(player_->getLocalRot());
-		//printf("scene - cam roll: %f\n", glm::roll(cam_->getLocalRot()));
+		//calculate recursion positions and rotations - for just 1 portal atm
+		glm::mat4 camMat = cam_->getModelMatrix(), portalMat_Inversed = bPortalPanel_->getModelMatrix_Inversed();
 
-		//player_->setLocalPos(glm::vec3(10.0f));
-		//player_->setLocalScale(glm::vec3(2.0f));
-		//player_->setLocalRot(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
-		//auto playerM = player_->getModelMatrix();
-		//Transformation t = Transformation::getDescomposed(playerM);
+		for (size_t i = 0; i < recLimit_; i++) {
+			int renderOrderIndex = recLimit_ - i - 1; //inversed order - from back to front
+			startIndex_ = renderOrderIndex; //atm we do all the recursions
+
+			camMat = portalMat_Inversed * camMat;
+			recTrans_[renderOrderIndex] = Transformation::getDescomposed(camMat);
+		}
+		bPortalCam_->setLocalTrans(recTrans_[recLimit_-1]); //set the transform for the rest of the logic
 	}
 
 	//avoid clipping the portal plane - only when moving because we assume worst rotation
@@ -555,54 +552,58 @@ void SampleScene::update() {
 	camRotOld_ = cam_->getLocalRot();
 }
 
-void SampleScene::render() {
-
-	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
-	SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
-
+glm::vec4 SampleScene::getClipPlane(Transformation const & panelT, Transformation const & camT) {
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
 	//auto planeN = -rPortalPanel_->back(); //camera is child of plane so acually no
 	auto planeN = -Transformation::BASE_BACK;
+
 	//camera must always be behind plane so check so check dot
 	//float side = fsgn(glm::dot(planeN, -bPortalCam_->back()));
-	float side = fsgn(glm::dot(planeN, -bPortalCam_->getLocalPos()));
+	float side = fsgn(glm::dot(planeN, -camT.postion));
+
 	//plane normal and position - use position to calculate Q
-	auto camRot_i = glm::conjugate(bPortalCam_->getLocalRot());
-	auto clipP = camRot_i * (-bPortalCam_->getLocalPos());
+	auto camRot_i = glm::conjugate(camT.rotation);
+	auto clipP = camRot_i * (-camT.postion);
 	auto clipN = camRot_i * (side * planeN);
+
 	float Q = glm::dot(-clipN, clipP);
 	//printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
-	//create clip plane and modfy the projection matrix
-	auto clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, Q);
-	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
-	//load the matrix and the restore it
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
-	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+	return glm::vec4(clipN.x, clipN.y, clipN.z, Q);
+}
 
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
-	rt_PF_->bind(true); //3d depth test enabled
-	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	rPortalCube_->mesh_ = nullptr;
-	Scene::render(); //edited virtual render_rec
-	rPortalCube_->mesh_ = cubeMesh_;
+void SampleScene::render() {
 
-	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
-	rt_bPortalPanel_->bind(false);
-	screenPF_->render();
+	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
+	for (size_t i = 0; i < recLimit_; i++) {
+		//PORTAL PANEL pass - draw scene in the reused postfilter buffer
+		SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
+
+		//set the transformation in order
+		bPortalCam_->setLocalTrans(recTrans_[i]);
+
+		//calculate oblique plane
+		modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, getClipPlane(rPortalPanel_->getLocalTrans(), bPortalCam_->getLocalTrans()));
+		//load the matrix and the restore it
+		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
+		testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+
+		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
+		rt_PF_->bind(true); //3d depth test enabled
+		rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		rPortalCube_->mesh_ = nullptr;
+		Scene::render(); //edited virtual render_rec
+		rPortalCube_->mesh_ = cubeMesh_;
+
+		//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
+		rt_bPortalPanel_->bind(false);
+		screenPF_->render();
+	}
 
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	planeN = -Transformation::BASE_BACK;
-	side = fsgn(glm::dot(planeN, -rPortalCam_->getLocalPos()));
-	camRot_i = glm::conjugate(rPortalCam_->getLocalRot());
-	clipP = camRot_i * (-rPortalCam_->getLocalPos());
-	clipN = camRot_i * (side * planeN);
-	Q = glm::dot(-clipN, clipP);
-	//printf(" Q: %f - S: %f - clipN: %f %f %f - clipP: %f %f %f\n", Q, side, clipN.x, clipN.y, clipN.z, clipP.x, clipP.y, clipP.z);
-	clipPlane = glm::vec4(clipN.x, clipN.y, clipN.z, Q);
-	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, getClipPlane(bPortalPanel_->getLocalTrans(), rPortalCam_->getLocalTrans()));
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
 	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
