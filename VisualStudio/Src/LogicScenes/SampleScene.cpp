@@ -80,8 +80,8 @@ bool SampleScene::init() {
 	float angleXHalf = atanf(nearRight / initialNear_);
 	float fovX = glm::degrees(angleXHalf * 2);
 
-	//maximun possible near corner distance
-	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_));
+	//maximun possible near corner distance + a little epsilon
+	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_)) + 10*EPSILON;
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -465,7 +465,7 @@ void SampleScene::update() {
 		glm::vec3 bPortalOffset = playerPos - bPortalPos;
 		//close enough
 		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
-			int side = sgn(glm::dot(bPortalOffset, bPortalPanel_->back()));
+			int side = sgn(glm::dot(bPortalOffset, -bPortalPanel_->back()));
 			//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 			//diff sides so tp
@@ -494,7 +494,7 @@ void SampleScene::update() {
 				bSideOld_ = side;
 				//avoid clip strategy B - modify portal scale to fit clipping near plane
 				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				bPortalCube_->setLocalPosZ(side * -bPortalCube_->getLocalScaleZ() / 2);
+				bPortalCube_->setLocalPosZ(side * bPortalCube_->getLocalScaleZ() / 2);
 			}
 		}
 		else { //player is out of zone so invalid previous
@@ -509,7 +509,7 @@ void SampleScene::update() {
 		glm::vec3 rPortalOffset = playerPos - rPortalPos;
 		//close enough
 		if (glm::length2(rPortalOffset) < sqCloseDistance_) {
-			int side = sgn(glm::dot(rPortalOffset, rPortalPanel_->back()));
+			int side = sgn(glm::dot(rPortalOffset, -rPortalPanel_->back()));
 			//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
 
 			//diff sides so tp
@@ -527,9 +527,9 @@ void SampleScene::update() {
 				rPortalCube_->setLocalScaleZ(EPSILON);
 				rPortalCube_->setLocalPosZ(0);
 				//as the blue portal has already been checked move it backards in this frame
-				bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), bPortalPanel_->back()));
+				bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), -bPortalPanel_->back()));
 				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				bPortalCube_->setLocalPosZ(bSideOld_ * -bPortalCube_->getLocalScaleZ() / 2);
+				bPortalCube_->setLocalPosZ(bSideOld_ * bPortalCube_->getLocalScaleZ() / 2);
 
 				//update cameras atm here
 				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
@@ -539,7 +539,7 @@ void SampleScene::update() {
 				rSideOld_ = side;
 				//avoid clip strategy B - modify portal scale to fit clipping near plane
 				rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				rPortalCube_->setLocalPosZ(side * -rPortalCube_->getLocalScaleZ() / 2);
+				rPortalCube_->setLocalPosZ(side * rPortalCube_->getLocalScaleZ() / 2);
 			}
 		}
 		else { //player is out of zone so invalid previous
