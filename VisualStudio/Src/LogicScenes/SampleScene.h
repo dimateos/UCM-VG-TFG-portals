@@ -53,7 +53,7 @@ protected:
 	//blue render portal
 	Camera* bPortalCam_;
 	Node* bPortalPanel_;
-	ShapeNode* bPortalCube_;
+	ShapeNode* bPortalCube_, *bAxisRGB_;
 	SolidMaterial *bPortalMat_;
 	RenderTarget *rt_bPortalPanel_;
 	Texture *bPortalTex_;
@@ -61,7 +61,7 @@ protected:
 	//red render portal
 	Camera* rPortalCam_;
 	Node* rPortalPanel_;
-	ShapeNode* rPortalCube_;
+	ShapeNode* rPortalCube_, *rAxisRGB_;
 	SolidMaterial *rPortalMat_;
 	RenderTarget *rt_rPortalPanel_;
 	Texture *rPortalTex_;
@@ -101,6 +101,9 @@ protected:
 		if (f < -EPSILON) return -1;
 		return 0;
 	}
+
+	void avoidCameraClip();
+	void updatePortalCamerasTrans();
 
 	glm::vec4 getClipPlane(Transformation const & panelT, Transformation const & camT);
 

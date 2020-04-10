@@ -23,6 +23,8 @@
 #include <gtx/string_cast.hpp>
 #include <iostream>
 
+#include <math.h> //for atan
+
 SampleScene::SampleScene(App* app) : Scene(app) {}
 
 SampleScene::~SampleScene() {
@@ -132,7 +134,7 @@ bool SampleScene::init() {
 
 	//RENDER PANEL
 	rt_renderPanel_ = new RenderTarget();
-	rt_renderPanel_->create(vp_screen_);
+	rt_renderPanel_->create(vp_PF_);
 	renderTex_ = new Texture();
 	renderTex_->createRenderTargetTexture(rt_renderPanel_);
 
@@ -147,7 +149,7 @@ bool SampleScene::init() {
 
 	//BLUE PORTAL PANEL
 	rt_bPortalPanel_ = new RenderTarget();
-	rt_bPortalPanel_->create(vp_screen_);
+	rt_bPortalPanel_->create(vp_PF_);
 	bPortalTex_ = new Texture();
 	bPortalTex_->createRenderTargetTexture(rt_bPortalPanel_);
 	bPortalMat_ = new SolidMaterial(glm::vec3(1.0f), bPortalTex_);
@@ -161,8 +163,8 @@ bool SampleScene::init() {
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
 	//bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.62, EPSILON));
-	bPortalPanel_->translateY(-0.13);
+	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.76, EPSILON));
+	bPortalCube_->translateY(-0.07);
 	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ() * 0.5);
 	sqCloseDistance_ = bPortalCube_->getLocalScaleX() * 0.6;
 	sqCloseDistance_ *= sqCloseDistance_;
@@ -246,7 +248,7 @@ bool SampleScene::init() {
 
 	//PLAYER
 	player_ = new Node(world_node_);
-	player_->setLocalPos(glm::vec3(0.f, 0.f, 10.f));
+	player_->setLocalPos(glm::vec3(0.f, 0.f, 9.f));
 	//playerPrevTrans_ = player_->getLocalTrans();
 	//player_->yaw(-90);
 	//player->yaw(20);
@@ -301,8 +303,8 @@ bool SampleScene::init() {
 	//PORTAL EXTRA CAMERAS
 	bPortalCam_ = new Camera(proj_);
 	bPortalCam_->setFather(rPortalPanel_);
-	auto bAxisRGB = new ShapeNode(bPortalCam_, axisMesh, pinkMat_);
-	auto bAxisSon = new Node(bAxisRGB);
+	bAxisRGB_ = new ShapeNode(bPortalCam_, axisMesh, pinkMat_);
+	auto bAxisSon = new ShapeNode(bAxisRGB_, cubeMesh_, blueCheckerMat);
 	bAxisSon->scale(0.20f);
 	float f2 = 0.9f / bAxisSon->getLocalScaleX();
 	auto bCubeRight = new ShapeNode(bAxisSon, cubeMesh_, redCheckerMat);
@@ -314,8 +316,8 @@ bool SampleScene::init() {
 
 	rPortalCam_ = new Camera(proj_);
 	rPortalCam_->setFather(bPortalPanel_);
-	auto rAxisRGB = new ShapeNode(rPortalCam_, axisMesh, pinkMat_);
-	auto rAxisSon = new Node(rAxisRGB);
+	rAxisRGB_ = new ShapeNode(rPortalCam_, axisMesh, pinkMat_);
+	auto rAxisSon = new ShapeNode(rAxisRGB_, cubeMesh_, redCheckerMat);
 	rAxisSon->scale(0.20f);
 	auto rCubeRight = new ShapeNode(rAxisSon, cubeMesh_, redCheckerMat);
 	rCubeRight->translate(Transformation::BASE_RIGHT * f2);
@@ -369,12 +371,81 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		movController_->target_ = movController_->target_ != player_ ? player_ : rPortalPanel_;
 		return true;
 	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
+		if (rAxisRGB_->getFather() == nullptr) {
+			rAxisRGB_->setFather(rPortalCam_);
+			bAxisRGB_->setFather(bPortalCam_);
+		}
+		else {
+			rAxisRGB_->setFather(nullptr);
+			bAxisRGB_->setFather(nullptr);
+		}
+		return true;
+	}
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;
 }
 
-#include <math.h> //for atan
+void SampleScene::avoidCameraClip() {
+	//avoid clipping the portal plane - only when moving because we assume worst rotation
+	//strategy A: reduce near distance - downside is editting the projection matrx too much
+	//strategy B: portals are small scaled cubes with face cullling off so any clipping stays within the cube
+		//done within portal tp checking
+		//assume worst case and only tweak when entering / exitting portal close zone
+	//strategy C: could be B but dynamically adjust scale to acually the amount the near plan clipped
+		//probably not worth as the B works perfectly for coherently small near planes
+
+	//check distance to portals
+	glm::vec3 rCamOffset = player_->getLocalPos() + cam_->getLocalPos() - bPortalPanel_->getLocalPos();
+	float rCamDot = glm::dot(rCamOffset, bPortalPanel_->back());
+
+	float rCamDistance = glm::abs(rCamDot);
+	float diff = rCamDistance - initialNearCornerDistance_;
+
+	//near plane is too close
+	if (diff <= 0) {
+		//set proportionally smaller
+		proj_->near = initialNear_ + (diff * 1.25f - EPSILON); //reduce by chunks and add EPSILON for diff==0 case
+		if (proj_->near < EPSILON) proj_->near = 1E-5; //minimun
+
+		proj_->updateProjMatrix();
+		printf(" rCamDistance: %f - nearCornerDistance: %f - diff: %f - new near: %f\n", rCamDistance, initialNearCornerDistance_, diff, proj_->near);
+	}
+	//restore plane near
+	else {
+		proj_->near = initialNear_;
+		proj_->updateProjMatrix();
+	}
+}
+
+void SampleScene::updatePortalCamerasTrans() {
+	//printf("scene - updating cameras \n");
+
+	//get position in portal local coordinates of global player's (player camera position and rotation)
+		//cam matrix by inverse of portal matrix
+	//set position and rotation (decomposed from matrices atm) - ignoring scale atm
+		//just set local cause atm the red portal cam is already child of blue portal
+	rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+
+	//calculate recursion positions and rotations - for just 1 portal atm
+	glm::mat4 camMat = cam_->getModelMatrix(), portalMat_inv = bPortalPanel_->getModelMatrix_Inversed(), portalMat_base = rPortalPanel_->getModelMatrix();
+
+	//first recursion (last recursive trans) is the base one
+	glm::mat4 combinedTrans = portalMat_inv * camMat;
+	recTrans_[recLimit_ - 1] = Transformation::getDescomposed(combinedTrans);
+	bPortalCam_->setLocalTrans(recTrans_[recLimit_ - 1]);
+
+	for (size_t i = 1; i < recLimit_; i++) {
+		int renderOrderIndex = recLimit_ - i - 1; //inversed order - from back to front
+		startIndex_ = renderOrderIndex; //atm we do all the recursions
+
+		//local coords in the base portal to global multiply by linked portal inverse and get again in local linked portal
+		combinedTrans = portalMat_inv * portalMat_base * combinedTrans;
+		recTrans_[renderOrderIndex] = Transformation::getDescomposed(combinedTrans);
+	}
+}
+
 
 void SampleScene::update() {
 	Scene::update();
@@ -385,72 +456,10 @@ void SampleScene::update() {
 	bool diffRot = glm::any(glm::epsilonNotEqual(camRotOld_, cam_->getLocalRot(), EPSILON));
 
 	//update camera matrices
-	if (diffPos || diffRot) {
-		//printf("scene - updating cameras \n");
+	if (diffPos || diffRot) updatePortalCamerasTrans();
 
-		//get position (P) in bPortal local coordinates of player (player camera position and rotation)
-		//we also get the inversed for the camera
-			//atm setting the matrix doesnt update the transformation so we cannot calculate the inversed
-		//glm::mat4 localMat = bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix();
-		//glm::mat4 localMat_inversed = cam_->getModelMatrix_Inversed() * bPortalPanel_->getModelMatrix();
-
-		//set portal camera position in rPortal local coordinates equal to (P)
-			//portal camera is already child of portal - no conversion needed
-		//bPortalCam_->setLocalModelMatrix(localMat);
-		//bPortalCam_->setLocalModelMatrix_Inversed(localMat_inversed);
-
-		//set correct position and rotation (decomposed from matrices for now) - ignoring scale atm
-		//Transformation t = Transformation::getDescomposed(localMat);
-		//bPortalCam_->setLocalTrans(t);
-
-		//same for the other portal
-		rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
-
-		//calculate recursion positions and rotations - for just 1 portal atm
-		glm::mat4 camMat = cam_->getModelMatrix(), portalMat_Inversed = bPortalPanel_->getModelMatrix_Inversed();
-
-		for (size_t i = 0; i < recLimit_; i++) {
-			int renderOrderIndex = recLimit_ - i - 1; //inversed order - from back to front
-			startIndex_ = renderOrderIndex; //atm we do all the recursions
-
-			camMat = portalMat_Inversed * camMat;
-			recTrans_[renderOrderIndex] = Transformation::getDescomposed(camMat);
-		}
-		bPortalCam_->setLocalTrans(recTrans_[recLimit_-1]); //set the transform for the rest of the logic
-	}
-
-	//avoid clipping the portal plane - only when moving because we assume worst rotation
-		//strategy A: reduce near distance - downside is editting the projection matrx too much
-		//strategy B: portals are small scaled cubes with face cullling off so any clipping stays within the cube
-			//done within portal tp checking
-			//assume worst case and only tweak when entering / exitting portal close zone
-		//strategy C: could be B but dynamically adjust scale to acually the amount the near plan clipped
-			//probably not worth as the B works perfectly for coherently small near planes
-	/*
-	if (diffPos) {
-		//check distance to portals
-		glm::vec3 rCamOffset = player_->getLocalPos() + cam_->getLocalPos() - bPortalPanel_->getLocalPos();
-		float rCamDot = glm::dot(rCamOffset, bPortalPanel_->back());
-
-		float rCamDistance = glm::abs(rCamDot);
-		float diff = rCamDistance - initialNearCornerDistance_;
-
-		//near plane is too close
-		if (diff <= 0) {
-			//set proportionally smaller
-			proj_->near = initialNear_ + (diff * 1.25f - EPSILON); //reduce by chunks and add EPSILON for diff==0 case
-			if (proj_->near < EPSILON) proj_->near = 1E-5; //minimun
-
-			proj_->updateProjMatrix();
-			printf(" rCamDistance: %f - nearCornerDistance: %f - diff: %f - new near: %f\n", rCamDistance, initialNearCornerDistance_, diff, proj_->near);
-		}
-		//restore plane near
-		else {
-			proj_->near = initialNear_;
-			proj_->updateProjMatrix();
-		}
-	}
-	*/
+	//atm done within portal checking (strategy B)
+	//if (diffPos) avoidCameraClip();
 
 	//check tp for each close portal
 	if (diffPos) {
@@ -483,9 +492,8 @@ void SampleScene::update() {
 				bPortalCube_->setLocalScaleZ(EPSILON);
 				bPortalCube_->setLocalPosZ(0);
 
-				//update cameras atm here
-				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
-				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+				//update cameras for smooth render this frame
+				updatePortalCamerasTrans();
 			}
 			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 				bSideOld_ = side;
@@ -528,9 +536,8 @@ void SampleScene::update() {
 				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
 				bPortalCube_->setLocalPosZ(bSideOld_ * bPortalCube_->getLocalScaleZ() / 2);
 
-				//update cameras atm here
-				bPortalCam_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
-				rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+				//update cameras for smooth render this frame
+				updatePortalCamerasTrans();
 			}
 			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 				rSideOld_ = side;
@@ -572,11 +579,16 @@ glm::vec4 SampleScene::getClipPlane(Transformation const & panelT, Transformatio
 }
 
 void SampleScene::render() {
+	rPortalCube_->mesh_ = nullptr;
+	bPortalCube_->mesh_ = cubeMesh_;
+	bPortalCube_->mat_ = pinkMat_;
 
 	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
 	for (size_t i = 0; i < recLimit_; i++) {
 		//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 		SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
+		rt_PF_->bind(true); //3d depth test enabled
+		rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the transformation in order
 		bPortalCam_->setLocalTrans(recTrans_[i]);
@@ -588,15 +600,14 @@ void SampleScene::render() {
 		testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
-		rt_PF_->bind(true); //3d depth test enabled
-		rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		rPortalCube_->mesh_ = nullptr;
 		Scene::render(); //edited virtual render_rec
-		rPortalCube_->mesh_ = cubeMesh_;
 
 		//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 		rt_bPortalPanel_->bind(false);
 		screenPF_->render();
+
+		//pink only for final iteration
+		if (i == 0) bPortalCube_->mat_ = bPortalMat_;
 	}
 
 	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
@@ -610,10 +621,11 @@ void SampleScene::render() {
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	rt_PF_->bind(true); //3d depth test enabled
 	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//bPortalPanel_->mesh_ = nullptr;
+
 	bPortalCube_->mesh_ = nullptr;
+	rPortalCube_->mesh_ = cubeMesh_;
+	rPortalCube_->mat_ = pinkMat_;
 	Scene::render(); //edited virtual render_rec
-	bPortalCube_->mesh_ = cubeMesh_;
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
 	rt_rPortalPanel_->bind(false);
@@ -623,6 +635,11 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
+
+	bPortalCube_->mesh_ = cubeMesh_;
+	rPortalCube_->mesh_ = cubeMesh_;
+	bPortalCube_->mat_ = bPortalMat_;
+	rPortalCube_->mat_ = rPortalMat_;
 
 	//LAST PASS - all the portals have view textures
 	rt_PF_->bind(true); //3d depth test enabled
