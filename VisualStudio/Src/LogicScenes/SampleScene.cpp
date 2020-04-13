@@ -159,18 +159,19 @@ bool SampleScene::init() {
 	bPortalPanel_ = new Node(world_node_);
 	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
-	bPortalPanel_->translateZ(12);
+	bPortalPanel_->translateZ(6);
 	//bPortalPanel_->yaw(180.f);
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
 	//bPortalCube_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.76, EPSILON));
+	bPortalCube_->setLocalScale(glm::vec3(2.62, 2.75, EPSILON));
 	bPortalCube_->translateY(-0.07);
 	bPortalCube_->setLocalPosZ(-bPortalCube_->getLocalScaleZ() * 0.5);
 	sqCloseDistance_ = bPortalCube_->getLocalScaleX() * 0.6;
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	auto bPortalBorders = new Node(bPortalPanel_);
+	bPortalBorders->setFather(nullptr);
 	bPortalBorders->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalBorders->scale(0.25f);
 	float separation = 1.5f / bPortalBorders->getLocalScaleX();
@@ -197,8 +198,8 @@ bool SampleScene::init() {
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
 	//rPortalPanel_->translateX(10);
-	//rPortalPanel_->yaw(90.f);
-	bPortalPanel_->translateZ(-6);
+	//rPortalPanel_->yaw(180.f);
+	bPortalPanel_->translateZ(6);
 	//rPortalPanel_->pitch(180.f);
 
 	rPortalCube_ = new ShapeNode(rPortalPanel_, cubeMesh_, rPortalMat_);
@@ -207,6 +208,7 @@ bool SampleScene::init() {
 	//rPortalWall->translateZ(0.5);
 
 	auto rPortalBorders = new Node(rPortalPanel_);
+	rPortalBorders->setFather(nullptr);
 	rPortalBorders->setLocalTrans(bPortalBorders->getLocalTrans());
 	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
@@ -261,12 +263,22 @@ bool SampleScene::init() {
 	//player->yaw(20);
 	//player->scale(0.8f);
 
-	playerBody_ = new ShapeNode(player_, cubeMesh_, redCheckerMat);
+	//special material for slizing
+	SolidMaterial::UNIFORM_CLIP_PLANE = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("clipPlane");
+	slizableMat_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
+
+	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
 	playerBody_->scale(0.5);
+	//playerBody_->setLocalScaleZ(4); //test longer slice
 
 	//COPY for slicing
 	playerCopy_ = new Node(world_node_);
-	playerCopy_->addChild(new ShapeNode(*playerBody_));
+	auto bodyCopy = new ShapeNode(*playerBody_);
+	playerCopy_->addChild(bodyCopy);
+	//separated copy material
+	slizableMatCopy_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
+	slizableMatCopy_->option_ = 2;
+	bodyCopy->mat_ = slizableMatCopy_;
 
 	//edit camera
 	cam_->setFather(player_);
@@ -333,6 +345,9 @@ bool SampleScene::init() {
 	rCubeUp->translate(Transformation::BASE_UP * f2);
 	auto rCubeBack = new ShapeNode(rAxisSon, cubeMesh_, blueCheckerMat);
 	rCubeBack->translate(Transformation::BASE_BACK * f2);
+
+	rAxisRGB_->setFather(nullptr);
+	bAxisRGB_->setFather(nullptr);
 
 	//INPUT
 	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
@@ -506,12 +521,18 @@ void SampleScene::updatePortalTravellers() {
 			bSideOld_ = 0;
 			bPortalCube_->setLocalScaleZ(EPSILON);
 			bPortalCube_->setLocalPosZ(0);
-			playerCopy_->setFather(nullptr);
 
 			//correct linked portal panel scale
 			rSideOld_ = sgn(glm::dot(playerPos - rPortalPanel_->getLocalPos(), -rPortalPanel_->back()));
 			rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
 			rPortalCube_->setLocalPosZ(rSideOld_ * rPortalCube_->getLocalScaleZ() / 2);
+			//make player copy
+			printf("red clone + undo blue\n");
+			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix() * rPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			//set both clipPlanes (world pos)
+			auto normal = float(rSideOld_) * -rPortalPanel_->back(), normalCopy = float(rSideOld_) * bPortalPanel_->back();
+			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalPanel_->getLocalPos()));
+			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, bPortalPanel_->getLocalPos()));
 		}
 		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 			bSideOld_ = side;
@@ -520,8 +541,14 @@ void SampleScene::updatePortalTravellers() {
 			bPortalCube_->setLocalPosZ(side * bPortalCube_->getLocalScaleZ() / 2);
 
 			//make player copy
+			printf("blue clone\n");
 			playerCopy_->setFather(world_node_);
+			slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix() * bPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			//set both clipPlanes (world pos)
+			auto normal = float(side) * -bPortalPanel_->back(), normalCopy = float(side) * rPortalPanel_->back();
+			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalPanel_->getLocalPos()));
+			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, rPortalPanel_->getLocalPos()));
 		}
 	}
 	else if (bSideOld_ != 0) { //player is out of zone so invalid previous
@@ -529,7 +556,9 @@ void SampleScene::updatePortalTravellers() {
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
 		bPortalCube_->setLocalScaleZ(EPSILON);
 		bPortalCube_->setLocalPosZ(0);
+		printf("blue UNclone\n");
 		playerCopy_->setFather(nullptr);
+		slizableMat_->option_ = 0;
 	}
 
 	//red portal
@@ -556,22 +585,34 @@ void SampleScene::updatePortalTravellers() {
 			rSideOld_ = 0;
 			rPortalCube_->setLocalScaleZ(EPSILON);
 			rPortalCube_->setLocalPosZ(0);
-			playerCopy_->setFather(nullptr);
 
 			//correct linked portal panel scale
 			bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), -bPortalPanel_->back()));
 			bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
 			bPortalCube_->setLocalPosZ(bSideOld_ * bPortalCube_->getLocalScaleZ() / 2);
+			//make player copy
+			printf("blue clone + undo red\n");
+			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix() * bPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			//set both clipPlanes (world pos)
+			auto normal = float(bSideOld_) * -bPortalPanel_->back(), normalCopy = float(bSideOld_) * rPortalPanel_->back();
+			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalPanel_->getLocalPos()));
+			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, rPortalPanel_->getLocalPos()));
 		}
-		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
+		else if (rSideOld_ == 0) { //store new valid side - just entered the zone
 			rSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
 			rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
 			rPortalCube_->setLocalPosZ(side * rPortalCube_->getLocalScaleZ() / 2);
 
 			//make player copy
+			printf("red clone\n");
 			playerCopy_->setFather(world_node_);
+			slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix() * rPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			//set both clipPlanes (world pos)
+			auto normal = float(side) * -rPortalPanel_->back(), normalCopy = float(side) * bPortalPanel_->back();
+			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalPanel_->getLocalPos()));
+			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, bPortalPanel_->getLocalPos()));
 		}
 	}
 	else if (rSideOld_ != 0) { //player is out of zone so invalid previous
@@ -579,7 +620,9 @@ void SampleScene::updatePortalTravellers() {
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
 		rPortalCube_->setLocalScaleZ(EPSILON);
 		rPortalCube_->setLocalPosZ(0);
+		printf("red UNclone\n");
 		playerCopy_->setFather(nullptr);
+		slizableMat_->option_ = 0;
 	}
 }
 

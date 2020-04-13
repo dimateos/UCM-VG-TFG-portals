@@ -24,9 +24,10 @@ public:
 	virtual void unbind();
 
 	static Shader SOLID_MAT_SHADER; //for now
-	static unsigned int UNIFORM_COLOR, UNIFORM_OPTION;
+	static unsigned int UNIFORM_COLOR, UNIFORM_OPTION, UNIFORM_CLIP_PLANE;
 
 	glm::vec3 color_;
 	Texture* tex_;
+	glm::vec4 clipPlane_;
 	int option_ = 0; //quick hack to test shader options for portals
 };

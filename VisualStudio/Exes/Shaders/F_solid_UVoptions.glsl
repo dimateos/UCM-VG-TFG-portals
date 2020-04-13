@@ -27,4 +27,10 @@ void main()
         FragColor = texture(texture0, uv);
         FragColor *= vec4(color, 1.0);
     }
+
+    //just visually inverse color
+    if (option == 2) {
+        FragColor = texture(texture0, uv);
+        FragColor *= vec4(1-color, 1.0);
+    }
 }

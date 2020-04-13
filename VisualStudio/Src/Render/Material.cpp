@@ -7,6 +7,7 @@ Material::~Material() {}
 Shader SolidMaterial::SOLID_MAT_SHADER = Shader();
 unsigned int SolidMaterial::UNIFORM_COLOR = 0;
 unsigned int SolidMaterial::UNIFORM_OPTION = 0;
+unsigned int SolidMaterial::UNIFORM_CLIP_PLANE = 0;
 
 SolidMaterial::SolidMaterial(glm::vec3 const & color, Texture* tex)
 	: Material(&SOLID_MAT_SHADER), color_(color), tex_(tex) {
@@ -19,7 +20,10 @@ void SolidMaterial::bind() {
 	glUniform1i(UNIFORM_OPTION, option_);
 	tex_->bind();
 
-	if (option_ == 2) glEnable(GL_CLIP_DISTANCE0);
+	if (option_ == 2) {
+		glEnable(GL_CLIP_DISTANCE0);
+		glUniform4f(UNIFORM_CLIP_PLANE, clipPlane_.x, clipPlane_.y, clipPlane_.z, clipPlane_.w);
+	}
 }
 
 void SolidMaterial::unbind() {

@@ -67,7 +67,7 @@ protected:
 	Texture *rPortalTex_;
 
 	//camera mimic
-	Node *player_, *playerCopy_;
+	Node *player_;
 	ShapeNode *playerBody_;
 	InputFreeMovement* movController_;
 	InputCameraRotation* camController_;
@@ -86,6 +86,8 @@ protected:
 
 	//portal travellers slicing and duping test
 	ShapeNode* testTraveller_;
+	Node *playerCopy_;
+	SolidMaterial *slizableMat_, *slizableMatCopy_;
 
 	//common here now
 	Texture checkersTex_, blankTex_;
