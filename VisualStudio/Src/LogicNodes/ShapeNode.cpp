@@ -6,6 +6,10 @@
 
 ShapeNode::ShapeNode(Node * father, Mesh* mesh, Material* mat) : Node(father), mesh_(mesh), mat_(mat) {
 }
+ShapeNode::ShapeNode(ShapeNode const & other) : Node(other.getFather()), mesh_(other.mesh_), mat_(other.mat_) {
+	setLocalTrans(other.getLocalTrans());
+}
+
 ShapeNode::~ShapeNode() {
 }
 
@@ -21,6 +25,7 @@ void ShapeNode::render() {
 	if (mat_ != nullptr && mesh_ != nullptr) {
 		mat_->bind();
 		mesh_->draw();
+		mat_->unbind();
 	}
 	else if (mesh_ != nullptr) mesh_->draw();
 }

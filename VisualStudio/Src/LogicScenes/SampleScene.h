@@ -67,14 +67,13 @@ protected:
 	Texture *rPortalTex_;
 
 	//camera mimic
-	Node *player_;
+	Node *player_, *playerCopy_;
+	ShapeNode *playerBody_;
 	InputFreeMovement* movController_;
 	InputCameraRotation* camController_;
 
 	//portal teleporting
 	float sqCloseDistance_;
-	glm::vec3 playerPosOld_;
-	glm::quat camRotOld_;
 	int rSideOld_ = 0, bSideOld_ = 0;
 
 	//avoid portal clipping strategies
@@ -84,6 +83,9 @@ protected:
 	const int recLimit_ = 6;
 	int startIndex_ = 0;
 	std::vector<Transformation> recTrans_;
+
+	//portal travellers slicing and duping test
+	ShapeNode* testTraveller_;
 
 	//common here now
 	Texture checkersTex_, blankTex_;
@@ -104,6 +106,7 @@ protected:
 
 	void avoidCameraClip();
 	void updatePortalCamerasTrans();
+	void updatePortalTravellers();
 
 	glm::vec4 getClipPlane(Transformation const & panelT, Transformation const & camT);
 

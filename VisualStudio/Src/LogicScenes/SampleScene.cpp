@@ -143,6 +143,7 @@ bool SampleScene::init() {
 
 	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
 	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
+	renderPanel_->translateZ(5);
 	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
 	renderPanel_->translateY(2);
 	//renderPanel->pitch(90);
@@ -246,6 +247,12 @@ bool SampleScene::init() {
 	//actualy set the father in order to see results
 	//cube->setFather(cubeFather);
 
+	//SLICING TESTING
+	testTraveller_ = new ShapeNode(world_node_, cubeMesh_, greenCheckerMat);
+	testTraveller_->setLocalPos(whiteFloor->getLocalPos());
+	testTraveller_->translateY(1);
+	testTraveller_->setLocalScaleZ(4);
+
 	//PLAYER
 	player_ = new Node(world_node_);
 	player_->setLocalPos(glm::vec3(0.f, 0.f, 9.f));
@@ -254,8 +261,12 @@ bool SampleScene::init() {
 	//player->yaw(20);
 	//player->scale(0.8f);
 
-	auto playerBody = new ShapeNode(player_, cubeMesh_, redCheckerMat);
-	playerBody->scale(0.5);
+	playerBody_ = new ShapeNode(player_, cubeMesh_, redCheckerMat);
+	playerBody_->scale(0.5);
+
+	//COPY for slicing
+	playerCopy_ = new Node(world_node_);
+	playerCopy_->addChild(new ShapeNode(*playerBody_));
 
 	//edit camera
 	cam_->setFather(player_);
@@ -296,9 +307,6 @@ bool SampleScene::init() {
 	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
 	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
 	//modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
-
-	playerPosOld_ = player_->getLocalPos();
-	//camRotOld_ = cam_->getLocalRot(); //force first render
 
 	//PORTAL EXTRA CAMERAS
 	bPortalCam_ = new Camera(proj_);
@@ -368,7 +376,25 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_k) {
-		movController_->target_ = movController_->target_ != player_ ? player_ : rPortalPanel_;
+		if (movController_->target_ != rPortalPanel_) {
+			movController_->target_ = rPortalPanel_;
+			movController_->rotationReference_ = rPortalPanel_;
+		}
+		else {
+			movController_->target_ = player_;
+			movController_->rotationReference_ = cam_;
+		}
+		return true;
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_m) {
+		if (movController_->target_ != testTraveller_) {
+			movController_->target_ = testTraveller_;
+			movController_->rotationReference_ = testTraveller_;
+		}
+		else {
+			movController_->target_ = player_;
+			movController_->rotationReference_ = cam_;
+		}
 		return true;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
@@ -446,117 +472,129 @@ void SampleScene::updatePortalCamerasTrans() {
 	}
 }
 
+void SampleScene::updatePortalTravellers() {
+	//printf("scene - checking tp \n");
+	static int tpc = 0;
+
+	//atm we ignore scale
+	auto playerPos = player_->getLocalPos();
+
+	//blue portal
+	auto bPortalPos = bPortalPanel_->getLocalPos();
+	glm::vec3 bPortalOffset = playerPos - bPortalPos;
+	//close enough
+	if (glm::length2(bPortalOffset) < sqCloseDistance_) {
+		int side = sgn(glm::dot(bPortalOffset, -bPortalPanel_->back()));
+		//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+
+		//set clone position accordingly
+		playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix() * bPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+
+		//diff sides so tp
+		if (side * bSideOld_ == -1) {
+			printf("%i - TP blue \n", ++tpc);
+			//player_->setLocalPos(rPortalPanel_->getLocalPos() + bPortalOffset); //no correct rotation atm
+
+			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+			Transformation t = Transformation::getDescomposed(rPortalPanel_->getModelMatrix() * bPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+			//update player pos (although atm no tp chaining)
+			playerPos = t.postion - cam_->getLocalPos();
+			player_->setLocalPos(playerPos);
+			camController_->setInputRot(t.rotation);
+
+			//invalid previous sides
+			bSideOld_ = 0;
+			bPortalCube_->setLocalScaleZ(EPSILON);
+			bPortalCube_->setLocalPosZ(0);
+			playerCopy_->setFather(nullptr);
+
+			//correct linked portal panel scale
+			rSideOld_ = sgn(glm::dot(playerPos - rPortalPanel_->getLocalPos(), -rPortalPanel_->back()));
+			rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+			rPortalCube_->setLocalPosZ(rSideOld_ * rPortalCube_->getLocalScaleZ() / 2);
+		}
+		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
+			bSideOld_ = side;
+			//avoid clip strategy B - modify portal scale to fit clipping near plane
+			bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+			bPortalCube_->setLocalPosZ(side * bPortalCube_->getLocalScaleZ() / 2);
+
+			//make player copy
+			playerCopy_->setFather(world_node_);
+			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalPanel_->getModelMatrix() * bPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+		}
+	}
+	else if (bSideOld_ != 0) { //player is out of zone so invalid previous
+		bSideOld_ = 0;
+		//avoid clip strategy B - modify portal scale to fit clipping near plane
+		bPortalCube_->setLocalScaleZ(EPSILON);
+		bPortalCube_->setLocalPosZ(0);
+		playerCopy_->setFather(nullptr);
+	}
+
+	//red portal
+	auto rPortalPos = rPortalPanel_->getLocalPos();
+	glm::vec3 rPortalOffset = playerPos - rPortalPos;
+	//close enough
+	if (glm::length2(rPortalOffset) < sqCloseDistance_) {
+		int side = sgn(glm::dot(rPortalOffset, -rPortalPanel_->back()));
+		//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
+
+		//set clone position accordingly
+		playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix() * rPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+
+		//diff sides so tp
+		if (side * rSideOld_ == -1) {
+			printf("%i - TP red \n", ++tpc);
+			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
+			Transformation t = Transformation::getDescomposed(bPortalPanel_->getModelMatrix() * rPortalPanel_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+			playerPos = t.postion - cam_->getLocalPos();
+			player_->setLocalPos(playerPos);
+			camController_->setInputRot(t.rotation);
+
+			//invalid previous sides
+			rSideOld_ = 0;
+			rPortalCube_->setLocalScaleZ(EPSILON);
+			rPortalCube_->setLocalPosZ(0);
+			playerCopy_->setFather(nullptr);
+
+			//correct linked portal panel scale
+			bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), -bPortalPanel_->back()));
+			bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+			bPortalCube_->setLocalPosZ(bSideOld_ * bPortalCube_->getLocalScaleZ() / 2);
+		}
+		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
+			rSideOld_ = side;
+			//avoid clip strategy B - modify portal scale to fit clipping near plane
+			rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
+			rPortalCube_->setLocalPosZ(side * rPortalCube_->getLocalScaleZ() / 2);
+
+			//make player copy
+			playerCopy_->setFather(world_node_);
+			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalPanel_->getModelMatrix() * rPortalPanel_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+		}
+	}
+	else if (rSideOld_ != 0) { //player is out of zone so invalid previous
+		rSideOld_ = 0;
+		//avoid clip strategy B - modify portal scale to fit clipping near plane
+		rPortalCube_->setLocalScaleZ(EPSILON);
+		rPortalCube_->setLocalPosZ(0);
+		playerCopy_->setFather(nullptr);
+	}
+}
 
 void SampleScene::update() {
 	Scene::update();
 
-	//atm we ignore scale
-	auto playerPos = player_->getLocalPos();
-	bool diffPos = glm::any(glm::epsilonNotEqual(playerPosOld_, playerPos, EPSILON));
-	bool diffRot = glm::any(glm::epsilonNotEqual(camRotOld_, cam_->getLocalRot(), EPSILON));
-
-	//update camera matrices
-	if (diffPos || diffRot) updatePortalCamerasTrans();
-
 	//atm done within portal checking (strategy B)
 	//if (diffPos) avoidCameraClip();
 
-	//check tp for each close portal
-	if (diffPos) {
-		//printf("scene - checking tp \n");
-		static int tpc = 0;
+	//check objects entering portal zone: handle tp
+		//atm separated from player - handle portal scale to avoid camera near clip
+	updatePortalTravellers();
 
-		//blue portal
-		auto bPortalPos = bPortalPanel_->getLocalPos();
-		glm::vec3 bPortalOffset = playerPos - bPortalPos;
-		//close enough
-		if (glm::length2(bPortalOffset) < sqCloseDistance_) {
-			int side = sgn(glm::dot(bPortalOffset, -bPortalPanel_->back()));
-			//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
-
-			//diff sides so tp
-			if (side * bSideOld_ == -1) {
-				printf("%i - TP blue \n", ++tpc);
-				//player_->setLocalPos(rPortalPanel_->getLocalPos() + bPortalOffset); //no correct rotation atm
-
-				//set correct position and rotation (decomposed from matrices for now) - ignoring scale
-				Transformation t = Transformation::getDescomposed(bPortalCam_->getModelMatrix());
-				//update player pos (although atm no tp chaining)
-				playerPos = t.postion - cam_->getLocalPos();
-				player_->setLocalPos(playerPos);
-				camController_->setInputRot(t.rotation);
-
-				//invalid previous sides
-				bSideOld_ = 0;
-				rSideOld_ = 0;
-				bPortalCube_->setLocalScaleZ(EPSILON);
-				bPortalCube_->setLocalPosZ(0);
-
-				//update cameras for smooth render this frame
-				updatePortalCamerasTrans();
-			}
-			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
-				bSideOld_ = side;
-				//avoid clip strategy B - modify portal scale to fit clipping near plane
-				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				bPortalCube_->setLocalPosZ(side * bPortalCube_->getLocalScaleZ() / 2);
-			}
-		}
-		else { //player is out of zone so invalid previous
-			bSideOld_ = 0;
-			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			bPortalCube_->setLocalScaleZ(EPSILON);
-			bPortalCube_->setLocalPosZ(0);
-		}
-
-		//red portal
-		auto rPortalPos = rPortalPanel_->getLocalPos();
-		glm::vec3 rPortalOffset = playerPos - rPortalPos;
-		//close enough
-		if (glm::length2(rPortalOffset) < sqCloseDistance_) {
-			int side = sgn(glm::dot(rPortalOffset, -rPortalPanel_->back()));
-			//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
-
-			//diff sides so tp
-			if (side * rSideOld_ == -1) {
-				printf("%i - TP red \n", ++tpc);
-				//set correct position and rotation (decomposed from matrices for now) - ignoring scale
-				Transformation t = Transformation::getDescomposed(rPortalCam_->getModelMatrix());
-				playerPos = t.postion - cam_->getLocalPos();
-				player_->setLocalPos(playerPos);
-				camController_->setInputRot(t.rotation);
-
-				//invalid previous sides
-				bSideOld_ = 0;
-				rSideOld_ = 0;
-				rPortalCube_->setLocalScaleZ(EPSILON);
-				rPortalCube_->setLocalPosZ(0);
-				//as the blue portal has already been checked move it backards in this frame
-				bSideOld_ = sgn(glm::dot(playerPos - bPortalPanel_->getLocalPos(), -bPortalPanel_->back()));
-				bPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				bPortalCube_->setLocalPosZ(bSideOld_ * bPortalCube_->getLocalScaleZ() / 2);
-
-				//update cameras for smooth render this frame
-				updatePortalCamerasTrans();
-			}
-			else if (bSideOld_ == 0) { //store new valid side - just entered the zone
-				rSideOld_ = side;
-				//avoid clip strategy B - modify portal scale to fit clipping near plane
-				rPortalCube_->setLocalScaleZ(initialNearCornerDistance_);
-				rPortalCube_->setLocalPosZ(side * rPortalCube_->getLocalScaleZ() / 2);
-			}
-		}
-		else { //player is out of zone so invalid previous
-			rSideOld_ = 0;
-			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			rPortalCube_->setLocalScaleZ(EPSILON);
-			rPortalCube_->setLocalPosZ(0);
-		}
-	}
-
-	//update previous
-	playerPosOld_ = playerPos;
-	camRotOld_ = cam_->getLocalRot();
+	//update camera matrices
+	updatePortalCamerasTrans();
 }
 
 glm::vec4 SampleScene::getClipPlane(Transformation const & panelT, Transformation const & camT) {

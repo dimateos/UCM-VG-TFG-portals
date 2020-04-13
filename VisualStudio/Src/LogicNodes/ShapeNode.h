@@ -8,6 +8,7 @@ class ShapeNode : public Node
 {
 public:
 	ShapeNode(Node* father, Mesh* mesh, Material* mat);
+	ShapeNode(ShapeNode const & other);
 	virtual ~ShapeNode();
 
 	virtual void render();
