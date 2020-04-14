@@ -7,9 +7,9 @@ App app;
 int main(int argc, char* argv[]) {
 	bool success = false;
 
-	const float RES = 1.0f;
-	//const float RES = 16.0f / 9.0f;
-	const int RES_H = 1000;
+	//const float RES = 1.0f;
+	const float RES = 4.0f / 3.0f;
+	const int RES_H = 900;
 	const int RES_W = RES_H * RES;
 
 	success = app.init(RES_W, RES_H);

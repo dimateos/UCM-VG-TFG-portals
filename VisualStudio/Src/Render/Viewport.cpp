@@ -1,7 +1,7 @@
 #include "Viewport.h"
 #include <glad\glad.h>
 
-Viewport::Viewport(int w, int h) : w_(w), h_(h), x_(0), y_(0), aspect_(w / h) {}
+Viewport::Viewport(int w, int h) : w_(w), h_(h), x_(0), y_(0), aspect_((float)w / (float)h) {}
 Viewport::~Viewport() {}
 
 void Viewport::setSize(int w, int h) {
