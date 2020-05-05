@@ -129,6 +129,7 @@ bool SampleScene::init() {
 	blueFloor->translateX(10.0f);
 
 	auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
+	whiteFloor->setFather(nullptr);
 	whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
 	whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
@@ -142,6 +143,7 @@ bool SampleScene::init() {
 	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
 
 	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
+	renderPanel_->setFather(nullptr);
 	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
 	renderPanel_->translateZ(5);
 	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
@@ -159,7 +161,7 @@ bool SampleScene::init() {
 	bPortalPanel_ = new Node(world_node_);
 	//bPortalPanel_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalPanel_->translateY(1);
-	bPortalPanel_->translateZ(6);
+	bPortalPanel_->translateZ(4);
 	//bPortalPanel_->yaw(180.f);
 
 	bPortalCube_ = new ShapeNode(bPortalPanel_, cubeMesh_, bPortalMat_);
@@ -171,7 +173,7 @@ bool SampleScene::init() {
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	auto bPortalBorders = new Node(bPortalPanel_);
-	bPortalBorders->setFather(nullptr);
+	//bPortalBorders->setFather(nullptr);
 	bPortalBorders->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalBorders->scale(0.25f);
 	float separation = 1.5f / bPortalBorders->getLocalScaleX();
@@ -197,9 +199,9 @@ bool SampleScene::init() {
 	rPortalPanel_ = new Node(world_node_);
 	//rPortalPanel_->mesh_ = nullptr;
 	rPortalPanel_->setLocalTrans(bPortalPanel_->getLocalTrans());
-	//rPortalPanel_->translateX(10);
+	rPortalPanel_->translateX(10);
 	//rPortalPanel_->yaw(180.f);
-	bPortalPanel_->translateZ(6);
+	//bPortalPanel_->translateZ(6);
 	//rPortalPanel_->pitch(180.f);
 
 	rPortalCube_ = new ShapeNode(rPortalPanel_, cubeMesh_, rPortalMat_);
@@ -208,7 +210,7 @@ bool SampleScene::init() {
 	//rPortalWall->translateZ(0.5);
 
 	auto rPortalBorders = new Node(rPortalPanel_);
-	rPortalBorders->setFather(nullptr);
+	//rPortalBorders->setFather(nullptr);
 	rPortalBorders->setLocalTrans(bPortalBorders->getLocalTrans());
 	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
@@ -223,6 +225,7 @@ bool SampleScene::init() {
 	//REFERENCE AXIS
 	auto axisMesh = new AxisMesh();
 	auto axisRGB = new ShapeNode(world_node_, axisMesh, pinkMat_);
+	axisRGB->setFather(nullptr);
 	auto axisSon = new Node(axisRGB);
 	axisSon->scale(0.25f);
 	float f = 1.0f / axisSon->getLocalScaleX();
@@ -251,6 +254,7 @@ bool SampleScene::init() {
 
 	//SLICING TESTING
 	testTraveller_ = new ShapeNode(world_node_, cubeMesh_, greenCheckerMat);
+	testTraveller_->setFather(nullptr);
 	testTraveller_->setLocalPos(whiteFloor->getLocalPos());
 	testTraveller_->translateY(1);
 	testTraveller_->setLocalScaleZ(4);
@@ -268,11 +272,13 @@ bool SampleScene::init() {
 	slizableMat_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
 
 	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
+	playerBody_->setFather(nullptr);
 	playerBody_->scale(0.5);
 	//playerBody_->setLocalScaleZ(4); //test longer slice
 
 	//COPY for slicing
 	playerCopy_ = new Node(world_node_);
+	playerCopy_->setFather(nullptr);
 	auto bodyCopy = new ShapeNode(*playerBody_);
 	playerCopy_->addChild(bodyCopy);
 	//separated copy material
@@ -729,8 +735,8 @@ void SampleScene::render() {
 
 	//EXTRA PASS - copy texture for the render panel (avoid writing and reading same buffer)
 	//no need of model uniform in the shaders - nor camera matrices
-	rt_renderPanel_->bind(false);
-	screenPF_->render();
+	//rt_renderPanel_->bind(false);
+	//screenPF_->render();
 
 	//SCREEN PASS - with the postfilters
 	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
