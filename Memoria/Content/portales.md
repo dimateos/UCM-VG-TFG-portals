@@ -52,12 +52,13 @@ En el caso de los portales, son simples planos con una de éstas texturas asocia
 #### 2.2.2 Stencil
 Como se mencionó en la sección X anterior, existen diferentes buffers para realizar tests a la hora de pintar fragmentos. Se pueden definir normas para concretar cuando se modifican los valores del buffer y cuando se descartan ciertos fragmentos.
 
-Aplicado a los portales, y a diferencia de en el uso de texturas, primero se dibuja la escena vista a través de la cámara principal, sin portales. Después, cada portal es dibujado en su en su posición. Durante este paso se modifica el stencil buffer para que quede marcado. Finalmente, se dibuja la escena desde el punto de vista adecuado para cada portal, pero solo se mantienen los fragmentos marcados previamente en el stencil buffer.
+Aplicado a los portales, y a diferencia de en el uso de texturas, primero se dibuja la escena vista a través de la cámara principal, sin portales. Después, cada portal es dibujado en su posición. Durante este paso se modifica el stencil buffer para que queden marcados los fragmentos donde se sitúan. Finalmente, se dibuja la escena desde el punto de vista adecuado para cada portal, pero solo se mantienen los fragmentos que coincidan con los marcados previamente.
 
 > grafico mostrando el efecto
 
 #### 2.2.3 Renderizado físico
-Existen diferentes técnicas de renderizado físico, éstas técnicas tratan de simular el mundo de una manera mas realista. `etc`
+Existen diferentes técnicas de renderizado físico, éstas técnicas tratan de simular el mundo de una manera mas realista.
+> `etc`
 
 Teóricamente, se podría interceptar los rayos que chocan con la superficie de un portal y simular su salida (con la misma dirección) por la superficie contraria del portal conectado. De esta forma, se aprovecha la gran ventaja de las técnicas de renderizado físico: la iluminación será correcta sin importar de las condiciones.
 
@@ -100,12 +101,12 @@ A continuación se explica en detalle como desarrollar, paso por paso, cada cara
 
 ### 3.1. Punto de vista relativo
 
-En nuestra aplicación, la cámara principal se controla como en un *FPS*. La posición y orientación de la cámara principal es controlada por el usuario con el teclado y ratón. El desarrollo de un portal es independiente del tipo de control de cámara, pero es importante dejar claro nuestro el punto de vista. La intención es simular una escena en la que el jugador se mueve y mira libremente, como si estuviese allí. Inicialmente es recomendable permitir que el jugador pueda desplazarse en cualquier dirección (*freelook*), para poder flotar y observar el espacio desde toda perspectiva.
+En nuestra aplicación, la cámara principal se controla como en un *FPS*. Su posición y orientación es controlada por el usuario con el teclado y ratón. El desarrollo de un portal es independiente del tipo de control de cámara, pero es importante dejar claro nuestro el punto de vista. La intención es simular una escena en la que el jugador se mueve y mira libremente, como si estuviese allí. Inicialmente es recomendable permitir que el jugador pueda desplazarse en cualquier dirección (*freelook*), para poder flotar y observar el espacio desde toda perspectiva.
 
 Empezaremos con una escena básica:
 * Dos plataformas de distintos colores con un objeto de color parecido en un extremo, por ejemplo un cubo. Los colores ayudan a diferenciar el escenario y entender mejor las perspectivas.
-* Un portal en el centro de cada plataforma del mismo color que el objeto de la plataforma contraria. Ambos portales orientados hacia los objetos. Cuando los portales estén conectados, a través de cada uno se vera el cubo de su mismo color, situado en la otra plataforma.
-* El jugador en el otro extremo de cualquier plataforma, no importa.
+* Un portal en el centro de cada plataforma del mismo color que el objeto de la plataforma contraria. Ambos portales orientados en la misma dirección y sentido, hacia los cubos. Cuando los portales estén conectados, a través de cada uno se vera el cubo de su mismo color, situado en la otra plataforma. En realidad no es necesario que tengan marcos, pero así podemos distinguir sus límites y entenderlos más fácilmente.
+* El jugador o cámara principal, situado en el otro extremo de cualquier plataforma, no importa.
 
 ![test](Render/3.1.1.svg)
 > Foto de la vista superior de la escena (representando vision y direccion portales) + vista FP
@@ -140,6 +141,9 @@ Para terminar, introducimos una segunda cámara virtual para representar el punt
 > Foto con 3 posiciones con ambas camaras virtuales
 
 ### 3.2. Dibujado de las texturas
+
+Hata ahora solo hemos calculado los puntos de vistas
+Hasta ahora los portales no tenian texturadasdas
 
 Para ser mas eficientes respecto a memoria utilizaremos un único buffer
 
@@ -184,7 +188,7 @@ Para ser mas eficientes respecto a memoria utilizaremos un único buffer
 * Cuerpos y axis de las camaras representados + toggleable
 	* Representar el FRUSTUM de cada camara + toggleable
 * Toggle para desactivar portales y ver a traves etc
-* Toggle dirección normal de los protales?
+* Toggle mostrar dirección normal de los protales?
 * Switch entre camara principal y extra?
 
 ## z. Optimizar

@@ -187,6 +187,12 @@ bool SampleScene::init() {
 	auto bPortalBorderU = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
+	//forward
+	auto bPortalBorderF = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	bPortalBorderF->translate(Transformation::BASE_UP * separation);
+	bPortalBorderF->translateZ(-0.5);
+	bPortalBorderF->scale(0.75);
+	bPortalBorderF->setLocalScaleZ(2);
 
 	//RED PORTAL PANEL
 	rt_rPortalPanel_ = new RenderTarget();
@@ -221,6 +227,12 @@ bool SampleScene::init() {
 	auto rPortalBorderU = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
 	rPortalBorderU->translate(Transformation::BASE_UP * separation);
 	rPortalBorderU->setLocalScaleX(rescale);
+	//forward
+	auto rPortalBorderF = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
+	rPortalBorderF->translate(Transformation::BASE_UP * separation);
+	rPortalBorderF->translateZ(-0.5);
+	rPortalBorderF->scale(0.75);
+	rPortalBorderF->setLocalScaleZ(2);
 
 	//REFERENCE AXIS
 	auto axisMesh = new AxisMesh();
@@ -272,7 +284,7 @@ bool SampleScene::init() {
 	slizableMat_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
 
 	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
-	playerBody_->setFather(nullptr);
+	//playerBody_->setFather(nullptr);
 	playerBody_->scale(0.5);
 	//playerBody_->setLocalScaleZ(4); //test longer slice
 
@@ -363,6 +375,7 @@ bool SampleScene::init() {
 }
 
 bool SampleScene::handleEvent(SDL_Event const & e) {
+	//quit
 	if (e.type == SDL_QUIT) {
 		app_->stop();
 		return true;
@@ -371,10 +384,47 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		app_->stop();
 		return true;
 	}
+
+	//Movement + Camera: handled outside
+		//* WASD + mouse: free movement
+		//* ALT: free / capture cursor
+	//Switch post-processing: handled outside
+		//* P + 1-9: switch post processing modes
+
+	//show/hide virtual portal cameras axes
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
+		if (rAxisRGB_->getFather() == nullptr) {
+			rAxisRGB_->setFather(rPortalCam_);
+			bAxisRGB_->setFather(bPortalCam_);
+		}
+		else {
+			rAxisRGB_->setFather(nullptr);
+			bAxisRGB_->setFather(nullptr);
+		}
+		return true;
+	}
+
+	//start/stop controling the portal to move/rotate it locally
+		//* T: toggle between control movement or rotation (Q / E for roll)
+		//* R: reset position or rotation
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_k) {
+		if (movController_->target_ != rPortalPanel_) {
+			movController_->target_ = rPortalPanel_;
+			movController_->rotationReference_ = rPortalPanel_;
+		}
+		else {
+			movController_->target_ = player_;
+			movController_->rotationReference_ = cam_;
+		}
+		return true;
+	}
+
+	//switch portal rendering options
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
 		if (renderPanel_->mat_ == renderMat_) {
 			renderPanel_->mat_ = pinkMat_;
 			//bPortalPanel_->mat_ = pinkMat_;
+			//pink is disabled atm (overrode in render)
 			bPortalCube_->mat_ = pinkMat_;
 			rPortalCube_->mat_ = pinkMat_;
 		}
@@ -389,46 +439,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		}
 		return true;
 	}
+
+	//switch between camera positions
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_i) {
-		//only works once (no deep edited references) used for some random test
-		Camera *aux = cam_;
-		cam_ = bPortalCam_;
-		bPortalCam_ = aux;
+		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
+		else if (Node::ROOT_CAM == bPortalCam_) Node::ROOT_CAM = rPortalCam_;
+		else Node::ROOT_CAM = cam_;
+
 		return true;
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_k) {
-		if (movController_->target_ != rPortalPanel_) {
-			movController_->target_ = rPortalPanel_;
-			movController_->rotationReference_ = rPortalPanel_;
-		}
-		else {
-			movController_->target_ = player_;
-			movController_->rotationReference_ = cam_;
-		}
-		return true;
-	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_m) {
-		if (movController_->target_ != testTraveller_) {
-			movController_->target_ = testTraveller_;
-			movController_->rotationReference_ = testTraveller_;
-		}
-		else {
-			movController_->target_ = player_;
-			movController_->rotationReference_ = cam_;
-		}
-		return true;
-	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
-		if (rAxisRGB_->getFather() == nullptr) {
-			rAxisRGB_->setFather(rPortalCam_);
-			bAxisRGB_->setFather(bPortalCam_);
-		}
-		else {
-			rAxisRGB_->setFather(nullptr);
-			bAxisRGB_->setFather(nullptr);
-		}
-		return true;
-	}
+
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;
@@ -721,7 +741,7 @@ void SampleScene::render() {
 	//main camera active
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, cam_->getViewMatrixPtr());
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
 	bPortalCube_->mesh_ = cubeMesh_;
 	rPortalCube_->mesh_ = cubeMesh_;
