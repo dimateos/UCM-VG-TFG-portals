@@ -10,8 +10,10 @@ public:
 	Node();
 	Node(Node* father);
 	virtual ~Node();
+	virtual Node* getCopy() const;
 
 	static Camera* ROOT_CAM; //root camera for now
+	static Node* ROOT_AXIS; //common axis for debug
 	static Node ROOT; //root node for now
 
 	inline Node* const& getFather() const { return father_; }
@@ -25,7 +27,12 @@ public:
 	virtual void update();
 	virtual void render();
 
-private:
+	//drawing node axis
+	void setDrawAxis(bool set = true);
+
+protected:
 	Node* father_;
 	std::list<Node*> children_;
+
+	Node* axis_ = nullptr;
 };

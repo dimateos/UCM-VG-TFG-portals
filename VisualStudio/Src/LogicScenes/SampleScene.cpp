@@ -105,10 +105,9 @@ bool SampleScene::init() {
 	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
 	uniformProj_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection");
 
+	//COMMON meshes and materials
 	cubeMesh_ = new CubeMesh();
 	planeMesh_ = new PlaneMesh();
-
-	//OBJECTS
 	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
 	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
@@ -116,7 +115,24 @@ bool SampleScene::init() {
 	auto greenCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.2f), &checkersTex_);
 	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
 
+	auto axisMesh = new AxisMesh();
+	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
+
+	//REFERENCE AXIS
+	Node::ROOT_AXIS = new ShapeNode(nullptr, axisMesh, pinkMat_);
+	auto axisSon = new Node(Node::ROOT_AXIS);
+	axisSon->scale(0.25f);
+	float f = 1.0f / axisSon->getLocalScaleX();
+	auto cubeRight = new ShapeNode(axisSon, cubeMesh_, redCheckerMat);
+	cubeRight->translate(Transformation::BASE_RIGHT * f);
+	auto cubeUp = new ShapeNode(axisSon, cubeMesh_, greenCheckerMat);
+	cubeUp->translate(Transformation::BASE_UP * f);
+	auto cubeBack = new ShapeNode(axisSon, cubeMesh_, blueCheckerMat);
+	cubeBack->translate(Transformation::BASE_BACK * f);
+
+	//SCENE OBJECTS
 	auto redCube = new ShapeNode(world_node_, cubeMesh_, redCheckerMat);
+	redCube->setDrawAxis();
 	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
 	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
 	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
@@ -139,7 +155,6 @@ bool SampleScene::init() {
 	renderTex_ = new Texture();
 	renderTex_->createRenderTargetTexture(rt_renderPanel_);
 
-	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
 	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
 
 	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
@@ -233,20 +248,6 @@ bool SampleScene::init() {
 	rPortalBorderF->translateZ(-0.5);
 	rPortalBorderF->scale(0.75);
 	rPortalBorderF->setLocalScaleZ(2);
-
-	//REFERENCE AXIS
-	auto axisMesh = new AxisMesh();
-	auto axisRGB = new ShapeNode(world_node_, axisMesh, pinkMat_);
-	axisRGB->setFather(nullptr);
-	auto axisSon = new Node(axisRGB);
-	axisSon->scale(0.25f);
-	float f = 1.0f / axisSon->getLocalScaleX();
-	auto cubeRight = new ShapeNode(axisSon, cubeMesh_, redCheckerMat);
-	cubeRight->translate(Transformation::BASE_RIGHT * f);
-	auto cubeUp = new ShapeNode(axisSon, cubeMesh_, greenCheckerMat);
-	cubeUp->translate(Transformation::BASE_UP * f);
-	auto cubeBack = new ShapeNode(axisSon, cubeMesh_, blueCheckerMat);
-	cubeBack->translate(Transformation::BASE_BACK * f);
 
 	//OTHER TESTING OBJECTS
 	//simple cube
@@ -420,11 +421,11 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 
 	//switch portal rendering options
+		//pink is disabled atm (overrode in render)
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
 		if (renderPanel_->mat_ == renderMat_) {
 			renderPanel_->mat_ = pinkMat_;
 			//bPortalPanel_->mat_ = pinkMat_;
-			//pink is disabled atm (overrode in render)
 			bPortalCube_->mat_ = pinkMat_;
 			rPortalCube_->mat_ = pinkMat_;
 		}
@@ -448,7 +449,6 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 		return true;
 	}
-
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;

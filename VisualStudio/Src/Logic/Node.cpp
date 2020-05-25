@@ -9,6 +9,14 @@ Node::Node(Node * father) : Transformable(nullptr), father_(nullptr) {
 }
 Node::~Node() {}
 
+Node * Node::getCopy() const {
+	Node * n = new Node(father_);
+	n->setLocalTrans(getLocalTrans());
+	n->axis_ = axis_;
+	for (auto child : getChildren()) n->addChild(child->getCopy());
+	return n;
+}
+
 void Node::setFather(Node * const & father, bool ignoreTrans) {
 	if (father == father_) return;										//check same father
 	if (father_ != nullptr) father_->removeChild(this, ignoreTrans);	//check father not null before removing
@@ -44,4 +52,11 @@ void Node::update() {
 }
 
 void Node::render() {
+}
+
+void Node::setDrawAxis(bool set) {
+	if (axis_ == nullptr) axis_ = Node::ROOT_AXIS->getCopy();
+
+	if (set) addChild(axis_);
+	else removeChild(axis_);
 }
