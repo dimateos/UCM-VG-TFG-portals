@@ -1,4 +1,4 @@
-#include "InputCameraRotation.h"
+#include "InputFreeRotation.h"
 #include "../GlobalConfig.h" //input config
 
 #include <glad\glad.h>
@@ -9,7 +9,7 @@
 #include "../Platform/Window_SDL_GL.h"
 #include <gtc/type_ptr.hpp>
 
-InputCameraRotation::InputCameraRotation(Node* father, Camera * cam) : Node(father), cam_(cam) {
+InputFreeRotation::InputFreeRotation(Node* father, Node * target) : Node(father), target_(target) {
 	Platform_SDL::mouseMotionEventEmitter_.registerListener(this);
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
@@ -18,9 +18,9 @@ InputCameraRotation::InputCameraRotation(Node* father, Camera * cam) : Node(fath
 	SDL_SetRelativeMouseMode(focus_ ? SDL_TRUE : SDL_FALSE);
 }
 
-InputCameraRotation::~InputCameraRotation() {}
+InputFreeRotation::~InputFreeRotation() {}
 
-bool InputCameraRotation::handleEvent(SDL_Event const & e) {
+bool InputFreeRotation::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_MOUSEMOTION) {
@@ -40,7 +40,7 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 	return handled;
 }
 
-void InputCameraRotation::update() {
+void InputFreeRotation::update() {
 	if (!focus_) return;
 	if (frame_yaw_ == 0 && frame_pitch_ == 0) return;
 
@@ -66,12 +66,12 @@ void InputCameraRotation::update() {
 	}
 
 	//reset and apply frist yaw to avoid rolling
-	cam_->setLocalRot(Transformation::BASE_ROT);
-	cam_->yaw(total_yaw_);
-	cam_->pitch(total_pitch_);
+	target_->setLocalRot(Transformation::BASE_ROT);
+	target_->yaw(total_yaw_);
+	target_->pitch(total_pitch_);
 }
 
-void InputCameraRotation::setInputRot(glm::quat const & q) {
+void InputFreeRotation::setInputRot(glm::quat const & q) {
 	//return pitch(x), yaw(y), roll(z)
 	auto eulers = glm::degrees(glm::eulerAngles(q));
 	//printf("camera set: %f %f %f\n", eulers.x, eulers.y, eulers.z);
@@ -104,12 +104,12 @@ void InputCameraRotation::setInputRot(glm::quat const & q) {
 	}
 
 	//update the rotation (maybe other logic node reads the camera before updated)
-	cam_->setLocalRot(Transformation::BASE_ROT);
-	cam_->yaw(total_yaw_);
-	cam_->pitch(total_pitch_);
+	target_->setLocalRot(Transformation::BASE_ROT);
+	target_->yaw(total_yaw_);
+	target_->pitch(total_pitch_);
 }
 
-void InputCameraRotation::capPitch() {
+void InputFreeRotation::capPitch() {
 	if (total_pitch_ > maxPitch_) {
 		total_pitch_ = maxPitch_;
 	}

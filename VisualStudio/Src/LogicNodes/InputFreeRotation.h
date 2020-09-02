@@ -5,11 +5,11 @@
 #include "../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
 
-class InputCameraRotation : public Node, Listener<SDL_Event>
+class InputFreeRotation : public Node, Listener<SDL_Event>
 {
 public:
-	InputCameraRotation(Node* father, Camera* cam);
-	virtual ~InputCameraRotation();
+	InputFreeRotation(Node* father, Node* target);
+	virtual ~InputFreeRotation();
 
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void update();
@@ -17,7 +17,7 @@ public:
 	void setInputRot(glm::quat const & q);
 
 protected:
-	Camera * cam_;
+	Node * target_;
 	bool focus_ = true;
 
 	float sens_ = 0.10;

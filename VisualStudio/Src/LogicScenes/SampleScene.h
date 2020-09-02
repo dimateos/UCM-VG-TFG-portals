@@ -14,7 +14,7 @@ class ShapeNode;
 class Texture;
 class Mesh;
 class InputFreeMovement;
-class InputCameraRotation;
+class InputFreeRotation;
 
 #include "../Render/Material.h"
 class ScreenPostFiltering;
@@ -47,30 +47,30 @@ protected:
 	Mesh* planeMesh_, *cubeMesh_;
 	ShapeNode* renderPanel_;
 	SolidMaterial *pinkMat_, *renderMat_;
-	RenderTarget *rt_renderPanel_;
+	RenderTarget *renderPanelRT_;
 	Texture *renderTex_;
 
 	//blue render portal
 	Camera* bPortalCam_;
-	Node* bPortalPanel_;
-	ShapeNode* bPortalCube_;
+	Node* bPortalRoot_;
+	ShapeNode* bPortalSurface_;
 	SolidMaterial *bPortalMat_;
-	RenderTarget *rt_bPortalPanel_;
+	RenderTarget *bPortalRT_;
 	Texture *bPortalTex_;
 
 	//red render portal
 	Camera* rPortalCam_;
-	Node* rPortalPanel_;
-	ShapeNode* rPortalCube_;
+	Node* rPortalRoot_;
+	ShapeNode* rPortalSurface_;
 	SolidMaterial *rPortalMat_;
-	RenderTarget *rt_rPortalPanel_;
+	RenderTarget *rPortalPanelRT_;
 	Texture *rPortalTex_;
 
 	//camera mimic
 	Node *player_;
 	ShapeNode *playerBody_;
 	InputFreeMovement* movController_;
-	InputCameraRotation* camController_;
+	InputFreeRotation* rotController_;
 
 	//portal teleporting
 	float sqCloseDistance_;

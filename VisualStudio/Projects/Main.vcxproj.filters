@@ -54,9 +54,6 @@
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\InputCameraRotation.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Logic\Transformation.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
@@ -79,6 +76,9 @@
       <Filter>LogicNodes</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\GlobalConfig.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\InputFreeRotation.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
@@ -159,9 +159,6 @@
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\InputCameraRotation.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\Logic\Transformation.h">
       <Filter>Logic</Filter>
     </ClInclude>
@@ -184,5 +181,8 @@
       <Filter>LogicNodes</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\GlobalConfig.h" />
+    <ClInclude Include="..\Src\LogicNodes\InputFreeRotation.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

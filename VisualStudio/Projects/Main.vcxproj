@@ -177,7 +177,7 @@
     <ClCompile Include="..\Src\GlobalConfig.cpp" />
     <ClCompile Include="..\Src\LogicNodes\ShapeNode.cpp" />
     <ClCompile Include="..\Src\LogicNodes\ScreenPostFiltering.cpp" />
-    <ClCompile Include="..\Src\LogicNodes\InputCameraRotation.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\InputFreeRotation.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp" />
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -240,7 +240,7 @@
     <ClInclude Include="..\Src\GlobalConfig.h" />
     <ClInclude Include="..\Src\LogicNodes\ShapeNode.h" />
     <ClInclude Include="..\Src\LogicNodes\ScreenPostFiltering.h" />
-    <ClInclude Include="..\Src\LogicNodes\InputCameraRotation.h" />
+    <ClInclude Include="..\Src\LogicNodes\InputFreeRotation.h" />
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h" />
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
