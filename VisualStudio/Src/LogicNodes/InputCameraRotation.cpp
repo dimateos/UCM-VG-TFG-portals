@@ -22,8 +22,10 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_MOUSEMOTION) {
-		frame_yaw_ = e.motion.xrel;
-		frame_pitch_ = e.motion.yrel;
+		//printf("cursor rel - x %i y %i\n", e.motion.x, e.motion.y);
+		//printf("cursor rel - x %i y %i\n", e.motion.xrel, e.motion.yrel);
+		frame_yaw_ += e.motion.xrel;
+		frame_pitch_ += e.motion.yrel;
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LALT) {
 		focus_ = !focus_;

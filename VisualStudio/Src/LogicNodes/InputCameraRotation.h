@@ -20,7 +20,7 @@ protected:
 	Camera * cam_;
 	bool focus_ = true;
 
-	float sens_ = 1;
+	float sens_ = 0.075;
 	int frame_yaw_ = 0, frame_pitch_ = 0;
 	float total_yaw_ = 0, total_pitch_ = 0;
 

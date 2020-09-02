@@ -15,17 +15,10 @@ bool Window_SDL_GL::init(const char* title, int w, int h, int x = 0, int y = 0, 
 	printf("window - init\n");
 	int flags = SDL_WINDOW_OPENGL; //SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 
-	//create window
-	window_ = SDL_CreateWindow(title, x, y, w, h, flags);
-	if (window_ == nullptr) {
-		printf("window - Error creating window! SDL Error: %s\n", SDL_GetError());
-		return false;
-	}
-
-	//if (Config::FULLSCREEN) SDL_SetWindowFullscreen(_window);
-
-	//set GL attributes
+	//set GL attributes before creating window
 	printf("window context - init\n");
+	//SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, GL_major);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, GL_minor);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); //remove deprecated
@@ -37,12 +30,23 @@ bool Window_SDL_GL::init(const char* title, int w, int h, int x = 0, int y = 0, 
 	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4); //MSAA
 	//glEnable(GL_MULTISAMPLE);
 
+	//create window
+	window_ = SDL_CreateWindow(title, x, y, w, h, flags);
+	if (window_ == nullptr) {
+		printf("window - Error creating window! SDL Error: %s\n", SDL_GetError());
+		return false;
+	}
+
+	//if (Config::FULLSCREEN) SDL_SetWindowFullscreen(_window);
+
 	//create opengl context
 	context_ = SDL_GL_CreateContext(window_);
 	if (context_ == nullptr) {
 		printf("window context - failed to create context\n");
 		return false;
 	}
+	//activate synchronized updates
+	SDL_GL_SetSwapInterval(1);
 
 	//use glad loader
 	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
