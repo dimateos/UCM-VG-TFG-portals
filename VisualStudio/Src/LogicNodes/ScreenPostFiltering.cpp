@@ -1,4 +1,6 @@
 #include "ScreenPostFiltering.h"
+#include "../GlobalConfig.h" //input config
+
 #include <glad\glad.h>
 #include <iostream>
 
@@ -50,7 +52,7 @@ bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
 			else handled = false;
 		}
 	}
-	else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_p) {
+	else if (e.type == SDL_KEYUP && e.key.keysym.sym == GlobalConfig::ACTION_screenPostFilter) {
 		readingInput_ = false;
 	}
 	else handled = false;

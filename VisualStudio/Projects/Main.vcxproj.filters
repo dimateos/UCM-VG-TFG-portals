@@ -78,6 +78,7 @@
     <ClCompile Include="..\Src\LogicNodes\ScreenPostFiltering.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\GlobalConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_Dependencies">
@@ -182,5 +183,6 @@
     <ClInclude Include="..\Src\LogicNodes\ScreenPostFiltering.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\GlobalConfig.h" />
   </ItemGroup>
 </Project>

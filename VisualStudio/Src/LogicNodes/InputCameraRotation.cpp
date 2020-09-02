@@ -1,4 +1,6 @@
 #include "InputCameraRotation.h"
+#include "../GlobalConfig.h" //input config
+
 #include <glad\glad.h>
 
 #include "../Platform/Platform_SDL.h"
@@ -27,7 +29,7 @@ bool InputCameraRotation::handleEvent(SDL_Event const & e) {
 		frame_yaw_ += e.motion.xrel;
 		frame_pitch_ += e.motion.yrel;
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LALT) {
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_captureCursor) {
 		focus_ = !focus_;
 		SDL_SetRelativeMouseMode(focus_ ? SDL_TRUE : SDL_FALSE);
 		frame_yaw_ = frame_pitch_ = 0;

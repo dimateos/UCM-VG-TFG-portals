@@ -1,5 +1,7 @@
 #include "SampleScene.h"
 
+#include "../GlobalConfig.h" //input config
+
 #include "../LogicNodes/ShapeNode.h"
 #include "../LogicNodes/InputCameraRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
@@ -381,16 +383,37 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		app_->stop();
 		return true;
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_escape) {
 		app_->stop();
 		return true;
 	}
 
-	//Movement + Camera: handled outside
-		//* WASD + mouse: free movement
-		//* ALT: free / capture cursor
-	//Switch post-processing: handled outside
-		//* P + 1-9: switch post processing modes
+	//Delegated to other nodes:
+		//Movement + rotation (+ reset)
+		//Camera movement + capture/free cursor
+		//Switch post-processing effect
+
+	//start/stop controling the portal to move/rotate it locally
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchControl) {
+		if (movController_->target_ != rPortalPanel_) {
+			movController_->target_ = rPortalPanel_;
+			movController_->rotationReference_ = rPortalPanel_;
+		}
+		else {
+			movController_->target_ = player_;
+			movController_->rotationReference_ = cam_;
+		}
+		return true;
+	}
+
+	//switch between camera positions
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_cycleCamerasPositions) {
+		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
+		else if (Node::ROOT_CAM == bPortalCam_) Node::ROOT_CAM = rPortalCam_;
+		else Node::ROOT_CAM = cam_;
+
+		return true;
+	}
 
 	//show/hide virtual portal cameras axes
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
@@ -405,48 +428,27 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 
-	//start/stop controling the portal to move/rotate it locally
-		//* T: toggle between control movement or rotation (Q / E for roll)
-		//* R: reset position or rotation
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_k) {
-		if (movController_->target_ != rPortalPanel_) {
-			movController_->target_ = rPortalPanel_;
-			movController_->rotationReference_ = rPortalPanel_;
-		}
-		else {
-			movController_->target_ = player_;
-			movController_->rotationReference_ = cam_;
-		}
-		return true;
-	}
+	//switch portal rendering options (pink is disabled atm: overrode in render)
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchPortalRenderModes) {
+		renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
+		bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
+		rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
 
-	//switch portal rendering options
-		//pink is disabled atm (overrode in render)
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_o) {
-		if (renderPanel_->mat_ == renderMat_) {
-			renderPanel_->mat_ = pinkMat_;
-			//bPortalPanel_->mat_ = pinkMat_;
-			bPortalCube_->mat_ = pinkMat_;
-			rPortalCube_->mat_ = pinkMat_;
-		}
-		else {
-			renderPanel_->mat_ = renderMat_;
-			//bPortalPanel_->mat_ = bPortalMat_;
-			bPortalCube_->mat_ = bPortalMat_;
-			rPortalCube_->mat_ = rPortalMat_;
-			renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
-			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
-			rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
-		}
-		return true;
-	}
-
-	//switch between camera positions
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_i) {
-		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
-		else if (Node::ROOT_CAM == bPortalCam_) Node::ROOT_CAM = rPortalCam_;
-		else Node::ROOT_CAM = cam_;
-
+		//if (renderPanel_->mat_ == renderMat_) {
+		//	renderPanel_->mat_ = pinkMat_;
+		//	//bPortalPanel_->mat_ = pinkMat_;
+		//	bPortalCube_->mat_ = pinkMat_;
+		//	rPortalCube_->mat_ = pinkMat_;
+		//}
+		//else {
+		//	renderPanel_->mat_ = renderMat_;
+		//	//bPortalPanel_->mat_ = bPortalMat_;
+		//	bPortalCube_->mat_ = bPortalMat_;
+		//	rPortalCube_->mat_ = rPortalMat_;
+		//	renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
+		//	bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
+		//	rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
+		//}
 		return true;
 	}
 

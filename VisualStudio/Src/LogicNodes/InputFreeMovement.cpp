@@ -1,4 +1,5 @@
 #include "InputFreeMovement.h"
+#include "../GlobalConfig.h" //input config
 
 //delta time and events
 #include "../Platform/Platform_SDL.h"
@@ -17,53 +18,44 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_KEYDOWN) {
-		switch (e.key.keysym.sym) {
-			//combined keys
-		case SDLK_d: !rotating_ ? xAxis_.push_front(RIGHT) : rot_yAxis_.push_front(RIGHT); break;
-		case SDLK_a: !rotating_ ? xAxis_.push_front(LEFT) : rot_yAxis_.push_front(LEFT); break;
-		case SDLK_s: !rotating_ ? zAxis_.push_front(BACK) : rot_xAxis_.push_front(BACK); break;
-		case SDLK_w: !rotating_ ? zAxis_.push_front(FORE) : rot_xAxis_.push_front(FORE); break;
+		const char key = e.key.keysym.sym;
 
-			//separated keys
-		case SDLK_SPACE: yAxis_.push_front(UP); break;
-		case SDLK_c: yAxis_.push_front(DOWN); break;
-		case SDLK_e: if (rotating_) rot_zAxis_.push_front(RIGHT); break;
-		case SDLK_q: if (rotating_) rot_zAxis_.push_front(LEFT); break;
-
-			//rotate / sprinting keys
-		case SDLK_LSHIFT: sprinting_ = (sprint_toggleMode_ ? !sprinting_ : true); break;
-		case SDLK_r: if (!disable_rotation_) rotating_ = (rotate_toggleMode_ ? !rotating_ : true); break;
-
-			//reset key
-		case SDLK_t:
+		//movement
+		if (key == GlobalConfig::ACTION_moveRIGHT) !rotating_ ? xAxis_.push_front(RIGHT) : rot_yAxis_.push_front(RIGHT);
+		else if (key == GlobalConfig::ACTION_moveLEFT) !rotating_ ? xAxis_.push_front(LEFT) : rot_yAxis_.push_front(LEFT);
+		else if (key == GlobalConfig::ACTION_moveBACK) !rotating_ ? zAxis_.push_front(BACK) : rot_xAxis_.push_front(BACK);
+		else if (key == GlobalConfig::ACTION_moveFORE) !rotating_ ? zAxis_.push_front(FORE) : rot_xAxis_.push_front(FORE);
+		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.push_front(UP);
+		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.push_front(DOWN);
+		//rotation
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (rotate_toggleMode_ ? !rotating_ : true);
+		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.push_front(RIGHT);
+		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.push_front(LEFT);
+		//modifiers
+		else if (key == GlobalConfig::ACTION_SPRINTtransform) sprinting_ = (sprint_toggleMode_ ? !sprinting_ : true);
+		else if (key == GlobalConfig::ACTION_RESETtransform) {
 			!rotating_ ? target_->setLocalPos(initialTrans_.postion) : target_->setLocalRot(initialTrans_.rotation);
-			break;
-
-		default: handled = false;
 		}
+		else handled = false;
 	}
 	else if (e.type == SDL_KEYUP) {
-		switch (e.key.keysym.sym) {
-			//combined keys
-		case SDLK_d: xAxis_.remove(RIGHT); rot_yAxis_.remove(RIGHT); break;
-		case SDLK_a: xAxis_.remove(LEFT); rot_yAxis_.remove(LEFT); break;
-		case SDLK_s: zAxis_.remove(BACK); rot_xAxis_.remove(BACK); break;
-		case SDLK_w: zAxis_.remove(FORE); rot_xAxis_.remove(FORE); break;
+		const char key = e.key.keysym.sym;
 
-			//separated keys
-		case SDLK_SPACE: yAxis_.remove(UP); break;
-		case SDLK_c: yAxis_.remove(DOWN); break;
-		case SDLK_e: rot_zAxis_.remove(RIGHT); break;
-		case SDLK_q: rot_zAxis_.remove(LEFT); break;
-
-			//rotate / sprinting keys
-		case SDLK_LSHIFT: sprinting_ = (sprint_toggleMode_ ? sprinting_ : false); break;
-		case SDLK_r: rotating_ = (rotate_toggleMode_ ? rotating_ : false); break;
-
-		default: handled = false;
-		}
+		//movement
+		if (key == GlobalConfig::ACTION_moveRIGHT) !rotating_ ? xAxis_.remove(RIGHT) : rot_yAxis_.remove(RIGHT);
+		else if (key == GlobalConfig::ACTION_moveLEFT) !rotating_ ? xAxis_.remove(LEFT) : rot_yAxis_.remove(LEFT);
+		else if (key == GlobalConfig::ACTION_moveBACK) !rotating_ ? zAxis_.remove(BACK) : rot_xAxis_.remove(BACK);
+		else if (key == GlobalConfig::ACTION_moveFORE) !rotating_ ? zAxis_.remove(FORE) : rot_xAxis_.remove(FORE);
+		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.remove(UP);
+		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.remove(DOWN);
+		//rotation
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (rotate_toggleMode_ ? rotating_ : false);
+		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.remove(RIGHT);
+		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.remove(LEFT);
+		//modifiers
+		else if (key == GlobalConfig::ACTION_SPRINTtransform) sprinting_ = (sprint_toggleMode_ ? sprinting_ : false);
+		else handled = false;
 	}
-
 	else handled = false;
 
 	//else printf("cube - ignored event type: %i\n", e.type);
