@@ -45,26 +45,26 @@ bool SampleScene::init() {
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
 	//TARGETS
-	vp_screen_ = new Viewport(Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
+	screenVP_ = new Viewport(Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
 	float resPF = 2.0f; //PostFiltering multi/down sampling
-	vp_PF_ = new Viewport(Window_SDL_GL::getWidth() * resPF, Window_SDL_GL::getHeight() * resPF);
+	postFilterVP_ = new Viewport(Window_SDL_GL::getWidth() * resPF, Window_SDL_GL::getHeight() * resPF);
 
-	rt_screen_ = new RenderTarget();
-	rt_screen_->setDefault(vp_screen_);
-	rt_PF_ = new RenderTarget();
-	rt_PF_->create(vp_PF_);
+	screenRT_ = new RenderTarget();
+	screenRT_->setDefault(screenVP_);
+	postFilterRT_ = new RenderTarget();
+	postFilterRT_->create(postFilterVP_);
 
 	//FRAME BUFFERING
-	screenPF_ = new ScreenPostFiltering(nullptr, rt_PF_); //out of the tree
+	screenPF_ = new ScreenPostFiltering(nullptr, postFilterRT_); //out of the tree
 
 	//CAMERA
-	proj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.1f); //affects clipping on portal pannels
+	proj_ = new Projection(screenVP_->getAspect(), 75.0f, 0.1f); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 
 	//extra projections for testing
-	//testPorj_ = new Projection(vp_screen_->getAspect(), 90.0f, 1.0f, 15.0f);
-	testPorj_ = new Projection(vp_screen_->getAspect(), 75.0f, 0.1f);
+	//testPorj_ = new Projection(screenVP_->getAspect(), 90.0f, 1.0f, 15.0f);
+	testPorj_ = new Projection(screenVP_->getAspect(), 75.0f, 0.1f);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//AVOIDING CAMERA CLIPPING PORTALS
@@ -153,7 +153,7 @@ bool SampleScene::init() {
 
 	//RENDER PANEL
 	renderPanelRT_ = new RenderTarget();
-	renderPanelRT_->create(vp_PF_);
+	renderPanelRT_->create(postFilterVP_);
 	renderTex_ = new Texture();
 	renderTex_->createRenderTargetTexture(renderPanelRT_);
 
@@ -169,7 +169,7 @@ bool SampleScene::init() {
 
 	//BLUE PORTAL
 	bPortalRT_ = new RenderTarget();
-	bPortalRT_->create(vp_PF_);
+	bPortalRT_->create(postFilterVP_);
 	bPortalTex_ = new Texture();
 	bPortalTex_->createRenderTargetTexture(bPortalRT_);
 	bPortalMat_ = new SolidMaterial(glm::vec3(1.0f), bPortalTex_);
@@ -213,7 +213,7 @@ bool SampleScene::init() {
 
 	//RED PORTAL
 	rPortalPanelRT_ = new RenderTarget();
-	rPortalPanelRT_->create(vp_screen_);
+	rPortalPanelRT_->create(screenVP_);
 	rPortalTex_ = new Texture();
 	rPortalTex_->createRenderTargetTexture(rPortalPanelRT_);
 	rPortalMat_ = new SolidMaterial(glm::vec3(1.0f), rPortalTex_);
@@ -423,6 +423,10 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		//}
 		return true;
 	}
+
+	//change amount of recursion
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalRec && recLimit_ < REC_HARD_LIMIT) recLimit_++;
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalRec && recLimit_ > 1) recLimit_--;
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;
@@ -634,7 +638,7 @@ void SampleScene::update() {
 
 	//check objects entering portal zone: handle tp
 		//atm separated from player - handle portal scale to avoid camera near clip
-	updatePortalTravellers();
+	if (movController_->getTarget() == player_) updatePortalTravellers();
 
 	//update camera matrices
 	updatePortalCamerasTrans();
@@ -668,8 +672,8 @@ void SampleScene::render() {
 	for (size_t i = 0; i < recLimit_; i++) {
 		//PORTAL PANEL pass - draw scene in the reused postfilter buffer
 		SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
-		rt_PF_->bind(true); //3d depth test enabled
-		rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		postFilterRT_->bind(true); //3d depth test enabled
+		postFilterRT_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the transformation in order
 		bPortalCam_->setLocalTrans(recTrans_[i]);
@@ -700,8 +704,8 @@ void SampleScene::render() {
 	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
-	rt_PF_->bind(true); //3d depth test enabled
-	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	postFilterRT_->bind(true); //3d depth test enabled
+	postFilterRT_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	bPortalSurface_->mesh_ = nullptr;
 	rPortalSurface_->mesh_ = cubeMesh_;
@@ -723,8 +727,8 @@ void SampleScene::render() {
 	rPortalSurface_->mat_ = rPortalMat_;
 
 	//LAST PASS - all the portals have view textures
-	rt_PF_->bind(true); //3d depth test enabled
-	rt_PF_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	postFilterRT_->bind(true); //3d depth test enabled
+	postFilterRT_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Scene::render(); //edited virtual render_rec
 
 	//EXTRA PASS - copy texture for the render panel (avoid writing and reading same buffer)
@@ -733,7 +737,7 @@ void SampleScene::render() {
 	//screenPF_->render();
 
 	//SCREEN PASS - with the postfilters
-	rt_screen_->bind(false); //3d depth test disable (no need to clear the depth buffer)
+	screenRT_->bind(false); //3d depth test disable (no need to clear the depth buffer)
 	screenPF_->render();
 }
 

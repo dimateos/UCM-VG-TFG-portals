@@ -62,7 +62,7 @@ bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
 
 void ScreenPostFiltering::render() {
 	postFilterShader_.bind();
-	postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f);
+	//postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f); //animated post-processing
 
 	//glDisable(GL_DEPTH_TEST);
 	rtt_.bind();

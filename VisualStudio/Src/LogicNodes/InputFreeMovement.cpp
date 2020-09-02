@@ -32,7 +32,14 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.push_front(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.push_front(LEFT);
 		//modifiers
-		else if (key == GlobalConfig::ACTION_SPRINTtransform) sprinting_ = (sprint_toggleMode_ ? !sprinting_ : true);
+		else if (key == GlobalConfig::ACTION_FASTtransform) {
+			fast_ = (speed_toggleMode_ ? !fast_ : true);
+			currentSpeedMultiplier_ = (fast_ ? fastSpeedMuliplier_ : 1.0f);
+		}
+		else if (key == GlobalConfig::ACTION_SLOWtransform) {
+			slow_ = (speed_toggleMode_ ? !slow_ : true);
+			currentSpeedMultiplier_ = (slow_ ? slowSpeedMuliplier_ : 1.0f);
+		}
 		else if (key == GlobalConfig::ACTION_RESETtransform) {
 			!rotating_ ? target_->setLocalPos(initialTrans_.postion) : target_->setLocalRot(initialTrans_.rotation);
 		}
@@ -53,7 +60,9 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.remove(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.remove(LEFT);
 		//modifiers
-		else if (key == GlobalConfig::ACTION_SPRINTtransform) sprinting_ = (sprint_toggleMode_ ? sprinting_ : false);
+		else if (key == GlobalConfig::ACTION_FASTtransform && !speed_toggleMode_) currentSpeedMultiplier_ = 1.0f;
+		else if (key == GlobalConfig::ACTION_SLOWtransform && !speed_toggleMode_) currentSpeedMultiplier_ = 1.0f;
+		//else if (key == GlobalConfig::ACTION_FASTtransform)
 		else handled = false;
 	}
 	else handled = false;
@@ -93,8 +102,8 @@ void InputFreeMovement::applyFrameRotation() {
 
 	//apply rotation if non zero
 	if (frame_rotation_.x != 0 || frame_rotation_.z != 0 || frame_rotation_.y != 0) {
-		frame_rotation_ = glm::normalize(frame_rotation_) * rotation_speed_;
-		frame_rotation_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
+		frame_rotation_ = glm::normalize(frame_rotation_) * baseRotSpeed_;
+		frame_rotation_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
 
 		//euler angles
 		target_->rotate(frame_rotation_); //TODO: only local?
@@ -119,8 +128,8 @@ void InputFreeMovement::applyFrameTranslation() {
 
 	//apply velocity if non zero
 	if (frame_velocity_.x != 0 || frame_velocity_.z != 0 || frame_velocity_.y != 0) {
-		frame_velocity_ = glm::normalize(frame_velocity_) * speed_;
-		frame_velocity_ *= (sprinting_ ? sprint_scaler_ : 1.0f) * Platform_SDL::getDeltaTimef();
+		frame_velocity_ = glm::normalize(frame_velocity_) * baseSpeed_;
+		frame_velocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
 
 		//directly add
 		target_->translate(rotationReference_->getLocalRot() * frame_velocity_);

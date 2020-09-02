@@ -18,14 +18,17 @@ public:
 		ACTION_rotENABLE,			//rotation
 		ACTION_rotRIGHT,
 		ACTION_rotLEFT,
-		ACTION_SPRINTtransform,		//modifiers
+		ACTION_FASTtransform,		//modifiers
+		ACTION_SLOWtransform,
 		ACTION_RESETtransform,
 
 		ACTION_switchControl,			//start/stop controling the portal to move/rotate it locally
 		ACTION_cycleCamerasPositions,	//switch between camera positions
 
 		ACTION_togglePortalCameraAxis,	//show/hide virtual portal cameras axes
-		ACTION_switchPortalRenderModes	//switch portal rendering options
+		ACTION_switchPortalRenderModes,	//switch portal rendering options
+		ACTION_increasePortalRec,		//change amount of recursion
+		ACTION_decreasePortalRec
 		;
 
 private:

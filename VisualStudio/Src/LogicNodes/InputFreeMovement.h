@@ -27,10 +27,11 @@ protected:
 	void applyFrameRotation();
 	void applyFrameTranslation();
 
-	float speed_ = 2, rotation_speed_ = 50, sprint_scaler_ = 4;
-	bool sprint_toggleMode_ = false, rotate_toggleMode_ = true;
+	float baseSpeed_ = 2, baseRotSpeed_ = 50;
+	float fastSpeedMuliplier_ = 4.0f, slowSpeedMuliplier_ = 0.25, currentSpeedMultiplier_ = 1.0f;
+	bool speed_toggleMode_ = false, rotate_toggleMode_ = true;
 
-	bool sprinting_ = false, rotating_ = false;
+	bool fast_ = false, slow_ = false, rotating_ = false;
 	glm::vec3 frame_velocity_, frame_rotation_;
 	std::list<Direction> xAxis_, zAxis_, yAxis_;
 	std::list<Direction> rot_xAxis_, rot_zAxis_, rot_yAxis_;

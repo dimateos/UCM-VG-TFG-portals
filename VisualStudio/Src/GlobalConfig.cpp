@@ -12,10 +12,11 @@ char GlobalConfig::ACTION_moveBACK = SDLK_s;
 char GlobalConfig::ACTION_moveFORE = SDLK_w;
 char GlobalConfig::ACTION_moveUP = SDLK_SPACE;
 char GlobalConfig::ACTION_moveDOWN = SDLK_c;
+char GlobalConfig::ACTION_rotENABLE = SDLK_r;
 char GlobalConfig::ACTION_rotRIGHT = SDLK_e;
 char GlobalConfig::ACTION_rotLEFT = SDLK_q;
-char GlobalConfig::ACTION_SPRINTtransform = SDLK_LSHIFT;
-char GlobalConfig::ACTION_rotENABLE = SDLK_r;
+char GlobalConfig::ACTION_FASTtransform = SDLK_LSHIFT;
+char GlobalConfig::ACTION_SLOWtransform = SDLK_LCTRL;
 char GlobalConfig::ACTION_RESETtransform = SDLK_t;
 
 char GlobalConfig::ACTION_switchControl = SDLK_k;
@@ -23,5 +24,7 @@ char GlobalConfig::ACTION_cycleCamerasPositions = SDLK_i;
 
 char GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_l;
 char GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;
+char GlobalConfig::ACTION_increasePortalRec = SDLK_PLUS;
+char GlobalConfig::ACTION_decreasePortalRec = SDLK_MINUS;
 
 

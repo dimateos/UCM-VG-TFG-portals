@@ -38,9 +38,8 @@ protected:
 	Projection* proj_, *testPorj_;
 	Camera* cam_;
 
-	Viewport *vp_screen_, *vp_PF_;
-	RenderTarget *rt_screen_, *rt_PF_;
-
+	Viewport *screenVP_, *postFilterVP_;
+	RenderTarget *screenRT_, *postFilterRT_;
 	ScreenPostFiltering* screenPF_;
 
 	//render panel with real time screenshot (non-activated)
@@ -80,8 +79,8 @@ protected:
 	float initialNear_, initialNearCornerDistance_;
 
 	//portal recursion testing
-	const int recLimit_ = 6;
-	int startIndex_ = 0;
+	int recLimit_ = 1, startIndex_ = 0;
+	const int REC_HARD_LIMIT = 16;
 	std::vector<Transformation> recTrans_;
 
 	//portal travellers slicing and duping test
