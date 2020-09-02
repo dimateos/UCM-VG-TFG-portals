@@ -43,7 +43,7 @@ protected:
 
 	ScreenPostFiltering* screenPF_;
 
-	//render panelling
+	//render panel with real time screenshot (non-activated)
 	Mesh* planeMesh_, *cubeMesh_;
 	ShapeNode* renderPanel_;
 	SolidMaterial *pinkMat_, *renderMat_;
@@ -53,7 +53,7 @@ protected:
 	//blue render portal
 	Camera* bPortalCam_;
 	Node* bPortalPanel_;
-	ShapeNode* bPortalCube_, *bAxisRGB_;
+	ShapeNode* bPortalCube_;
 	SolidMaterial *bPortalMat_;
 	RenderTarget *rt_bPortalPanel_;
 	Texture *bPortalTex_;
@@ -61,7 +61,7 @@ protected:
 	//red render portal
 	Camera* rPortalCam_;
 	Node* rPortalPanel_;
-	ShapeNode* rPortalCube_, *rAxisRGB_;
+	ShapeNode* rPortalCube_;
 	SolidMaterial *rPortalMat_;
 	RenderTarget *rt_rPortalPanel_;
 	Texture *rPortalTex_;

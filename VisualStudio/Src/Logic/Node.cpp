@@ -54,9 +54,18 @@ void Node::update() {
 void Node::render() {
 }
 
-void Node::setDrawAxis(bool set) {
+void Node::setDrawingAxis(bool set) {
 	if (axis_ == nullptr) axis_ = Node::ROOT_AXIS->getCopy();
+	drawingAxis_ = set;
 
 	if (set) addChild(axis_);
 	else removeChild(axis_);
+}
+
+void Node::toggleDrawingAxis() {
+	setDrawingAxis(!drawingAxis_);
+}
+
+bool Node::isDrawingAxis() const {
+	return drawingAxis_;
 }

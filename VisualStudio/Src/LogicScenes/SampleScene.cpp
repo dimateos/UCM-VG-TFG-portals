@@ -134,7 +134,7 @@ bool SampleScene::init() {
 
 	//SCENE OBJECTS
 	auto redCube = new ShapeNode(world_node_, cubeMesh_, redCheckerMat);
-	redCube->setDrawAxis();
+	redCube->setDrawingAxis();
 	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
 	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
 	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
@@ -167,7 +167,7 @@ bool SampleScene::init() {
 	renderPanel_->translateY(2);
 	//renderPanel->pitch(90);
 
-	//BLUE PORTAL PANEL
+	//BLUE PORTAL
 	rt_bPortalPanel_ = new RenderTarget();
 	rt_bPortalPanel_->create(vp_PF_);
 	bPortalTex_ = new Texture();
@@ -211,7 +211,7 @@ bool SampleScene::init() {
 	bPortalBorderF->scale(0.75);
 	bPortalBorderF->setLocalScaleZ(2);
 
-	//RED PORTAL PANEL
+	//RED PORTAL
 	rt_rPortalPanel_ = new RenderTarget();
 	rt_rPortalPanel_->create(vp_screen_);
 	rPortalTex_ = new Texture();
@@ -344,31 +344,11 @@ bool SampleScene::init() {
 	//PORTAL EXTRA CAMERAS
 	bPortalCam_ = new Camera(proj_);
 	bPortalCam_->setFather(rPortalPanel_);
-	bAxisRGB_ = new ShapeNode(bPortalCam_, axisMesh, pinkMat_);
-	auto bAxisSon = new ShapeNode(bAxisRGB_, cubeMesh_, blueCheckerMat);
-	bAxisSon->scale(0.20f);
-	float f2 = 0.9f / bAxisSon->getLocalScaleX();
-	auto bCubeRight = new ShapeNode(bAxisSon, cubeMesh_, redCheckerMat);
-	bCubeRight->translate(Transformation::BASE_RIGHT * f2);
-	auto bCubeUp = new ShapeNode(bAxisSon, cubeMesh_, greenCheckerMat);
-	bCubeUp->translate(Transformation::BASE_UP * f2);
-	auto bCubeBack = new ShapeNode(bAxisSon, cubeMesh_, blueCheckerMat);
-	bCubeBack->translate(Transformation::BASE_BACK * f2);
+	bPortalCam_->setDrawingAxis(false);
 
 	rPortalCam_ = new Camera(proj_);
 	rPortalCam_->setFather(bPortalPanel_);
-	rAxisRGB_ = new ShapeNode(rPortalCam_, axisMesh, pinkMat_);
-	auto rAxisSon = new ShapeNode(rAxisRGB_, cubeMesh_, redCheckerMat);
-	rAxisSon->scale(0.20f);
-	auto rCubeRight = new ShapeNode(rAxisSon, cubeMesh_, redCheckerMat);
-	rCubeRight->translate(Transformation::BASE_RIGHT * f2);
-	auto rCubeUp = new ShapeNode(rAxisSon, cubeMesh_, greenCheckerMat);
-	rCubeUp->translate(Transformation::BASE_UP * f2);
-	auto rCubeBack = new ShapeNode(rAxisSon, cubeMesh_, blueCheckerMat);
-	rCubeBack->translate(Transformation::BASE_BACK * f2);
-
-	rAxisRGB_->setFather(nullptr);
-	bAxisRGB_->setFather(nullptr);
+	rPortalCam_->setDrawingAxis(false);
 
 	//INPUT
 	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
@@ -395,14 +375,11 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchControl) {
-		if (movController_->target_ != rPortalPanel_) {
-			movController_->target_ = rPortalPanel_;
-			movController_->rotationReference_ = rPortalPanel_;
-		}
-		else {
-			movController_->target_ = player_;
-			movController_->rotationReference_ = cam_;
-		}
+		movController_->setRotating(false);
+
+		if (movController_->getTarget() == player_) movController_->setTarget(rPortalPanel_, rPortalPanel_);
+		else if (movController_->getTarget() == rPortalPanel_) movController_->setTarget(bPortalPanel_, bPortalPanel_);
+		else movController_->setTarget(player_, cam_);
 		return true;
 	}
 
@@ -416,15 +393,9 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 
 	//show/hide virtual portal cameras axes
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l) {
-		if (rAxisRGB_->getFather() == nullptr) {
-			rAxisRGB_->setFather(rPortalCam_);
-			bAxisRGB_->setFather(bPortalCam_);
-		}
-		else {
-			rAxisRGB_->setFather(nullptr);
-			bAxisRGB_->setFather(nullptr);
-		}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCameraAxis) {
+		rPortalCam_->toggleDrawingAxis();
+		bPortalCam_->toggleDrawingAxis();
 		return true;
 	}
 

@@ -28,11 +28,14 @@ public:
 	virtual void render();
 
 	//drawing node axis
-	void setDrawAxis(bool set = true);
+	void setDrawingAxis(bool set = true);
+	void toggleDrawingAxis();
+	bool isDrawingAxis() const;
 
 protected:
 	Node* father_;
 	std::list<Node*> children_;
 
+	bool drawingAxis_ = false;
 	Node* axis_ = nullptr;
 };

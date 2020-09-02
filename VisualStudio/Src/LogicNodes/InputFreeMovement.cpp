@@ -9,7 +9,7 @@ InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotati
 	: Node(father), target_(target), rotationReference_(rotationReference), disable_rotation_(disable_rotation) {
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
-	initialTrans_ = target_->getLocalTrans();
+	setTarget(target, rotationReference);
 }
 
 InputFreeMovement::~InputFreeMovement() {}
@@ -66,6 +66,14 @@ void InputFreeMovement::update() {
 	if (rotating_) applyFrameRotation();
 	else applyFrameTranslation();
 }
+
+void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
+	target_ = target;
+	rotationReference_ = rotationReference;
+	initialTrans_ = target_->getLocalTrans();
+}
+
+void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }
 
 void InputFreeMovement::applyFrameRotation() {
 	frame_rotation_ = glm::vec3(0);

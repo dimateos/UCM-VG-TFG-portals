@@ -30,9 +30,9 @@ public:
 
 	//position interface
 	inline glm::vec3 const& getLocalPos() const { return local_trans_.postion; }
-	inline float getLocalPosX() { return local_trans_.postion.x; }
-	inline float getLocalPosY() { return local_trans_.postion.y; }
-	inline float getLocalPosZ() { return local_trans_.postion.z; }
+	inline float getLocalPosX() const { return local_trans_.postion.x; }
+	inline float getLocalPosY() const { return local_trans_.postion.y; }
+	inline float getLocalPosZ() const { return local_trans_.postion.z; }
 	inline void setLocalPos(glm::vec3 const& pos) { local_trans_.postion = pos; setOutDated(); }
 	inline void setLocalPosX(float x) { local_trans_.postion.x = x; setOutDated(); }
 	inline void setLocalPosY(float y) { local_trans_.postion.y = y; setOutDated(); }
@@ -65,9 +65,9 @@ public:
 
 	//scale interface
 	inline glm::vec3 const& getLocalScale() const { return local_trans_.scale; }
-	inline float getLocalScaleX() { return local_trans_.scale.x; }
-	inline float getLocalScaleY() { return local_trans_.scale.y; }
-	inline float getLocalScaleZ() { return local_trans_.scale.z; }
+	inline float getLocalScaleX() const { return local_trans_.scale.x; }
+	inline float getLocalScaleY() const { return local_trans_.scale.y; }
+	inline float getLocalScaleZ() const { return local_trans_.scale.z; }
 	inline void setLocalScale(glm::vec3 const& scale) { local_trans_.scale = scale; setOutDated(); }
 	inline void setLocalScaleX(float x) { local_trans_.scale.x = x; setOutDated(); }
 	inline void setLocalScaleY(float y) { local_trans_.scale.y = y; setOutDated(); }

@@ -14,9 +14,13 @@ public:
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void update();
 
-	Node *target_, *rotationReference_;
+	void setTarget(Node *target, Node *rotationReference);
+	inline const Node * getTarget() const { return target_; };
+
+	void setRotating(bool rotating);
 
 protected:
+	Node *target_, *rotationReference_;
 	Transformation initialTrans_;
 
 	bool disable_rotation_; //maybe separated node?
