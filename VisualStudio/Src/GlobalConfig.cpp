@@ -26,6 +26,7 @@ char GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 char GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;
 char GlobalConfig::ACTION_togglePortalSurfaces = SDLK_l;
 char GlobalConfig::ACTION_togglePortalFrames = SDLK_k;
+char GlobalConfig::ACTION_togglePortalCube = SDLK_j;
 char GlobalConfig::ACTION_increasePortalRec = SDLK_KP_PLUS;
 char GlobalConfig::ACTION_decreasePortalRec = SDLK_KP_MINUS;
 

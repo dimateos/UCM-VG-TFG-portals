@@ -29,6 +29,7 @@ public:
 		ACTION_switchPortalRenderModes,	//switch portal rendering options
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames
+		ACTION_togglePortalCube,		//toggle cube to render as a portal
 		ACTION_increasePortalRec,		//change amount of recursion
 		ACTION_decreasePortalRec
 		;

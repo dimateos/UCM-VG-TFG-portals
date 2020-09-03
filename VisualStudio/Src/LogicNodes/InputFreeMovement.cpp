@@ -28,16 +28,16 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.push_front(UP);
 		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.push_front(DOWN);
 		//rotation
-		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (rotate_toggleMode_ ? !rotating_ : true);
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? !rotating_ : true);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.push_front(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.push_front(LEFT);
 		//modifiers
 		else if (key == GlobalConfig::ACTION_FASTtransform) {
-			fast_ = (speed_toggleMode_ ? !fast_ : true);
+			fast_ = (CFG_toggleSpeed_ ? !fast_ : true);
 			currentSpeedMultiplier_ = (fast_ ? fastSpeedMuliplier_ : 1.0f);
 		}
 		else if (key == GlobalConfig::ACTION_SLOWtransform) {
-			slow_ = (speed_toggleMode_ ? !slow_ : true);
+			slow_ = (CFG_toggleSpeed_ ? !slow_ : true);
 			currentSpeedMultiplier_ = (slow_ ? slowSpeedMuliplier_ : 1.0f);
 		}
 		else if (key == GlobalConfig::ACTION_RESETtransform) {
@@ -56,12 +56,12 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.remove(UP);
 		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.remove(DOWN);
 		//rotation
-		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (rotate_toggleMode_ ? rotating_ : false);
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? rotating_ : false);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.remove(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.remove(LEFT);
 		//modifiers
-		else if (key == GlobalConfig::ACTION_FASTtransform && !speed_toggleMode_) currentSpeedMultiplier_ = 1.0f;
-		else if (key == GlobalConfig::ACTION_SLOWtransform && !speed_toggleMode_) currentSpeedMultiplier_ = 1.0f;
+		else if (key == GlobalConfig::ACTION_FASTtransform && !CFG_toggleSpeed_) currentSpeedMultiplier_ = 1.0f;
+		else if (key == GlobalConfig::ACTION_SLOWtransform && !CFG_toggleSpeed_) currentSpeedMultiplier_ = 1.0f;
 		//else if (key == GlobalConfig::ACTION_FASTtransform)
 		else handled = false;
 	}
@@ -130,6 +130,11 @@ void InputFreeMovement::applyFrameTranslation() {
 	if (frame_velocity_.x != 0 || frame_velocity_.z != 0 || frame_velocity_.y != 0) {
 		frame_velocity_ = glm::normalize(frame_velocity_) * baseSpeed_;
 		frame_velocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
+
+		if (CFG_independetAxisY_) {
+			target_->translateY(frame_velocity_.y);
+			frame_velocity_.y = 0;
+		}
 
 		//directly add
 		target_->translate(rotationReference_->getLocalRot() * frame_velocity_);

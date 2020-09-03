@@ -29,7 +29,8 @@ protected:
 
 	float baseSpeed_ = 2, baseRotSpeed_ = 50;
 	float fastSpeedMuliplier_ = 4.0f, slowSpeedMuliplier_ = 0.25, currentSpeedMultiplier_ = 1.0f;
-	bool speed_toggleMode_ = false, rotate_toggleMode_ = true;
+
+	bool CFG_toggleSpeed_ = false, CFG_toggleRotation_ = true, CFG_independetAxisY_ = true;
 
 	bool fast_ = false, slow_ = false, rotating_ = false;
 	glm::vec3 frame_velocity_, frame_rotation_;

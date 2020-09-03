@@ -42,30 +42,35 @@ protected:
 	RenderTarget *screenRT_, *postFilterRT_;
 	ScreenPostFiltering* screenPF_;
 
-	//render panel with real time screenshot (non-activated)
+	//common meshes and materials
 	Mesh* planeMesh_, *cubeMesh_;
-	ShapeNode* renderPanel_;
-	SolidMaterial *pinkMat_, *renderMat_;
-	RenderTarget *renderPanelRT_;
-	Texture *renderTex_;
+	SolidMaterial *pinkMat_, *redCheckerMat_;
+	ShapeNode* redCube_;
+
+
+	//render panel with real time screenshot (non-activated)
+	//RenderTarget *renderPanelRT_;
+	//Texture *renderTex_;
+	//SolidMaterial *renderMat_;
+	//ShapeNode* renderPanel_;
 
 	//blue render portal
 	Camera* bPortalCam_;
-	Node *bPortalRoot_, *bPortalFrames_;
-	ShapeNode* bPortalSurface_;
-	SolidMaterial *bPortalMat_;
 	RenderTarget *bPortalRT_;
 	Texture *bPortalTex_;
+	SolidMaterial *bPortalMat_;
+	Node *bPortalRoot_, *bPortalFrames_;
+	ShapeNode* bPortalSurface_;
 
 	//red render portal
 	Camera* rPortalCam_;
-	Node *rPortalRoot_, *rPortalFrames_;
-	ShapeNode* rPortalSurface_;
-	SolidMaterial *rPortalMat_;
 	RenderTarget *rPortalPanelRT_;
 	Texture *rPortalTex_;
+	SolidMaterial *rPortalMat_;
+	Node *rPortalRoot_, *rPortalFrames_;
+	ShapeNode* rPortalSurface_;
 
-	//camera mimic
+	//Player and control
 	Node *player_;
 	ShapeNode *playerBody_;
 	InputFreeMovement* movController_;
@@ -84,7 +89,6 @@ protected:
 	std::vector<Transformation> recTrans_;
 
 	//portal travellers slicing and duping test
-	ShapeNode* testTraveller_;
 	Node *playerCopy_;
 	SolidMaterial *slizableMat_, *slizableMatCopy_;
 

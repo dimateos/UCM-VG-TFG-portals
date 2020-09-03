@@ -37,12 +37,14 @@ bool SampleScene::init() {
 	Scene::init();
 	glDepthFunc(GL_LESS);
 
-	//glDisable(GL_CULL_FACE); //cube not correct vertices
+	//glDisable(GL_CULL_FACE); //cube not correct vertices atm
 	//glEnable(GL_CULL_FACE);
 
 	//SCENE INPUT
 	Platform_SDL::platformEventEmitter_.registerListener(this);
 	Platform_SDL::keyEventEmitter_.registerListener(this);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TARGETS
 	screenVP_ = new Viewport(Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
@@ -88,7 +90,9 @@ bool SampleScene::init() {
 	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_)) + 10*EPSILON;
 
 	//RECURSION STUFF
-	recTrans_.resize(recLimit_);
+	recTrans_.resize(REC_HARD_LIMIT);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//COMMON TEXTURES AND MATERIALS
 	//really badly placed here but for now
@@ -110,7 +114,7 @@ bool SampleScene::init() {
 	//COMMON meshes and materials
 	cubeMesh_ = new CubeMesh();
 	planeMesh_ = new PlaneMesh();
-	auto redCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
+	redCheckerMat_ = new SolidMaterial(glm::vec3(0.8f, 0.2f, 0.2f), &checkersTex_);
 	auto orangeCheckerMat = new SolidMaterial(glm::vec3(0.8f, 0.4f, 0.2f), &checkersTex_);
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
 	auto cyanCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.8f), &checkersTex_);
@@ -126,47 +130,53 @@ bool SampleScene::init() {
 	auto axisSon = new Node(Node::ROOT_AXIS);
 	axisSon->scale(0.25f);
 	float f = 1.0f / axisSon->getLocalScaleX();
-	auto cubeRight = new ShapeNode(axisSon, cubeMesh_, redCheckerMat);
+	auto cubeRight = new ShapeNode(axisSon, cubeMesh_, redCheckerMat_);
 	cubeRight->translate(Transformation::BASE_RIGHT * f);
 	auto cubeUp = new ShapeNode(axisSon, cubeMesh_, greenCheckerMat);
 	cubeUp->translate(Transformation::BASE_UP * f);
 	auto cubeBack = new ShapeNode(axisSon, cubeMesh_, blueCheckerMat);
 	cubeBack->translate(Transformation::BASE_BACK * f);
 
-	//SCENE OBJECTS
-	auto redCube = new ShapeNode(world_node_, cubeMesh_, redCheckerMat);
-	//redCube->setDrawingAxis();
-	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
-	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
-	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
-
-	auto blueCube = (ShapeNode*)redCube->getCopy();
-	blueCube->mat_ = blueCheckerMat;
-	blueCube->translateX(10.0f);
-	auto blueFloor = (ShapeNode*)redFloor->getCopy();
-	blueFloor->mat_ = cyanCheckerMat;
-	blueFloor->translateX(10.0f);
-
-	auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
-	whiteFloor->setFather(nullptr);
-	whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
-	whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//RENDER PANEL
-	renderPanelRT_ = new RenderTarget();
-	renderPanelRT_->create(postFilterVP_);
-	renderTex_ = new Texture();
-	renderTex_->createRenderTargetTexture(renderPanelRT_);
+	//auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
+	//whiteFloor->setFather(nullptr);
+	//whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
+	//whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
-	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
+	//renderPanelRT_ = new RenderTarget();
+	//renderPanelRT_->create(postFilterVP_);
+	//renderTex_ = new Texture();
+	//renderTex_->createRenderTargetTexture(renderPanelRT_);
 
-	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
-	renderPanel_->setFather(nullptr);
-	renderPanel_->setLocalPos(whiteFloor->getLocalPos());
-	renderPanel_->translateZ(5);
-	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
-	renderPanel_->translateY(2);
-	//renderPanel->pitch(90);
+	//renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
+
+	//renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
+	//renderPanel_->setFather(nullptr);
+	//renderPanel_->setLocalPos(whiteFloor->getLocalPos());
+	//renderPanel_->translateZ(5);
+	//renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
+	//renderPanel_->translateY(2);
+	////renderPanel->pitch(90);
+
+	//OTHER TESTING OBJECTS
+	//simple cube
+	//auto cube = new ShapeNode(world_node_);
+	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
+	//cube->setLocalScaleY(2.0f);
+	//cube->pitch(180.0f);
+	//cube->yaw(90.0f);
+
+	//transforming a father to see how transforms chain
+	//auto cubeFather = new Node(world_node_);
+	//cubeFather->setLocalPos(glm::vec3(1.f, 1.f, 1.f));
+	//cubeFather->yaw(45.0f);
+	//cubeFather->setLocalScaleY(0.5f);
+	//actualy set the father in order to see results
+	//cube->setFather(cubeFather);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//BLUE PORTAL
 	bPortalRT_ = new RenderTarget();
@@ -206,7 +216,7 @@ bool SampleScene::init() {
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
 
-	//RED PORTAL
+	//RED PORTAL (mostly copies)
 	rPortalPanelRT_ = new RenderTarget();
 	rPortalPanelRT_->create(screenVP_);
 	rPortalTex_ = new Texture();
@@ -214,31 +224,19 @@ bool SampleScene::init() {
 	rPortalMat_ = new SolidMaterial(glm::vec3(1.0f), rPortalTex_);
 	rPortalMat_->option_ = 1;
 
-	rPortalRoot_ = new Node(world_node_);
+	rPortalRoot_ = bPortalRoot_->getCopy();
 	//rPortalRoot_->mesh_ = nullptr;
-	rPortalRoot_->setLocalTrans(bPortalRoot_->getLocalTrans());
 	rPortalRoot_->translateX(10);
 	//rPortalRoot_->yaw(180.f);
 	//bPortalRoot_->translateZ(6);
 	//rPortalRoot_->pitch(180.f);
 
-	rPortalSurface_ = new ShapeNode(rPortalRoot_, cubeMesh_, rPortalMat_);
-	rPortalSurface_->setLocalTrans(bPortalSurface_->getLocalTrans());
-	//auto rPortalWall = new ShapeNode(rPortalSurface_, planeMesh_, whiteCheckerMat);
-	//rPortalWall->translateZ(0.5);
-
-	rPortalFrames_ = new Node(rPortalRoot_);
-	//rPortalFrames_->setFather(nullptr);
-	rPortalFrames_->setLocalTrans(bPortalFrames_->getLocalTrans());
-	auto rPortalBorderL = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
-	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
-	rPortalBorderL->setLocalScaleY(rescale);
-	auto rPortalBorderR = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
-	rPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
-	rPortalBorderR->setLocalScaleY(rescale);
-	auto rPortalBorderU = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
-	rPortalBorderU->translate(Transformation::BASE_UP * separation);
-	rPortalBorderU->setLocalScaleX(rescale);
+	//need to set blue materials
+	auto childs = rPortalRoot_->getChildren();
+	rPortalSurface_ = (ShapeNode*)childs.front();
+	rPortalSurface_ ->mat_ = rPortalMat_;
+	rPortalFrames_ = (ShapeNode*)childs.back();
+	for (auto & n : rPortalFrames_->getChildren()) ((ShapeNode*)n)->mat_ = redCheckerMat_;
 
 	//FORWARD POINT FOR PORTALS
 	//forward
@@ -255,28 +253,21 @@ bool SampleScene::init() {
 	rPortalBorderF->scale(0.75);
 	rPortalBorderF->setLocalScaleZ(2);
 
-	//OTHER TESTING OBJECTS
-	//simple cube
-	//auto cube = new ShapeNode(world_node_);
-	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
-	//cube->setLocalScaleY(2.0f);
-	//cube->pitch(180.0f);
-	//cube->yaw(90.0f);
+	//SCENE OBJECTS
+	redCube_ = new ShapeNode(world_node_, cubeMesh_, redCheckerMat_);
+	//redCube->setDrawingAxis();
+	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
+	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
+	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
 
-	//transforming a father to see how transforms chain
-	//auto cubeFather = new Node(world_node_);
-	//cubeFather->setLocalPos(glm::vec3(1.f, 1.f, 1.f));
-	//cubeFather->yaw(45.0f);
-	//cubeFather->setLocalScaleY(0.5f);
-	//actualy set the father in order to see results
-	//cube->setFather(cubeFather);
+	auto blueCube = (ShapeNode*)redCube_->getCopy();
+	blueCube->mat_ = blueCheckerMat;
+	blueCube->translateX(10.0f);
+	auto blueFloor = (ShapeNode*)redFloor->getCopy();
+	blueFloor->mat_ = cyanCheckerMat;
+	blueFloor->translateX(10.0f);
 
-	//SLICING TESTING
-	testTraveller_ = new ShapeNode(world_node_, cubeMesh_, greenCheckerMat);
-	testTraveller_->setFather(nullptr);
-	testTraveller_->setLocalPos(whiteFloor->getLocalPos());
-	testTraveller_->translateY(1);
-	testTraveller_->setLocalScaleZ(4);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//PLAYER
 	player_ = new Node(world_node_);
@@ -298,7 +289,7 @@ bool SampleScene::init() {
 	//COPY for slicing
 	playerCopy_ = new Node(world_node_);
 	playerCopy_->setFather(nullptr);
-	auto bodyCopy = new ShapeNode(*playerBody_);
+	auto bodyCopy = (ShapeNode*)playerBody_->getCopy();
 	playerCopy_->addChild(bodyCopy);
 	//separated copy material
 	slizableMatCopy_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
@@ -308,6 +299,12 @@ bool SampleScene::init() {
 	//edit camera
 	cam_->setFather(player_);
 	cam_->setLocalPos(glm::vec3(0.f, 1.f, 0.f));
+
+	//INPUT
+	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
+	rotController_ = new InputFreeRotation(world_node_, cam_);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//testing oblique projections
 	//auto camBody_ = new ShapeNode(cam_, cubeMesh_, whiteCheckerMat);
@@ -353,10 +350,6 @@ bool SampleScene::init() {
 	rPortalCam_ = new Camera(proj_);
 	rPortalCam_->setFather(bPortalRoot_);
 	rPortalCam_->setDrawingAxis(false);
-
-	//INPUT
-	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
-	rotController_ = new InputFreeRotation(world_node_, cam_);
 
 	return true;
 }
@@ -406,28 +399,10 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//switch portal rendering options (pink is disabled atm: overrode in render)
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchPortalRenderModes) {
-		renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
 		bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 		rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
-
-		//if (renderPanel_->mat_ == renderMat_) {
-		//	renderPanel_->mat_ = pinkMat_;
-		//	//bPortalRoot_->mat_ = pinkMat_;
-		//	bPortalSurface_->mat_ = pinkMat_;
-		//	rPortalSurface_->mat_ = pinkMat_;
-		//}
-		//else {
-		//	renderPanel_->mat_ = renderMat_;
-		//	//bPortalRoot_->mat_ = bPortalMat_;
-		//	bPortalSurface_->mat_ = bPortalMat_;
-		//	rPortalSurface_->mat_ = rPortalMat_;
-		//	renderMat_->option_ == 0 ? renderMat_->option_ = 1 : renderMat_->option_ = 0;
-		//	bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
-		//	rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
-		//}
 		return true;
 	}
-
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalSurfaces) {
 		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
@@ -435,6 +410,9 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalFrames) {
 		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalFrames_->setFather(rPortalFrames_->getFather() == nullptr ? rPortalRoot_ : nullptr);
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCube) {
+		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
 	}
 
 	//change amount of recursion
