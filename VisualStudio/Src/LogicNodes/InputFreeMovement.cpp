@@ -18,7 +18,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_KEYDOWN) {
-		const char key = e.key.keysym.sym;
+		const SDL_Keycode key = e.key.keysym.sym;
 
 		//movement
 		if (key == GlobalConfig::ACTION_moveRIGHT) !rotating_ ? xAxis_.push_front(RIGHT) : rot_yAxis_.push_front(RIGHT);
@@ -46,7 +46,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else handled = false;
 	}
 	else if (e.type == SDL_KEYUP) {
-		const char key = e.key.keysym.sym;
+		const SDL_Keycode key = e.key.keysym.sym;
 
 		//movement
 		if (key == GlobalConfig::ACTION_moveRIGHT) !rotating_ ? xAxis_.remove(RIGHT) : rot_yAxis_.remove(RIGHT);

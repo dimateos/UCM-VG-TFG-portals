@@ -1,10 +1,11 @@
 #pragma once
+#include <SDL_keycode.h>
 
 //static global config to easily edit hotkeys
 class GlobalConfig
 {
 public:
-	static char
+	static SDL_Keycode
 		ACTION_escape,				//exit application
 		ACTION_captureCursor,		//switch free amd hidden cursor
 		ACTION_screenPostFilter,	//Switch post-processing effect (hold and press 1-9)
@@ -30,8 +31,11 @@ public:
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames
 		ACTION_togglePortalCube,		//toggle cube to render as a portal
+		ACTION_togglePortalWall,		//toggle wall
 		ACTION_increasePortalRec,		//change amount of recursion
-		ACTION_decreasePortalRec
+		ACTION_decreasePortalRec,
+		ACTION_increasePortalWidth,		//change width of portal surfaces
+		ACTION_decreasePortalWidth
 		;
 
 private:

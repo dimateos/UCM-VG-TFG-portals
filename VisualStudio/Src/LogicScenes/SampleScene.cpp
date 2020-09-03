@@ -235,6 +235,7 @@ bool SampleScene::init() {
 	auto childs = rPortalRoot_->getChildren();
 	rPortalSurface_ = (ShapeNode*)childs.front();
 	rPortalSurface_ ->mat_ = rPortalMat_;
+	rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 	rPortalFrames_ = (ShapeNode*)childs.back();
 	for (auto & n : rPortalFrames_->getChildren()) ((ShapeNode*)n)->mat_ = redCheckerMat_;
 
@@ -254,6 +255,12 @@ bool SampleScene::init() {
 	rPortalBorderF->setLocalScaleZ(2);
 
 	//SCENE OBJECTS
+	wall_ = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
+	wall_->setLocalPos(bPortalRoot_->getLocalPos());
+	//wall_->translateX(5);
+	wall_->translateZ(-0.45);
+	wall_->setLocalScale(glm::vec3(10.0f, 10.0f, 0.5f));
+
 	redCube_ = new ShapeNode(world_node_, cubeMesh_, redCheckerMat_);
 	//redCube->setDrawingAxis();
 	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
@@ -414,10 +421,29 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCube) {
 		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
 	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalWall) {
+		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
+	}
 
 	//change amount of recursion
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalRec && recLimit_ < REC_HARD_LIMIT) recLimit_++;
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalRec && recLimit_ > 1) recLimit_--;
+
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalWidth) {
+		minPortalWidth_ += minPortalIncrement;
+		printf("scene - w: %f\n", minPortalWidth_);
+		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+	}
+
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalWidth) {
+		minPortalWidth_ -= minPortalIncrement;
+		if (minPortalWidth_ < WIDTH_HARD_LIMIT) minPortalWidth_ = WIDTH_HARD_LIMIT;
+		else {
+			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		}
+	}
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return false;
@@ -514,12 +540,12 @@ void SampleScene::updatePortalTravellers() {
 
 			//invalid previous sides
 			bSideOld_ = 0;
-			bPortalSurface_->setLocalScaleZ(EPSILON);
+			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 			bPortalSurface_->setLocalPosZ(0);
 
 			//correct linked portal panel scale
 			rSideOld_ = sgn(glm::dot(playerPos - rPortalRoot_->getLocalPos(), -rPortalRoot_->back()));
-			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_);
+			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
 			rPortalSurface_->setLocalPosZ(rSideOld_ * rPortalSurface_->getLocalScaleZ() / 2);
 			//make player copy
 			printf("red clone + undo blue\n");
@@ -532,7 +558,7 @@ void SampleScene::updatePortalTravellers() {
 		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 			bSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_);
+			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
 			bPortalSurface_->setLocalPosZ(side * bPortalSurface_->getLocalScaleZ() / 2);
 
 			//make player copy
@@ -549,7 +575,7 @@ void SampleScene::updatePortalTravellers() {
 	else if (bSideOld_ != 0) { //player is out of zone so invalid previous
 		bSideOld_ = 0;
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
-		bPortalSurface_->setLocalScaleZ(EPSILON);
+		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		bPortalSurface_->setLocalPosZ(0);
 		printf("blue UNclone\n");
 		playerCopy_->setFather(nullptr);
@@ -578,12 +604,12 @@ void SampleScene::updatePortalTravellers() {
 
 			//invalid previous sides
 			rSideOld_ = 0;
-			rPortalSurface_->setLocalScaleZ(EPSILON);
+			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 			rPortalSurface_->setLocalPosZ(0);
 
 			//correct linked portal panel scale
 			bSideOld_ = sgn(glm::dot(playerPos - bPortalRoot_->getLocalPos(), -bPortalRoot_->back()));
-			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_);
+			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
 			bPortalSurface_->setLocalPosZ(bSideOld_ * bPortalSurface_->getLocalScaleZ() / 2);
 			//make player copy
 			printf("blue clone + undo red\n");
@@ -596,7 +622,7 @@ void SampleScene::updatePortalTravellers() {
 		else if (rSideOld_ == 0) { //store new valid side - just entered the zone
 			rSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_);
+			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
 			rPortalSurface_->setLocalPosZ(side * rPortalSurface_->getLocalScaleZ() / 2);
 
 			//make player copy
@@ -613,7 +639,7 @@ void SampleScene::updatePortalTravellers() {
 	else if (rSideOld_ != 0) { //player is out of zone so invalid previous
 		rSideOld_ = 0;
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
-		rPortalSurface_->setLocalScaleZ(EPSILON);
+		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		rPortalSurface_->setLocalPosZ(0);
 		printf("red UNclone\n");
 		playerCopy_->setFather(nullptr);

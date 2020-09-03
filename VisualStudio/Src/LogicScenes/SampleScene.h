@@ -45,7 +45,7 @@ protected:
 	//common meshes and materials
 	Mesh* planeMesh_, *cubeMesh_;
 	SolidMaterial *pinkMat_, *redCheckerMat_;
-	ShapeNode* redCube_;
+	ShapeNode *redCube_, *wall_;
 
 
 	//render panel with real time screenshot (non-activated)
@@ -81,6 +81,8 @@ protected:
 	int rSideOld_ = 0, bSideOld_ = 0;
 
 	//avoid portal clipping strategies
+	float minPortalWidth_ = EPSILON, minPortalIncrement = 0.01;
+	const float WIDTH_HARD_LIMIT = EPSILON;
 	float initialNear_, initialNearCornerDistance_;
 
 	//portal recursion testing
