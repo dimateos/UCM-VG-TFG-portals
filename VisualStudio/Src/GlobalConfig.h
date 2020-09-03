@@ -27,6 +27,8 @@ public:
 
 		ACTION_togglePortalCameraAxis,	//show/hide virtual portal cameras axes
 		ACTION_switchPortalRenderModes,	//switch portal rendering options
+		ACTION_togglePortalSurfaces,	//toggle portal surfaces
+		ACTION_togglePortalFrames,		//toggle portal frames
 		ACTION_increasePortalRec,		//change amount of recursion
 		ACTION_decreasePortalRec
 		;

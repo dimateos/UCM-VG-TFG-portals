@@ -51,7 +51,7 @@ protected:
 
 	//blue render portal
 	Camera* bPortalCam_;
-	Node* bPortalRoot_;
+	Node *bPortalRoot_, *bPortalFrames_;
 	ShapeNode* bPortalSurface_;
 	SolidMaterial *bPortalMat_;
 	RenderTarget *bPortalRT_;
@@ -59,7 +59,7 @@ protected:
 
 	//red render portal
 	Camera* rPortalCam_;
-	Node* rPortalRoot_;
+	Node *rPortalRoot_, *rPortalFrames_;
 	ShapeNode* rPortalSurface_;
 	SolidMaterial *rPortalMat_;
 	RenderTarget *rPortalPanelRT_;

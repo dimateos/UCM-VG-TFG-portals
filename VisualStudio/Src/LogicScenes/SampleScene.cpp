@@ -115,7 +115,8 @@ bool SampleScene::init() {
 	auto blueCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.2f, 0.8f), &checkersTex_);
 	auto cyanCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.8f), &checkersTex_);
 	auto greenCheckerMat = new SolidMaterial(glm::vec3(0.2f, 0.8f, 0.2f), &checkersTex_);
-	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.8f), &checkersTex_);
+	auto whiteCheckerMat = new SolidMaterial(glm::vec3(0.9f), &checkersTex_);
+	auto grayCheckerMat = new SolidMaterial(glm::vec3(0.3f), &checkersTex_);
 
 	auto axisMesh = new AxisMesh();
 	pinkMat_ = new SolidMaterial(glm::vec3(0.9f, 0.3f, 0.6f), &blankTex_);
@@ -139,11 +140,11 @@ bool SampleScene::init() {
 	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
 	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
 
-	auto blueCube = new ShapeNode(world_node_, cubeMesh_, blueCheckerMat);
+	auto blueCube = (ShapeNode*)redCube->getCopy();
+	blueCube->mat_ = blueCheckerMat;
 	blueCube->translateX(10.0f);
-	auto blueFloor = new ShapeNode(world_node_, cubeMesh_, cyanCheckerMat);
-	blueFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
-	blueFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
+	auto blueFloor = (ShapeNode*)redFloor->getCopy();
+	blueFloor->mat_ = cyanCheckerMat;
 	blueFloor->translateX(10.0f);
 
 	auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
@@ -189,27 +190,21 @@ bool SampleScene::init() {
 	sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6;
 	sqCloseDistance_ *= sqCloseDistance_;
 
-	auto bPortalBorders = new Node(bPortalRoot_);
-	//bPortalBorders->setFather(nullptr);
-	bPortalBorders->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalBorders->scale(0.25f);
-	float separation = 1.5f / bPortalBorders->getLocalScaleX();
-	float rescale = 3 / bPortalBorders->getLocalScaleX();
-	auto bPortalBorderL = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	bPortalFrames_ = new Node(bPortalRoot_);
+	//bPortalFrames_->setFather(nullptr);
+	bPortalFrames_->setLocalScale(glm::vec3(1.5, 1.5, 1));
+	bPortalFrames_->scale(0.25f);
+	float separation = 1.5f / bPortalFrames_->getLocalScaleX();
+	float rescale = 3 / bPortalFrames_->getLocalScaleX();
+	auto bPortalBorderL = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	bPortalBorderL->setLocalScaleY(rescale);
-	auto bPortalBorderR = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	auto bPortalBorderR = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	bPortalBorderR->setLocalScaleY(rescale);
-	auto bPortalBorderU = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
+	auto bPortalBorderU = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
-	//forward
-	auto bPortalBorderF = new ShapeNode(bPortalBorders, cubeMesh_, blueCheckerMat);
-	bPortalBorderF->translate(Transformation::BASE_UP * separation);
-	bPortalBorderF->translateZ(-0.5);
-	bPortalBorderF->scale(0.75);
-	bPortalBorderF->setLocalScaleZ(2);
 
 	//RED PORTAL
 	rPortalPanelRT_ = new RenderTarget();
@@ -232,22 +227,31 @@ bool SampleScene::init() {
 	//auto rPortalWall = new ShapeNode(rPortalSurface_, planeMesh_, whiteCheckerMat);
 	//rPortalWall->translateZ(0.5);
 
-	auto rPortalBorders = new Node(rPortalRoot_);
-	//rPortalBorders->setFather(nullptr);
-	rPortalBorders->setLocalTrans(bPortalBorders->getLocalTrans());
-	auto rPortalBorderL = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
+	rPortalFrames_ = new Node(rPortalRoot_);
+	//rPortalFrames_->setFather(nullptr);
+	rPortalFrames_->setLocalTrans(bPortalFrames_->getLocalTrans());
+	auto rPortalBorderL = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
 	rPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	rPortalBorderL->setLocalScaleY(rescale);
-	auto rPortalBorderR = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
+	auto rPortalBorderR = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
 	rPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
 	rPortalBorderR->setLocalScaleY(rescale);
-	auto rPortalBorderU = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
+	auto rPortalBorderU = new ShapeNode(rPortalFrames_, cubeMesh_, redCheckerMat);
 	rPortalBorderU->translate(Transformation::BASE_UP * separation);
 	rPortalBorderU->setLocalScaleX(rescale);
+
+	//FORWARD POINT FOR PORTALS
 	//forward
-	auto rPortalBorderF = new ShapeNode(rPortalBorders, cubeMesh_, redCheckerMat);
+	auto bPortalBorderF = new ShapeNode(bPortalFrames_, cubeMesh_, cyanCheckerMat);
+	bPortalBorderF->translate(Transformation::BASE_UP * separation);
+	bPortalBorderF->translateZ(-0.55);
+	bPortalBorderF->scale(0.75);
+	bPortalBorderF->setLocalScaleZ(2);
+
+	//forward
+	auto rPortalBorderF = new ShapeNode(rPortalFrames_, cubeMesh_, orangeCheckerMat);
 	rPortalBorderF->translate(Transformation::BASE_UP * separation);
-	rPortalBorderF->translateZ(-0.5);
+	rPortalBorderF->translateZ(-0.55);
 	rPortalBorderF->scale(0.75);
 	rPortalBorderF->setLocalScaleZ(2);
 
@@ -284,7 +288,7 @@ bool SampleScene::init() {
 
 	//special material for slizing
 	SolidMaterial::UNIFORM_CLIP_PLANE = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("clipPlane");
-	slizableMat_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
+	slizableMat_ = new SolidMaterial(grayCheckerMat->color_, &checkersTex_);
 
 	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
 	//playerBody_->setFather(nullptr);
@@ -422,6 +426,15 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		//	rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
 		//}
 		return true;
+	}
+
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalSurfaces) {
+		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
+		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalFrames) {
+		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
+		rPortalFrames_->setFather(rPortalFrames_->getFather() == nullptr ? rPortalRoot_ : nullptr);
 	}
 
 	//change amount of recursion
@@ -638,7 +651,7 @@ void SampleScene::update() {
 
 	//check objects entering portal zone: handle tp
 		//atm separated from player - handle portal scale to avoid camera near clip
-	if (movController_->getTarget() == player_) updatePortalTravellers();
+	if (movController_->getTarget() == player_ && bPortalSurface_->getFather() != nullptr) updatePortalTravellers();
 
 	//update camera matrices
 	updatePortalCamerasTrans();
@@ -670,7 +683,7 @@ void SampleScene::render() {
 
 	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
 	for (size_t i = 0; i < recLimit_; i++) {
-		//PORTAL PANEL pass - draw scene in the reused postfilter buffer
+		//RED PORTAL pass - draw scene in the reused postfilter buffer
 		SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
 		postFilterRT_->bind(true); //3d depth test enabled
 		postFilterRT_->clear(0.2f, 0.2f, 0.2f, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -695,7 +708,7 @@ void SampleScene::render() {
 		if (i == 0) bPortalSurface_->mat_ = bPortalMat_;
 	}
 
-	//PORTAL PANEL pass - draw scene in the reused postfilter buffer
+	//BLUE PORTAL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)

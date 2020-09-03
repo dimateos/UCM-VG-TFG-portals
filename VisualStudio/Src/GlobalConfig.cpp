@@ -19,12 +19,14 @@ char GlobalConfig::ACTION_FASTtransform = SDLK_LSHIFT;
 char GlobalConfig::ACTION_SLOWtransform = SDLK_LCTRL;
 char GlobalConfig::ACTION_RESETtransform = SDLK_t;
 
-char GlobalConfig::ACTION_switchControl = SDLK_k;
-char GlobalConfig::ACTION_cycleCamerasPositions = SDLK_i;
+char GlobalConfig::ACTION_switchControl = SDLK_f;
+char GlobalConfig::ACTION_cycleCamerasPositions = SDLK_g;
 
-char GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_l;
+char GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 char GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;
-char GlobalConfig::ACTION_increasePortalRec = SDLK_PLUS;
-char GlobalConfig::ACTION_decreasePortalRec = SDLK_MINUS;
+char GlobalConfig::ACTION_togglePortalSurfaces = SDLK_l;
+char GlobalConfig::ACTION_togglePortalFrames = SDLK_k;
+char GlobalConfig::ACTION_increasePortalRec = SDLK_KP_PLUS;
+char GlobalConfig::ACTION_decreasePortalRec = SDLK_KP_MINUS;
 
 

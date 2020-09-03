@@ -33,6 +33,10 @@ void ScreenPostFiltering::setOption(int n) {
 	postFilterShader_.setInt("option", option_);
 }
 
+int ScreenPostFiltering::getOption() const {
+	return option_;
+}
+
 Texture * ScreenPostFiltering::getTexture() {
 	return &rtt_;
 }

@@ -16,6 +16,7 @@ public:
 	virtual ~ScreenPostFiltering();
 
 	void setOption(int n);
+	int getOption() const;
 	Texture* getTexture();
 
 	virtual bool handleEvent(SDL_Event const & e);
