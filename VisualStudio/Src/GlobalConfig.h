@@ -9,6 +9,7 @@ public:
 		ACTION_escape,				//exit application
 		ACTION_captureCursor,		//switch free amd hidden cursor
 		ACTION_screenPostFilter,	//Switch post-processing effect (hold and press 1-9)
+		ACTION_switchMainCameras,	//switch main cameras (fps or top-down)
 
 		ACTION_moveRIGHT,			//movement
 		ACTION_moveLEFT,

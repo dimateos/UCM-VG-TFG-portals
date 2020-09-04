@@ -19,6 +19,7 @@ public:
 
 	void setRotating(bool rotating);
 
+
 protected:
 	Node *target_, *rotationReference_;
 	Transformation initialTrans_;

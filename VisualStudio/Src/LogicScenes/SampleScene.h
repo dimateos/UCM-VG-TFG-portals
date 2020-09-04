@@ -36,12 +36,13 @@ public:
 protected:
 	//GENERAL RENDER
 	Projection *proj_, *topDownProj_;
-	float projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0, topDownZoom_ = 1.0;
 	Camera *cam_, *topDownCam_;
+	float projFov_ = 75.0f, projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0, topDownZoom_ = 1.0;
 	glm::vec3 topDownPos_ = glm::vec3(5,20,4);
-	unsigned int uniformModel_, uniformView_, uniformProj_;
 	glm::vec3 clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
+	bool renderMainTopDown_ = false;
 
+	unsigned int uniformModel_, uniformView_, uniformProj_;
 	virtual void render_FPS();
 	virtual void render_TOPDOWN();
 	virtual void render_rec(Node* n);

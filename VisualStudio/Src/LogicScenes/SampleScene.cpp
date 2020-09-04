@@ -60,7 +60,7 @@ bool SampleScene::init() {
 	screenPP_ = new ScreenPostProcessing(nullptr, postProcessRT_); //out of the tree
 
 	//CAMERA
-	proj_ = new PerspectiveProjection(screenVP_->getAspect(), projNear_, projFar_); //affects clipping on portal pannels
+	proj_ = new PerspectiveProjection(screenVP_->getAspect(), projFov_, projNear_, projFar_); //affects clipping on portal pannels
 	cam_ = new Camera(proj_);
 	Node::ROOT_CAM = cam_;
 	topDownProj_ = new OrthoProjection(topDownW_, topDownW_ / screenVP_->getAspect(), topDownZoom_, projNear_, projFar_);
@@ -69,8 +69,7 @@ bool SampleScene::init() {
 	topDownCam_->rotate(-90, Transformation::BASE_RIGHT);
 
 	//extra projections for testing
-	//obliquePorj_ = new Projection(screenVP_->getAspect(), 90.0f, 1.0f, 15.0f);
-	obliquePorj_ = new PerspectiveProjection(screenVP_->getAspect(), 75.0f, 0.1f);
+	obliquePorj_ = new PerspectiveProjection(screenVP_->getAspect(), projFov_, projNear_, projFar_);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//AVOIDING CAMERA CLIPPING PORTALS
@@ -198,14 +197,15 @@ bool SampleScene::init() {
 
 	bPortalSurface_ = new ShapeNode(bPortalRoot_, cubeMesh_, bPortalMat_);
 	//bPortalSurface_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalSurface_->setLocalScale(glm::vec3(2.62, 2.75, EPSILON));
-	bPortalSurface_->translateY(-0.07);
+	bPortalSurface_->setLocalScale(glm::vec3(2.62, 2.95, EPSILON));
+	//bPortalSurface_->translateY(-0.07); 82
 	bPortalSurface_->setLocalPosZ(-bPortalSurface_->getLocalScaleZ() * 0.5);
 	sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6;
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	bPortalFrames_ = new Node(bPortalRoot_);
 	//bPortalFrames_->setFather(nullptr);
+	bPortalFrames_->translateY(-0.20);
 	bPortalFrames_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalFrames_->scale(0.25f);
 	float separation = 1.5f / bPortalFrames_->getLocalScaleX();
@@ -213,12 +213,13 @@ bool SampleScene::init() {
 	auto bPortalBorderL = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderL->translate(-Transformation::BASE_RIGHT * separation);
 	bPortalBorderL->setLocalScaleY(rescale);
-	auto bPortalBorderR = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
-	bPortalBorderR->translate(Transformation::BASE_RIGHT * separation);
-	bPortalBorderR->setLocalScaleY(rescale);
+	auto bPortalBorderR = bPortalBorderL->getCopy();
+	bPortalBorderR->translate(2.0f*Transformation::BASE_RIGHT * separation);
 	auto bPortalBorderU = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
+	auto bPortalBorderD = bPortalBorderU->getCopy();
+	bPortalBorderD->translate(2.0f * -Transformation::BASE_UP * separation);
 
 	//RED PORTAL (mostly copies)
 	rPortalPanelRT_ = new RenderTarget();
@@ -244,16 +245,16 @@ bool SampleScene::init() {
 	for (auto & n : rPortalFrames_->getChildren()) ((ShapeNode*)n)->mat_ = redCheckerMat_;
 
 	//FORWARD POINT FOR PORTALS
-	//Blue
-	auto bPortalBorderF = new ShapeNode(bPortalFrames_, cubeMesh_, cyanCheckerMat);
-	bPortalBorderF->translate(Transformation::BASE_UP * separation);
-	bPortalBorderF->translateZ(-0.55);
-	bPortalBorderF->scale(0.70);
-	bPortalBorderF->setLocalScaleZ(2);
-	//Red copy
-	auto rPortalBorderF = bPortalBorderF->getCopy();
-	rPortalBorderF->setFather(rPortalFrames_);
-	((ShapeNode*)rPortalBorderF)->mat_ = orangeCheckerMat;
+	////Blue
+	//auto bPortalBorderF = new ShapeNode(bPortalFrames_, cubeMesh_, cyanCheckerMat);
+	//bPortalBorderF->translate(Transformation::BASE_UP * separation);
+	//bPortalBorderF->translateZ(-0.55);
+	//bPortalBorderF->scale(0.70);
+	//bPortalBorderF->setLocalScaleZ(2);
+	////Red copy
+	//auto rPortalBorderF = bPortalBorderF->getCopy();
+	//rPortalBorderF->setFather(rPortalFrames_);
+	//((ShapeNode*)rPortalBorderF)->mat_ = orangeCheckerMat;
 
 	//SCENE OBJECTS
 	wall_ = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
@@ -264,9 +265,10 @@ bool SampleScene::init() {
 	wall_->setLocalScale(glm::vec3(10.0f, 10.0f, 0.5f));
 
 	redCube_ = new ShapeNode(world_node_, cubeMesh_, redCheckerMat_);
+	//redCube_->translateZ(1.0f);
 	//redCube->setDrawingAxis();
 	auto redFloor = new ShapeNode(world_node_, cubeMesh_, orangeCheckerMat);
-	redFloor->setLocalScale(glm::vec3(6.0f, 0.1f, 10.0f));
+	redFloor->setLocalScale(glm::vec3(7.f, 0.1f, 12.f));
 	redFloor->setLocalPos(glm::vec3(0.0f, -0.5f, 4.0f));
 
 	auto blueCube = (ShapeNode*)redCube_->getCopy();
@@ -379,6 +381,13 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		//Camera movement + capture/free cursor
 		//Switch post-processing effect
 
+
+	//switch main cameras (fps or top-down)
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchMainCameras) {
+		renderMainTopDown_ = !renderMainTopDown_;
+		movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
+	}
+
 	//start/stop controling the portal to move/rotate it locally
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchControl) {
 		movController_->setRotating(false);
@@ -400,9 +409,12 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//show/hide virtual portal cameras axes
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCameraAxis) {
+		cam_->toggleDrawingAxis();
 		playerBody_->toggleDrawingAxis();
 		rPortalCam_->toggleDrawingAxis();
 		bPortalCam_->toggleDrawingAxis();
+		bPortalFrames_->toggleDrawingAxis();
+		rPortalFrames_->toggleDrawingAxis();
 		return true;
 	}
 
@@ -431,13 +443,13 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalRec && recLimit_ < REC_HARD_LIMIT) recLimit_++;
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalRec && recLimit_ > 1) recLimit_--;
 
+	//change portal width
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalWidth) {
 		minPortalWidth_ += minPortalIncrement;
 		printf("scene - w: %f\n", minPortalWidth_);
 		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 	}
-
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalWidth) {
 		minPortalWidth_ -= minPortalIncrement;
 		if (minPortalWidth_ < WIDTH_HARD_LIMIT) minPortalWidth_ = WIDTH_HARD_LIMIT;
@@ -695,8 +707,8 @@ glm::vec4 SampleScene::getClipPlane(Transformation const & panelT, Transformatio
 }
 
 void SampleScene::render() {
-	//render_FPS();
-	render_TOPDOWN();
+	if (renderMainTopDown_) render_TOPDOWN();
+	else render_FPS();
 
 	//SCREEN PASS - with the postfilters
 	screenRT_->bind(false); //3d depth test disable (no need to clear the depth buffer)
