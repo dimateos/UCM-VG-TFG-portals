@@ -34,19 +34,31 @@ public:
 	virtual void render();
 
 protected:
-	//for now here
-	Projection* proj_, *testPorj_;
-	Camera* cam_;
+	//GENERAL RENDER
+	Projection *proj_;
+	Camera *cam_;
+	unsigned int uniformModel_, uniformView_, uniformProj_;
+	virtual void render_rec(Node* n);
 
+	//viewports and postfiltering
 	Viewport *screenVP_, *postFilterVP_;
 	RenderTarget *screenRT_, *postFilterRT_;
-	ScreenPostFiltering* screenPF_;
+	ScreenPostFiltering *screenPF_;
+	int scenePFoption_ = 0, scenePFoption_pre_ = -1;
 
-	//common meshes and materials
-	Mesh* planeMesh_, *cubeMesh_;
-	SolidMaterial *pinkMat_, *redCheckerMat_;
+	//PLAYER AND CONTROL
+	Node *player_;
+	ShapeNode *playerBody_;
+	InputFreeMovement *movController_;
+	InputFreeRotation *rotController_;
+
+	//OTHER DYNAMIC SCENE OBJETCTS
 	ShapeNode *redCube_, *wall_;
 
+	//common meshes and materials edited by key events
+	Mesh *planeMesh_, *cubeMesh_;
+	Texture checkersTex_, blankTex_;
+	SolidMaterial *pinkMat_, *redCheckerMat_;
 
 	//render panel with real time screenshot (non-activated)
 	//RenderTarget *renderPanelRT_;
@@ -54,69 +66,49 @@ protected:
 	//SolidMaterial *renderMat_;
 	//ShapeNode* renderPanel_;
 
-	//blue render portal
-	Camera* bPortalCam_;
+	// PORTALS /////////////////////////////////////////////////////////////
+
+	//blue portal
+	Camera *bPortalCam_;
 	RenderTarget *bPortalRT_;
 	Texture *bPortalTex_;
 	SolidMaterial *bPortalMat_;
 	Node *bPortalRoot_, *bPortalFrames_;
-	ShapeNode* bPortalSurface_;
+	ShapeNode *bPortalSurface_;
 
-	//red render portal
-	Camera* rPortalCam_;
+	//red portal
+	Camera *rPortalCam_;
 	RenderTarget *rPortalPanelRT_;
 	Texture *rPortalTex_;
 	SolidMaterial *rPortalMat_;
 	Node *rPortalRoot_, *rPortalFrames_;
-	ShapeNode* rPortalSurface_;
-
-	//Player and control
-	Node *player_;
-	ShapeNode *playerBody_;
-	InputFreeMovement* movController_;
-	InputFreeRotation* rotController_;
+	ShapeNode *rPortalSurface_;
 
 	//portal teleporting
 	float sqCloseDistance_;
 	int rSideOld_ = 0, bSideOld_ = 0;
 
-	//avoid portal clipping strategies
-	float minPortalWidth_ = EPSILON, minPortalIncrement = 0.01;
+	//strategies to avoid portal clipping
+	float minPortalWidth_ = EPSILON, minPortalIncrement = 0.05;
 	const float WIDTH_HARD_LIMIT = EPSILON;
 	float initialNear_, initialNearCornerDistance_;
 
-	//portal recursion testing
+	Projection *obliquePorj_;
+	void avoidCameraClip();
+	glm::vec4 getClipPlane(Transformation const & panelT, Transformation const & camT);
+	void modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane);
+	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);
+
+	//portal recursion
 	int recLimit_ = 1, startIndex_ = 0;
 	const int REC_HARD_LIMIT = 16;
 	std::vector<Transformation> recTrans_;
 
-	//portal travellers slicing and duping test
+	//portal travellers slicing and duping
 	Node *playerCopy_;
 	SolidMaterial *slizableMat_, *slizableMatCopy_;
 
-	//common here now
-	Texture checkersTex_, blankTex_;
-	unsigned int uniformModel_, uniformView_, uniformProj_;
-	virtual void render_rec(Node* n);
-
-	//some oblique here for now
-	inline float fsgn(float f) {
-		if (f > EPSILON) return (1.0F);
-		if (f < -EPSILON) return (-1.0F);
-		return (0.0F);
-	}
-	inline int sgn(float f) {
-		if (f > EPSILON) return 1;
-		if (f < -EPSILON) return -1;
-		return 0;
-	}
-
-	void avoidCameraClip();
-	void updatePortalCamerasTrans();
 	void updatePortalTravellers();
-
-	glm::vec4 getClipPlane(Transformation const & panelT, Transformation const & camT);
-
-	void modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane);
-	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);
+	void updatePortalCamerasTrans();
+	void onPortalTravel();
 };

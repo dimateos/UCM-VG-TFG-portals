@@ -41,19 +41,19 @@ const float kernel_blur[9] = float[](
 
 void main()
 {
-    //no effec
+    //no effec - quick return
     if (option == 0) FragColor = texture(screenTexture, TexCoords);
 
+    //negative
+    else if (option == 1) {
+        FragColor = vec4(vec3(1.0 - texture(screenTexture, TexCoords)), 1.0);
+    }
+
     //grayscale
-    if (option == 1) {
+    else if (option == 2) {
         FragColor = texture(screenTexture, TexCoords);
         float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;
         FragColor = vec4(average, average, average, 1.0);
-    }
-
-    //negative
-    else if (option == 2) {
-        FragColor = vec4(vec3(1.0 - texture(screenTexture, TexCoords)), 1.0);
     }
 
     //weird bubbles
@@ -79,7 +79,7 @@ void main()
         FragColor = vec4(vec3(linearZ / far), 1.0);
     }
 
-    //no effect fallback
+    //no effect defined - return
     else FragColor = texture(screenTexture, TexCoords);
 }
 

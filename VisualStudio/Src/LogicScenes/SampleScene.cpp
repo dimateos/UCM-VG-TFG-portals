@@ -65,8 +65,8 @@ bool SampleScene::init() {
 	Node::ROOT_CAM = cam_;
 
 	//extra projections for testing
-	//testPorj_ = new Projection(screenVP_->getAspect(), 90.0f, 1.0f, 15.0f);
-	testPorj_ = new Projection(screenVP_->getAspect(), 75.0f, 0.1f);
+	//obliquePorj_ = new Projection(screenVP_->getAspect(), 90.0f, 1.0f, 15.0f);
+	obliquePorj_ = new Projection(screenVP_->getAspect(), 75.0f, 0.1f);
 	//modifyProjectionMatrixOptPers(p, glm::vec4());
 
 	//AVOIDING CAMERA CLIPPING PORTALS
@@ -256,6 +256,7 @@ bool SampleScene::init() {
 
 	//SCENE OBJECTS
 	wall_ = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
+	wall_->setFather(nullptr);
 	wall_->setLocalPos(bPortalRoot_->getLocalPos());
 	//wall_->translateX(5);
 	wall_->translateZ(-0.45);
@@ -324,30 +325,30 @@ bool SampleScene::init() {
 	//	fore.x, fore.y, fore.z, glm::dot(-fore, camBody_->getLocalPos())
 	//);
 
-	//testPorj_->updateProjMatrix();
-	//auto copy = testPorj_->computedProjMatrix_;
-	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	//obliquePorj_->updateProjMatrix();
+	//auto copy = obliquePorj_->computedProjMatrix_;
+	//std::cout << "test:" << glm::to_string(obliquePorj_->computedProjMatrix_[2]) << std::endl;
 	//std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
 
-	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	//std::cout << "test:" << glm::to_string(obliquePorj_->computedProjMatrix_) << std::endl;
 	//std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
 
-	//modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	//modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, clipPlane);
 	//modifyProjectionMatrix(copy, clipPlane);
-	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
+	//std::cout << "test:" << glm::to_string(obliquePorj_->computedProjMatrix_[2]) << std::endl;
 	//std::cout << "copy:" << glm::to_string(copy[2]) << std::endl << std::endl;
 
-	//std::cout << "test:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl;
+	//std::cout << "test:" << glm::to_string(obliquePorj_->computedProjMatrix_) << std::endl;
 	//std::cout << "copy:" << glm::to_string(copy) << std::endl << std::endl;
 
-	//testPorj_->updateProjMatrix();
-	//std::cout << "base:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
+	//obliquePorj_->updateProjMatrix();
+	//std::cout << "base:" << glm::to_string(obliquePorj_->computedProjMatrix_) << std::endl << std::endl;
 
-	//testPorj_->near = 5.0;
-	//testPorj_->updateProjMatrix();
-	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_[2]) << std::endl;
-	//std::cout << "5.0n:" << glm::to_string(testPorj_->computedProjMatrix_) << std::endl << std::endl;
-	//modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, clipPlane);
+	//obliquePorj_->near = 5.0;
+	//obliquePorj_->updateProjMatrix();
+	//std::cout << "5.0n:" << glm::to_string(obliquePorj_->computedProjMatrix_[2]) << std::endl;
+	//std::cout << "5.0n:" << glm::to_string(obliquePorj_->computedProjMatrix_) << std::endl << std::endl;
+	//modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, clipPlane);
 
 	//PORTAL EXTRA CAMERAS
 	bPortalCam_ = new Camera(proj_);
@@ -528,6 +529,7 @@ void SampleScene::updatePortalTravellers() {
 
 		//diff sides so tp
 		if (side * bSideOld_ == -1) {
+			onPortalTravel();
 			printf("%i - TP blue \n", ++tpc);
 			//player_->setLocalPos(rPortalRoot_->getLocalPos() + bPortalOffset); //no correct rotation atm
 
@@ -595,6 +597,7 @@ void SampleScene::updatePortalTravellers() {
 
 		//diff sides so tp
 		if (side * rSideOld_ == -1) {
+			onPortalTravel();
 			printf("%i - TP red \n", ++tpc);
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
 			Transformation t = Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
@@ -647,6 +650,16 @@ void SampleScene::updatePortalTravellers() {
 	}
 }
 
+void SampleScene::onPortalTravel() {
+	if (scenePFoption_ == screenPF_->getOption()) {
+		scenePFoption_ = scenePFoption_pre_;
+	}
+	else {
+		scenePFoption_pre_ = scenePFoption_;
+		scenePFoption_ = screenPF_->getOption();
+	}
+}
+
 void SampleScene::update() {
 	Scene::update();
 
@@ -696,10 +709,10 @@ void SampleScene::render() {
 		bPortalCam_->setLocalTrans(recTrans_[i]);
 
 		//calculate oblique plane
-		modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
+		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
 		//load the matrix and the restore it
-		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
-		testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
+		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 		Scene::render(); //edited virtual render_rec
@@ -716,9 +729,9 @@ void SampleScene::render() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	modifyProjectionMatrixOptPers(testPorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, testPorj_->getProjMatrixPtr());
-	testPorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+	modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
+	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
+	obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	postFilterRT_->bind(true); //3d depth test enabled
@@ -755,7 +768,7 @@ void SampleScene::render() {
 
 	//SCREEN PASS - with the postfilters
 	screenRT_->bind(false); //3d depth test disable (no need to clear the depth buffer)
-	screenPF_->render();
+	screenPF_->render(scenePFoption_);
 }
 
 void SampleScene::render_rec(Node * n) {

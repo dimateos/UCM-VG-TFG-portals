@@ -21,6 +21,7 @@ public:
 
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void render();
+	virtual void render(int frameOption);
 
 protected:
 	Shader postFilterShader_;

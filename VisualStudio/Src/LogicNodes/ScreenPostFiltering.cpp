@@ -66,7 +66,7 @@ bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
 
 void ScreenPostFiltering::render() {
 	postFilterShader_.bind();
-	//postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f); //animated post-processing
+	postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f); //animated post-processing
 
 	//glDisable(GL_DEPTH_TEST);
 	rtt_.bind();
@@ -80,4 +80,14 @@ void ScreenPostFiltering::render() {
 	//glViewport(0, 0, Window_SDL_GL::getWidth() *preview_res_, Window_SDL_GL::getWidth() *preview_res_);
 	//mesh_->draw();
 	//glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
+}
+
+void ScreenPostFiltering::render(int frameOption) {
+	postFilterShader_.bind();
+	postFilterShader_.setInt("option", frameOption);
+
+	rtt_.bind();
+	mesh_->draw();
+
+	postFilterShader_.setInt("option", option_);
 }

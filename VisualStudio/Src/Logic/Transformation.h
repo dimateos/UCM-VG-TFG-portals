@@ -8,6 +8,17 @@ enum Direction { RIGHT, LEFT, DOWN, UP, BACK, FORE }; //ordered as SDL enums
 
 //epsilon used for comparisons
 const float EPSILON = 1E-6; //same precision as vector
+//sign using custom EPSILON
+inline float fsgn(float f) {
+	if (f > EPSILON) return (1.0F);
+	if (f < -EPSILON) return (-1.0F);
+	return (0.0F);
+}
+inline int sgn(float f) {
+	if (f > EPSILON) return 1;
+	if (f < -EPSILON) return -1;
+	return 0;
+}
 
 //common vectors
 const glm::vec3 X = glm::vec3(1.0f, 0.0f, 0.0f);
