@@ -72,11 +72,11 @@
     <ClCompile Include="..\Src\Render\RenderTarget.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\LogicNodes\ScreenPostFiltering.cpp">
-      <Filter>LogicNodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\GlobalConfig.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputFreeRotation.cpp">
+      <Filter>LogicNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\LogicNodes\ScreenPostProcessing.cpp">
       <Filter>LogicNodes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -177,11 +177,11 @@
     <ClInclude Include="..\Src\Render\RenderTarget.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\LogicNodes\ScreenPostFiltering.h">
-      <Filter>LogicNodes</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\GlobalConfig.h" />
     <ClInclude Include="..\Src\LogicNodes\InputFreeRotation.h">
+      <Filter>LogicNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\LogicNodes\ScreenPostProcessing.h">
       <Filter>LogicNodes</Filter>
     </ClInclude>
   </ItemGroup>

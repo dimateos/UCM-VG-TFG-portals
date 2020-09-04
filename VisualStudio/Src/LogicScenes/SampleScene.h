@@ -17,7 +17,7 @@ class InputFreeMovement;
 class InputFreeRotation;
 
 #include "../Render/Material.h"
-class ScreenPostFiltering;
+class ScreenPostProcessing;
 
 #include <vector>
 
@@ -35,16 +35,22 @@ public:
 
 protected:
 	//GENERAL RENDER
-	Projection *proj_;
-	Camera *cam_;
+	Projection *proj_, *topDownProj_;
+	float projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0, topDownZoom_ = 1.0;
+	Camera *cam_, *topDownCam_;
+	glm::vec3 topDownPos_ = glm::vec3(5,20,4);
 	unsigned int uniformModel_, uniformView_, uniformProj_;
+	glm::vec3 clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
+
+	virtual void render_FPS();
+	virtual void render_TOPDOWN();
 	virtual void render_rec(Node* n);
 
 	//viewports and postfiltering
-	Viewport *screenVP_, *postFilterVP_;
-	RenderTarget *screenRT_, *postFilterRT_;
-	ScreenPostFiltering *screenPF_;
-	int scenePFoption_ = 0, scenePFoption_pre_ = -1;
+	Viewport *screenVP_, *postProcessVP_;
+	RenderTarget *screenRT_, *postProcessRT_;
+	ScreenPostProcessing *screenPP_;
+	int scenePPoption_ = 0, scenePPoption_pre_ = -1;
 
 	//PLAYER AND CONTROL
 	Node *player_;

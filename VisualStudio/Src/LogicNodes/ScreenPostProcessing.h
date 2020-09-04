@@ -9,11 +9,11 @@
 #include "../Platform/Listening.h"
 typedef union SDL_Event; //forwarded
 
-class ScreenPostFiltering : public Node, Listener<SDL_Event>
+class ScreenPostProcessing : public Node, Listener<SDL_Event>
 {
 public:
-	ScreenPostFiltering(Node* father, RenderTarget* renderTarget);
-	virtual ~ScreenPostFiltering();
+	ScreenPostProcessing(Node* father, RenderTarget* renderTarget);
+	virtual ~ScreenPostProcessing();
 
 	void setOption(int n);
 	int getOption() const;

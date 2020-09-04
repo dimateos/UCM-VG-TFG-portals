@@ -7,6 +7,9 @@ uniform sampler2D screenTexture;
 //other cool config uniforms
 uniform int option = 0; //switch post filter
 uniform float time = 1.0f; //cool effects
+uniform vec2 viewPortRes = vec2(4.0f,3.0f) * 2.0f;
+uniform float framing = 0.025;
+uniform vec4 frameColor = vec4(1.0f,0.5f,0.15f,1.0f);
 
 const float offset = 1.0 / 300.0;
 const vec2 offsets[9] = vec2[](
@@ -72,11 +75,20 @@ void main()
     }
 
     //limbo (draw linear depth) - doesnt work on the postfilter quad (no depth)
+    // else if (option == 5) {
+    //     float near = 0.1, far  = 100.0;
+    //     float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
+    //     float linearZ = (2.0 * near * far) / (far + near - z * (far - near));
+    //     FragColor = vec4(vec3(linearZ / far), 1.0);
+    // }
+
+    //framing effect
     else if (option == 5) {
-        float near = 0.1, far  = 100.0;
-        float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
-        float linearZ = (2.0 * near * far) / (far + near - z * (far - near));
-        FragColor = vec4(vec3(linearZ / far), 1.0);
+        // vec2 uv = TexCoords.xy / viewPortRes;
+
+        if (TexCoords.x < framing || TexCoords.x > 1-framing) FragColor = frameColor;
+        else if (TexCoords.y < framing || TexCoords.y > 1-framing) FragColor = frameColor;
+        else FragColor = texture(screenTexture, TexCoords);
     }
 
     //no effect defined - return

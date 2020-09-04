@@ -176,7 +176,7 @@
     </ClCompile>
     <ClCompile Include="..\Src\GlobalConfig.cpp" />
     <ClCompile Include="..\Src\LogicNodes\ShapeNode.cpp" />
-    <ClCompile Include="..\Src\LogicNodes\ScreenPostFiltering.cpp" />
+    <ClCompile Include="..\Src\LogicNodes\ScreenPostProcessing.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputFreeRotation.cpp" />
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp" />
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
@@ -239,7 +239,7 @@
     </ClInclude>
     <ClInclude Include="..\Src\GlobalConfig.h" />
     <ClInclude Include="..\Src\LogicNodes\ShapeNode.h" />
-    <ClInclude Include="..\Src\LogicNodes\ScreenPostFiltering.h" />
+    <ClInclude Include="..\Src\LogicNodes\ScreenPostProcessing.h" />
     <ClInclude Include="..\Src\LogicNodes\InputFreeRotation.h" />
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h" />
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">

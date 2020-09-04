@@ -1,4 +1,4 @@
-#include "ScreenPostFiltering.h"
+#include "ScreenPostProcessing.h"
 #include "../GlobalConfig.h" //input config
 
 #include <glad\glad.h>
@@ -8,7 +8,7 @@
 #include "../Platform/Platform_SDL.h"
 #include <SDL_events.h>
 
-ScreenPostFiltering::ScreenPostFiltering(Node * father, RenderTarget* renderTarget) : Node(father), renderTarget_(renderTarget) {
+ScreenPostProcessing::ScreenPostProcessing(Node * father, RenderTarget* renderTarget) : Node(father), renderTarget_(renderTarget) {
 	//innput
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
@@ -23,25 +23,25 @@ ScreenPostFiltering::ScreenPostFiltering(Node * father, RenderTarget* renderTarg
 	preview_res_ = 0.25;
 	rtt_.createRenderTargetTexture(renderTarget_->getID(), renderTarget_->getVP()->getW(), renderTarget_->getVP()->getH());
 }
-ScreenPostFiltering::~ScreenPostFiltering() {
+ScreenPostProcessing::~ScreenPostProcessing() {
 	delete mesh_;
 }
 
-void ScreenPostFiltering::setOption(int n) {
+void ScreenPostProcessing::setOption(int n) {
 	option_ = n;
 	postFilterShader_.bind();
 	postFilterShader_.setInt("option", option_);
 }
 
-int ScreenPostFiltering::getOption() const {
+int ScreenPostProcessing::getOption() const {
 	return option_;
 }
 
-Texture * ScreenPostFiltering::getTexture() {
+Texture * ScreenPostProcessing::getTexture() {
 	return &rtt_;
 }
 
-bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
+bool ScreenPostProcessing::handleEvent(SDL_Event const & e) {
 	bool handled = true;
 
 	if (e.type == SDL_KEYDOWN) {
@@ -64,7 +64,7 @@ bool ScreenPostFiltering::handleEvent(SDL_Event const & e) {
 	return handled;
 }
 
-void ScreenPostFiltering::render() {
+void ScreenPostProcessing::render() {
 	postFilterShader_.bind();
 	postFilterShader_.setFloat("time", Platform_SDL::getDeltaTimeSinceStartf() * 2.0f); //animated post-processing
 
@@ -82,7 +82,7 @@ void ScreenPostFiltering::render() {
 	//glViewport(0, 0, Window_SDL_GL::getWidth(), Window_SDL_GL::getWidth());
 }
 
-void ScreenPostFiltering::render(int frameOption) {
+void ScreenPostProcessing::render(int frameOption) {
 	postFilterShader_.bind();
 	postFilterShader_.setInt("option", frameOption);
 
