@@ -20,6 +20,8 @@ SDL_Keycode GlobalConfig::ACTION_RESETtransform = SDLK_t;
 
 SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;
 SDL_Keycode GlobalConfig::ACTION_cycleCamerasPositions = SDLK_g;
+SDL_Keycode GlobalConfig::ACTION_increasePlayerWidth = SDLK_x;
+SDL_Keycode GlobalConfig::ACTION_decreasePlayerWidth = SDLK_z;
 
 SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 SDL_Keycode GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;

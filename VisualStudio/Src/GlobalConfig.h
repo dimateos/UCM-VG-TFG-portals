@@ -26,6 +26,8 @@ public:
 
 		ACTION_switchControl,			//start/stop controling the portal to move/rotate it locally
 		ACTION_cycleCamerasPositions,	//switch between camera positions
+		ACTION_increasePlayerWidth,		//change width of player
+		ACTION_decreasePlayerWidth,
 
 		ACTION_togglePortalCameraAxis,	//show/hide virtual portal cameras axes
 		ACTION_switchPortalRenderModes,	//switch portal rendering options

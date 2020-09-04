@@ -58,6 +58,8 @@ protected:
 	ShapeNode *playerBody_;
 	InputFreeMovement *movController_;
 	InputFreeRotation *rotController_;
+	float minPlayerWidth_ = 0.6, minPlayerIncrement_ = 0.2;
+	const float HARD_LIMIT_minPlayerWidth_ = 0.6;
 
 	//OTHER DYNAMIC SCENE OBJETCTS
 	ShapeNode *redCube_, *wall_;
@@ -96,8 +98,8 @@ protected:
 	int rSideOld_ = 0, bSideOld_ = 0;
 
 	//strategies to avoid portal clipping
-	float minPortalWidth_ = EPSILON, minPortalIncrement = 0.05;
-	const float WIDTH_HARD_LIMIT = EPSILON;
+	float minPortalWidth_ = EPSILON, minPortalIncrement_ = 0.05;
+	const float HARD_LIMIT_minPortalWidth_ = EPSILON;
 	float initialNear_, initialNearCornerDistance_;
 
 	Projection *obliquePorj_;
@@ -112,7 +114,7 @@ protected:
 	std::vector<Transformation> recTrans_;
 
 	//portal travellers slicing and duping
-	Node *playerCopy_;
+	Node *playerCopy_, *playerBodyCopy_;
 	SolidMaterial *slizableMat_, *slizableMatCopy_;
 
 	void updatePortalTravellers();

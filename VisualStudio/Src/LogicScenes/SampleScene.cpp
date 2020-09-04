@@ -200,7 +200,7 @@ bool SampleScene::init() {
 	bPortalSurface_->setLocalScale(glm::vec3(2.62, 2.95, EPSILON));
 	//bPortalSurface_->translateY(-0.07); 82
 	bPortalSurface_->setLocalPosZ(-bPortalSurface_->getLocalScaleZ() * 0.5);
-	sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6;
+	sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.5 + minPlayerWidth_ * 0.5;
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	bPortalFrames_ = new Node(bPortalRoot_);
@@ -282,7 +282,7 @@ bool SampleScene::init() {
 
 	//PLAYER
 	player_ = new Node(world_node_);
-	player_->setLocalPos(glm::vec3(0.f, 0.f, 9.f));
+	player_->setLocalPos(glm::vec3(0.f, 0.f, 8.f));
 	//playerPrevTrans_ = player_->getLocalTrans();
 	//player_->yaw(-90);
 	//player->yaw(20);
@@ -294,18 +294,18 @@ bool SampleScene::init() {
 
 	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
 	//playerBody_->setFather(nullptr);
-	playerBody_->scale(0.5);
+	playerBody_->scale(minPlayerWidth_);
 	//playerBody_->setLocalScaleZ(4); //test longer slice
 
 	//COPY for slicing
 	playerCopy_ = new Node(world_node_);
 	playerCopy_->setFather(nullptr);
-	auto bodyCopy = (ShapeNode*)playerBody_->getCopy();
-	playerCopy_->addChild(bodyCopy);
+	playerBodyCopy_ = (ShapeNode*)playerBody_->getCopy();
+	playerCopy_->addChild(playerBodyCopy_);
 	//separated copy material
 	slizableMatCopy_ = new SolidMaterial(greenCheckerMat->color_, &checkersTex_);
 	slizableMatCopy_->option_ = 2;
-	bodyCopy->mat_ = slizableMatCopy_;
+	((ShapeNode*)playerBodyCopy_)->mat_ = slizableMatCopy_;
 
 	//edit camera
 	cam_->setFather(player_);
@@ -397,7 +397,6 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		else movController_->setTarget(player_, cam_);
 		return true;
 	}
-
 	//switch between camera positions
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_cycleCamerasPositions) {
 		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
@@ -406,6 +405,23 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 		return true;
 	}
+	//change player width
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePlayerWidth) {
+		minPlayerWidth_ += minPlayerIncrement_;
+		playerBody_->setLocalScaleZ(minPlayerWidth_);
+		playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
+		sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
+		sqCloseDistance_ *= sqCloseDistance_;
+	}
+	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePlayerWidth) {
+		minPlayerWidth_ -= minPlayerIncrement_;
+		if (minPlayerWidth_ < HARD_LIMIT_minPlayerWidth_) minPlayerWidth_ = HARD_LIMIT_minPlayerWidth_;
+		playerBody_->setLocalScaleZ(minPlayerWidth_);
+		playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
+		sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
+		sqCloseDistance_ *= sqCloseDistance_;
+	}
+
 
 	//show/hide virtual portal cameras axes
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCameraAxis) {
@@ -427,6 +443,19 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalSurfaces) {
 		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
+
+		//cancel current TP
+		if (bPortalSurface_->getFather() == nullptr) {
+			printf("(disable) UNclone\n");
+			bSideOld_ = 0;
+			rSideOld_ = 0;
+			playerCopy_->setFather(nullptr);
+			slizableMat_->option_ = 0;
+			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+			bPortalSurface_->setLocalPosZ(0);
+			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+			rPortalSurface_->setLocalPosZ(0);
+		}
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalFrames) {
 		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
@@ -445,18 +474,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//change portal width
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalWidth) {
-		minPortalWidth_ += minPortalIncrement;
-		printf("scene - w: %f\n", minPortalWidth_);
+		minPortalWidth_ += minPortalIncrement_;
+		//printf("scene - w: %f\n", minPortalWidth_);
 		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 	}
 	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalWidth) {
-		minPortalWidth_ -= minPortalIncrement;
-		if (minPortalWidth_ < WIDTH_HARD_LIMIT) minPortalWidth_ = WIDTH_HARD_LIMIT;
-		else {
-			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
-			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
-		}
+		minPortalWidth_ -= minPortalIncrement_;
+		if (minPortalWidth_ < HARD_LIMIT_minPortalWidth_) minPortalWidth_ = HARD_LIMIT_minPortalWidth_;
+		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 	}
 
 	//else printf("scene - ignored event type: %i\n", e.type);
