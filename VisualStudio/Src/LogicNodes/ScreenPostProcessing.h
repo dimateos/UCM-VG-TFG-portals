@@ -31,6 +31,6 @@ protected:
 	Mesh* mesh_;
 
 	float preview_res_; //resolution for the texture small preview (unused)
-	bool readingInput_ = false;
+	//bool readingInput_ = false;
 	int option_ = 0;
 };

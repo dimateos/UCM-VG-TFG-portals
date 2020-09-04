@@ -1,7 +1,5 @@
 #include "SampleScene.h"
 
-#include "../GlobalConfig.h" //input config
-
 #include "../LogicNodes/ShapeNode.h"
 #include "../LogicNodes/InputFreeRotation.h"
 #include "../LogicNodes/InputFreeMovement.h"
@@ -376,71 +374,66 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		return true;
 	}
 
+	bool down = e.type == SDL_KEYDOWN;
+	SDL_Keycode key = e.key.keysym.sym;
+	bool handled = true; //expected handled
+
 	//Delegated to other nodes:
 		//Movement + rotation (+ reset)
 		//Camera movement + capture/free cursor
 		//Switch post-processing effect
 
+	//not handling any up
+	if (!down) {
+		if (e.type == SDL_KEYUP && key == lastKey_) lastKey_ = 0; //reset last key on up
+		return false;
+	}
+
+	//event requiring multiple keys
+	if (lastKey_ == GlobalConfig::ACTION_screenPostFilter) return false;
+	else if (key == GlobalConfig::ACTION_screenPostFilter) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editPlayerWidth) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editPortalRec) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editPortalWidth) lastKey_ = key;
 
 	//switch main cameras (fps or top-down)
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchMainCameras) {
+	else if (key == GlobalConfig::ACTION_switchMainCameras) {
 		renderMainTopDown_ = !renderMainTopDown_;
 		movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
 	}
 
 	//start/stop controling the portal to move/rotate it locally
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchControl) {
+	else if (key == GlobalConfig::ACTION_switchControl) {
 		movController_->setRotating(false);
 
 		if (movController_->getTarget() == player_) movController_->setTarget(rPortalRoot_, rPortalRoot_);
 		else if (movController_->getTarget() == rPortalRoot_) movController_->setTarget(bPortalRoot_, bPortalRoot_);
 		else movController_->setTarget(player_, cam_);
-		return true;
 	}
 	//switch between camera positions
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_cycleCamerasPositions) {
+	else if (key == GlobalConfig::ACTION_cycleCamerasPositions) {
 		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
 		else if (Node::ROOT_CAM == bPortalCam_) Node::ROOT_CAM = rPortalCam_;
 		else Node::ROOT_CAM = cam_;
-
-		return true;
 	}
-	//change player width
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePlayerWidth) {
-		minPlayerWidth_ += minPlayerIncrement_;
-		playerBody_->setLocalScaleZ(minPlayerWidth_);
-		playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
-		sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
-		sqCloseDistance_ *= sqCloseDistance_;
-	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePlayerWidth) {
-		minPlayerWidth_ -= minPlayerIncrement_;
-		if (minPlayerWidth_ < HARD_LIMIT_minPlayerWidth_) minPlayerWidth_ = HARD_LIMIT_minPlayerWidth_;
-		playerBody_->setLocalScaleZ(minPlayerWidth_);
-		playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
-		sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
-		sqCloseDistance_ *= sqCloseDistance_;
-	}
-
 
 	//show/hide virtual portal cameras axes
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCameraAxis) {
+	else if (key == GlobalConfig::ACTION_togglePortalCameraAxis) {
 		cam_->toggleDrawingAxis();
 		playerBody_->toggleDrawingAxis();
 		rPortalCam_->toggleDrawingAxis();
 		bPortalCam_->toggleDrawingAxis();
 		bPortalFrames_->toggleDrawingAxis();
 		rPortalFrames_->toggleDrawingAxis();
-		return true;
 	}
-
 	//switch portal rendering options (pink is disabled atm: overrode in render)
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_switchPortalRenderModes) {
+	else if (key == GlobalConfig::ACTION_switchPortalRenderModes) {
 		bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 		rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
-		return true;
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalSurfaces) {
+
+	//toggle objects
+	else if (key == GlobalConfig::ACTION_togglePortalSurfaces) {
 		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
 
@@ -457,37 +450,54 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			rPortalSurface_->setLocalPosZ(0);
 		}
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalFrames) {
+	else if (key == GlobalConfig::ACTION_togglePortalFrames) {
 		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalFrames_->setFather(rPortalFrames_->getFather() == nullptr ? rPortalRoot_ : nullptr);
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalCube) {
+	else if (key == GlobalConfig::ACTION_togglePortalCube) {
 		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_togglePortalWall) {
+	else if (key == GlobalConfig::ACTION_togglePortalWall) {
 		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
 	}
 
-	//change amount of recursion
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalRec && recLimit_ < REC_HARD_LIMIT) recLimit_++;
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalRec && recLimit_ > 1) recLimit_--;
+	//Increase / decrease
+	else if (key == SDLK_KP_PLUS || key == SDLK_KP_MINUS || key == SDLK_PLUS || key == SDLK_COMMA) {
+		float s = (key == SDLK_KP_PLUS || key == SDLK_PLUS) ? 1.0f : -1.0f;
 
-	//change portal width
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_increasePortalWidth) {
-		minPortalWidth_ += minPortalIncrement_;
-		//printf("scene - w: %f\n", minPortalWidth_);
-		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
-		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		//change player width
+		if (lastKey_ == GlobalConfig::ACTION_editPlayerWidth) {
+			minPlayerWidth_ += s * minPlayerIncrement_;
+			if (minPlayerWidth_ < HARD_LIMIT_minPlayerWidth_) minPlayerWidth_ = HARD_LIMIT_minPlayerWidth_;
+			playerBody_->setLocalScaleZ(minPlayerWidth_);
+			playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
+			sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
+			sqCloseDistance_ *= sqCloseDistance_;
+			printf("scene - w: %f\n", minPlayerWidth_);
+		}
+
+		//change amount of recursion
+		else if (lastKey_ == GlobalConfig::ACTION_editPortalRec) {
+			recLimit_ += s;
+			if (recLimit_ > REC_HARD_LIMIT) recLimit_ = REC_HARD_LIMIT;
+			else if (recLimit_ == 0) recLimit_ = 1;
+		}
+
+		//change portal width
+		else if (lastKey_ == GlobalConfig::ACTION_editPortalWidth) {
+			minPortalWidth_ += s*minPortalIncrement_;
+			if (minPortalWidth_ < HARD_LIMIT_minPortalWidth_) minPortalWidth_ = HARD_LIMIT_minPortalWidth_;
+			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+			//printf("scene - w: %f\n", minPortalWidth_);
+		}
+
 	}
-	else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == GlobalConfig::ACTION_decreasePortalWidth) {
-		minPortalWidth_ -= minPortalIncrement_;
-		if (minPortalWidth_ < HARD_LIMIT_minPortalWidth_) minPortalWidth_ = HARD_LIMIT_minPortalWidth_;
-		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
-		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
-	}
+
+	else handled = false;
 
 	//else printf("scene - ignored event type: %i\n", e.type);
-	return false;
+	return handled;
 }
 
 void SampleScene::avoidCameraClip() {

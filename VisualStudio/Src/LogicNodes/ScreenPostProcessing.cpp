@@ -42,26 +42,14 @@ Texture * ScreenPostProcessing::getTexture() {
 }
 
 bool ScreenPostProcessing::handleEvent(SDL_Event const & e) {
-	bool handled = true;
-
 	if (e.type == SDL_KEYDOWN) {
-		if (!readingInput_) {
-			//If p not pressed then ignore input
-			if (e.key.keysym.sym == SDLK_p) readingInput_ = true;
-			else handled = false;
-		}
-		else {
-			//0-9 numbers
-			if (e.key.keysym.sym >= SDLK_0 && e.key.keysym.sym <= SDLK_9) setOption(e.key.keysym.sym - SDLK_0);
-			else handled = false;
-		}
+		//0-9 numbers
+		if (e.key.keysym.sym >= SDLK_0 && e.key.keysym.sym <= SDLK_9) setOption(e.key.keysym.sym - SDLK_0);
+		else return false;
 	}
-	else if (e.type == SDL_KEYUP && e.key.keysym.sym == GlobalConfig::ACTION_screenPostFilter) {
-		readingInput_ = false;
-	}
-	else handled = false;
+	else return false;
 
-	return handled;
+	return true;
 }
 
 void ScreenPostProcessing::render() {

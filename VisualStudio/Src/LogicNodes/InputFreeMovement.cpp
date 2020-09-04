@@ -79,7 +79,7 @@ void InputFreeMovement::update() {
 void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
 	target_ = target;
 	rotationReference_ = rotationReference;
-	initialTrans_ = target_->getLocalTrans();
+	initialTrans_.postion = target_->getLocalPos();
 }
 
 void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }

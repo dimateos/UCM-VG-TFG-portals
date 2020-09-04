@@ -1,4 +1,5 @@
 #pragma once
+#include "../GlobalConfig.h" //input config
 
 #include "../Logic/Scene.h"
 #include "../Logic/Transformation.h"
@@ -34,6 +35,9 @@ public:
 	virtual void render();
 
 protected:
+	//multiple events using + - keys
+	SDL_Keycode lastKey_;
+
 	//GENERAL RENDER
 	Projection *proj_, *topDownProj_;
 	Camera *cam_, *topDownCam_;
