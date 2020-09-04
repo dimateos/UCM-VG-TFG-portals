@@ -38,7 +38,8 @@ public:
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames
 		ACTION_togglePortalCube,		//toggle cube to render as a portal
-		ACTION_togglePortalWall			//toggle wall
+		ACTION_togglePortalWall,			//toggle wall
+		ACTION_togglePortalBottom
 		;
 
 private:

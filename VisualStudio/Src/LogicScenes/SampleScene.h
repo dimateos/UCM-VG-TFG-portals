@@ -86,7 +86,7 @@ protected:
 	RenderTarget *bPortalRT_;
 	Texture *bPortalTex_;
 	SolidMaterial *bPortalMat_;
-	Node *bPortalRoot_, *bPortalFrames_;
+	Node *bPortalRoot_, *bPortalFrames_, *bPortalFramesBot_;
 	ShapeNode *bPortalSurface_;
 
 	//red portal
@@ -94,7 +94,7 @@ protected:
 	RenderTarget *rPortalPanelRT_;
 	Texture *rPortalTex_;
 	SolidMaterial *rPortalMat_;
-	Node *rPortalRoot_, *rPortalFrames_;
+	Node *rPortalRoot_, *rPortalFrames_, *rPortalFramesBot_;
 	ShapeNode *rPortalSurface_;
 
 	//portal teleporting

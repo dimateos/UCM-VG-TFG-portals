@@ -189,21 +189,19 @@ bool SampleScene::init() {
 
 	bPortalRoot_ = new Node(world_node_);
 	//bPortalRoot_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalRoot_->translateY(1);
+	bPortalRoot_->translateY(0.865);
 	bPortalRoot_->translateZ(4);
 	//bPortalRoot_->yaw(180.f);
 
 	bPortalSurface_ = new ShapeNode(bPortalRoot_, cubeMesh_, bPortalMat_);
 	//bPortalSurface_->setLocalScale(glm::vec3(1.5, 1.5, 1));
-	bPortalSurface_->setLocalScale(glm::vec3(2.62, 2.95, EPSILON));
-	//bPortalSurface_->translateY(-0.07); 82
+	bPortalSurface_->setLocalScale(glm::vec3(2.62, 2.62, EPSILON));
 	bPortalSurface_->setLocalPosZ(-bPortalSurface_->getLocalScaleZ() * 0.5);
 	sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.5 + minPlayerWidth_ * 0.5;
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	bPortalFrames_ = new Node(bPortalRoot_);
 	//bPortalFrames_->setFather(nullptr);
-	bPortalFrames_->translateY(-0.20);
 	bPortalFrames_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalFrames_->scale(0.25f);
 	float separation = 1.5f / bPortalFrames_->getLocalScaleX();
@@ -216,8 +214,8 @@ bool SampleScene::init() {
 	auto bPortalBorderU = new ShapeNode(bPortalFrames_, cubeMesh_, blueCheckerMat);
 	bPortalBorderU->translate(Transformation::BASE_UP * separation);
 	bPortalBorderU->setLocalScaleX(rescale);
-	auto bPortalBorderD = bPortalBorderU->getCopy();
-	bPortalBorderD->translate(2.0f * -Transformation::BASE_UP * separation);
+	bPortalFramesBot_ = bPortalBorderU->getCopy();
+	bPortalFramesBot_->translate(2.0f * -Transformation::BASE_UP * separation);
 
 	//RED PORTAL (mostly copies)
 	rPortalPanelRT_ = new RenderTarget();
@@ -241,6 +239,7 @@ bool SampleScene::init() {
 	rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 	rPortalFrames_ = (ShapeNode*)childs.back();
 	for (auto & n : rPortalFrames_->getChildren()) ((ShapeNode*)n)->mat_ = redCheckerMat_;
+	rPortalFramesBot_ = rPortalFrames_->getChildren().back();
 
 	//FORWARD POINT FOR PORTALS
 	////Blue
@@ -459,6 +458,10 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 	else if (key == GlobalConfig::ACTION_togglePortalWall) {
 		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
+	}
+	else if (key == GlobalConfig::ACTION_togglePortalBottom) {
+		rPortalFramesBot_->setFather(rPortalFramesBot_->getFather() == nullptr ? rPortalFrames_ : nullptr);
+		bPortalFramesBot_->setFather(bPortalFramesBot_->getFather() == nullptr ? bPortalFrames_ : nullptr);
 	}
 
 	//Increase / decrease

@@ -33,3 +33,4 @@ SDL_Keycode GlobalConfig::ACTION_togglePortalSurfaces = SDLK_1;
 SDL_Keycode GlobalConfig::ACTION_togglePortalFrames = SDLK_2;
 SDL_Keycode GlobalConfig::ACTION_togglePortalCube = SDLK_3;
 SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_4;
+SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_5;
