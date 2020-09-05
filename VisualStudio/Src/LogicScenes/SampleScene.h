@@ -41,12 +41,12 @@ protected:
 	//GENERAL RENDER
 	Projection *proj_, *topDownProj_;
 	Camera *cam_, *topDownCam_;
-	float projFov_ = 75.0f, projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0;
+	float projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0;
 	glm::vec3 topDownPos_ = glm::vec3(5,20,4);
 	glm::vec3 clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
 	bool renderMainTopDown_ = false, rendeMiniView_ = false;
-	float topDownZoom_ = 1.0, miniViewScale_ = 0.25, viewScalesIncrement_ = 0.025;
-	//const float HARD_LIMIT_topDownZoom_ = 0.6;
+	float projFov_ = 80.0f, topDownZoom_ = 1.0, miniViewScale_ = 0.25, viewScalesIncrement_ = 0.025, fovIncrement_ = 2.0;
+	const float HARD_MAX_projFov_ = 120.0f, HARD_MIN_projFov_ = 10.0f;
 
 	unsigned int uniformModel_, uniformView_, uniformProj_;
 	virtual void render_FPS();

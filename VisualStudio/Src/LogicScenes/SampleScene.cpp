@@ -41,6 +41,7 @@ bool SampleScene::init() {
 	//SCENE INPUT
 	Platform_SDL::platformEventEmitter_.registerListener(this);
 	Platform_SDL::keyEventEmitter_.registerListener(this);
+	Platform_SDL::mouseButtonEventEmitter_.registerListener(this);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -388,6 +389,21 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		app_->stop();
 		return true;
 	}
+	else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_MIDDLE) {
+		((PerspectiveProjection*)proj_)->fov = projFov_ = 80.0f;
+		proj_->updateProjMatrix();
+	}
+
+	//mouse wheel zoom
+	else if (e.type == SDL_MOUSEWHEEL) {
+		projFov_ += -e.wheel.y * fovIncrement_;
+		if (projFov_ > HARD_MAX_projFov_) projFov_ = HARD_MAX_projFov_;
+		else if (projFov_ < HARD_MIN_projFov_) projFov_ = HARD_MIN_projFov_;
+
+		((PerspectiveProjection*)proj_)->fov = projFov_;
+		proj_->updateProjMatrix();
+		return true;
+	}
 
 	bool down = e.type == SDL_KEYDOWN;
 	SDL_Keycode key = e.key.keysym.sym;
@@ -424,6 +440,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		rendeMiniView_ = !rendeMiniView_;
 		//movController_->setTarget(player_, renderMainTopDown_ ? player_ : cam_);
 	}
+
 	//global postprocessing (0-9 numbers)
 	else if (key >= SDLK_0 && key <= SDLK_9 && lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
 		scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
@@ -441,17 +458,22 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 		if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
 			if (topDownController_->getFather() == nullptr) {
+				printf("control set to TOPDOWN CAM\n");
 				topDownController_->setInitialTrans(world_node_);
 				movController_->removeFather();
 				rPortalController_->removeFather();
 				bPortalController_->removeFather();
 			}
-			else movController_->setInitialTrans(topDownController_->removeFather());
+			else {
+				printf("control set to PLAYER\n");
+				movController_->setInitialTrans(topDownController_->removeFather());
+			}
 		}
 
 		else if (movController_->getFather() != nullptr) rPortalController_->setInitialTrans(movController_->removeFather());
 		else if (rPortalController_->getFather() != nullptr) bPortalController_->setInitialTrans(rPortalController_->removeFather());
 		else {
+			printf("control set to PLAYER\n");
 			bPortalController_->removeFather();
 			topDownController_->removeFather();
 			movController_->setInitialTrans(world_node_);
