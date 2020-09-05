@@ -22,6 +22,11 @@ void Node::setFather(Node * const & father, bool ignoreTrans) {
 	if (father_ != nullptr) father_->removeChild(this, ignoreTrans);	//check father not null before removing
 	if (father != nullptr) father->addChild(this, ignoreTrans);			//check new father not null before adding
 }
+Node * Node::removeFather(bool ignoreTrans) {
+	auto f = father_;
+	if (f != nullptr) father_->removeChild(this, ignoreTrans);	//check father not null before removing
+	return f;
+}
 void Node::addChild(Node * const & child, bool ignoreTrans) {
 	if (child == nullptr) return;
 	if (child->father_ == this) return; //already child

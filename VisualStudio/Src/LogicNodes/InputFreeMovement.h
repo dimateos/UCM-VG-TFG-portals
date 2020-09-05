@@ -14,25 +14,28 @@ public:
 	virtual bool handleEvent(SDL_Event const & e);
 	virtual void update();
 
+	void setInitialTrans(Node *father);
 	void setTarget(Node *target, Node *rotationReference);
 	inline const Node * getTarget() const { return target_; };
 
 	void setRotating(bool rotating);
+	void setCoolTrans(Transformation const& trans);
 
 
 protected:
 	Node *target_, *rotationReference_;
-	Transformation initialTrans_, hardInitialTrans_;
+	Transformation initialTrans_, hardInitialTrans_, coolTrans_ = Transformation::BASE;
 
 	bool disable_rotation_; //maybe separated node?
 	void applyFrameRotation();
 	void calculateFrameTranslation();
 	void applyFrameGLOBALTranslation();
 
-	float baseSpeed_ = 5, baseRotSpeed_ = 50;
-	float fastSpeedMuliplier_ = 3.0f, slowSpeedMuliplier_ = 0.3, currentSpeedMultiplier_ = 1.0f;
+	float baseSpeed_ = 2.0, baseRotSpeed_ = 40;
+	float fastSpeedMuliplier_ = 2.2f, slowSpeedMuliplier_ = 0.4, currentSpeedMultiplier_ = 1.0f;
 
-	bool CFG_toggleSpeed_ = false, CFG_toggleRotation_ = true, CFG_independetAxisY_ = true;
+	char loggingBuffer_[200];
+	bool CFG_toggleSpeed_ = false, CFG_toggleRotation_ = true, CFG_independetAxisY_ = true, CFG_onlyGlobal_ = false;
 
 	bool fast_ = false, slow_ = false, rotating_ = false;
 	glm::vec3 frame_velocity_, frame_Gvelocity_, frame_rotation_;

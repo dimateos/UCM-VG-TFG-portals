@@ -16,6 +16,7 @@ InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotati
 InputFreeMovement::~InputFreeMovement() {}
 
 bool InputFreeMovement::handleEvent(SDL_Event const & e) {
+	if (father_ == nullptr) return false;
 	bool handled = true;
 
 	if (e.type == SDL_KEYDOWN) {
@@ -51,6 +52,18 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		}
 		else if (key == GlobalConfig::ACTION_HARDRESETtransform) {
 			!rotating_ ? target_->setLocalPos(hardInitialTrans_.postion) : target_->setLocalRot(hardInitialTrans_.rotation);
+		}
+		else if (key == GlobalConfig::ACTION_COOLtransform) {
+			coolTrans_.toBuffer(loggingBuffer_);
+			printf("SET cool T: %s\n", loggingBuffer_);
+			target_->setLocalTrans(coolTrans_);
+		}
+		else if (key == GlobalConfig::ACTION_storeCOOLtransform) {
+			coolTrans_.toBuffer(loggingBuffer_);
+			printf("OLD cool T: %s\n", loggingBuffer_);
+			coolTrans_ = target_->getLocalTrans();
+			coolTrans_.toBuffer(loggingBuffer_);
+			printf("NEW cool T: %s\n", loggingBuffer_);
 		}
 		else handled = false;
 	}
@@ -95,13 +108,22 @@ void InputFreeMovement::update() {
 	applyFrameGLOBALTranslation();
 }
 
+void InputFreeMovement::setInitialTrans(Node * father) {
+	setFather(father);
+	initialTrans_ = target_->getLocalTrans();
+	setRotating(false);
+}
+
 void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
 	target_ = target;
 	rotationReference_ = rotationReference;
 	initialTrans_ = target_->getLocalTrans();
+	setRotating(false);
 }
 
 void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }
+
+void InputFreeMovement::setCoolTrans(Transformation const & trans) { coolTrans_ = trans; }
 
 void InputFreeMovement::applyFrameRotation() {
 	frame_rotation_ = glm::vec3(0);
@@ -161,12 +183,10 @@ void InputFreeMovement::applyFrameGLOBALTranslation() {
 	bool local = glm::length2(frame_velocity_) > EPSILON * EPSILON;
 	bool global = glm::length2(frame_Gvelocity_) > EPSILON * EPSILON;
 
-	//half the speeds in case of both movements
-	float frameSpeed_ = baseSpeed_ * (local && global) ? 0.5 : 1.0;
 
 	//local translation
 	if (local) {
-		frame_velocity_ = glm::normalize(frame_velocity_) * frameSpeed_;
+		frame_velocity_ = glm::normalize(frame_velocity_) * baseSpeed_ * (global ? 0.5f : 1.0f); //half the speeds in case of both movements
 		frame_velocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
 		//rotate by rotation
 		target_->translate(rotationReference_->getLocalRot() * frame_velocity_);
@@ -174,7 +194,7 @@ void InputFreeMovement::applyFrameGLOBALTranslation() {
 
 	//global translation
 	if (global) {
-		frame_Gvelocity_ = glm::normalize(frame_Gvelocity_) * frameSpeed_;
+		frame_Gvelocity_ = glm::normalize(frame_Gvelocity_) * baseSpeed_ * (local ? 0.5f : 1.0f);
 		frame_Gvelocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
 		//directly add (no orientation so global)
 		target_->translate(frame_Gvelocity_);

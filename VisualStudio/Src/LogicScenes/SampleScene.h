@@ -59,10 +59,10 @@ protected:
 	ScreenPostProcessing *screenPP_;
 	int scenePPoption_ = 0, scenePPoption_pre_ = -1, sceneMiniViewOption_ = 5;
 
-	//PLAYER AND CONTROL
+	//PLAYER AND CONTROLERS
 	Node *player_;
 	ShapeNode *playerBody_;
-	InputFreeMovement *movController_;
+	InputFreeMovement *movController_, *rPortalController_, *bPortalController_, *topDownController_;
 	InputFreeRotation *rotController_;
 	float minPlayerWidth_ = 0.6, minPlayerIncrement_ = 0.2;
 	const float HARD_LIMIT_minPlayerWidth_ = 0.6;

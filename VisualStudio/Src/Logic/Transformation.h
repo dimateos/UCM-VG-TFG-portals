@@ -51,4 +51,6 @@ public:
 	//operations
 	bool operator== (const Transformation &other) const;
 	bool operator!= (const Transformation &other) const;
+
+	void toBuffer(char * buffer) const;
 };

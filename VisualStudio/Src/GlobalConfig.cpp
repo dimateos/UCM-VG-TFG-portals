@@ -27,9 +27,11 @@ SDL_Keycode GlobalConfig::ACTION_FASTtransform = SDLK_LSHIFT;
 SDL_Keycode GlobalConfig::ACTION_SLOWtransform = SDLK_LCTRL;
 SDL_Keycode GlobalConfig::ACTION_RESETtransform = SDLK_t;
 SDL_Keycode GlobalConfig::ACTION_HARDRESETtransform = SDLK_y;
+SDL_Keycode GlobalConfig::ACTION_COOLtransform = SDLK_h;
+SDL_Keycode GlobalConfig::ACTION_storeCOOLtransform = SDLK_g;
 SDL_Keycode GlobalConfig::ACTION_editPlayerWidth = SDLK_f;			//+-
 
-SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;
+SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;			//holding b + control topdown cam
 SDL_Keycode GlobalConfig::ACTION_cycleBlueCamPos = SDLK_x;
 SDL_Keycode GlobalConfig::ACTION_cycleRedCamPos = SDLK_z;
 SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;

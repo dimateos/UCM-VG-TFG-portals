@@ -18,6 +18,7 @@ public:
 
 	inline Node* const& getFather() const { return father_; }
 	void setFather(Node* const& father, bool ignoreTrans = false);
+	Node * removeFather(bool ignoreTrans = false);
 
 	inline std::list<Node*> const& getChildren() const { return children_; }
 	void addChild(Node* const& child, bool ignoreTrans = false);

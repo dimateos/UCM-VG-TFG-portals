@@ -143,7 +143,7 @@ bool SampleScene::init() {
 
 	//RENDER PANEL
 	//auto whiteFloor = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
-	//whiteFloor->setFather(nullptr);
+	//whiteFloor->removeFather();
 	//whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
 	//whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
@@ -155,7 +155,7 @@ bool SampleScene::init() {
 	//renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
 
 	//renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
-	//renderPanel_->setFather(nullptr);
+	//renderPanel_->removeFather();
 	//renderPanel_->setLocalPos(whiteFloor->getLocalPos());
 	//renderPanel_->translateZ(5);
 	//renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
@@ -202,7 +202,7 @@ bool SampleScene::init() {
 	sqCloseDistance_ *= sqCloseDistance_;
 
 	bPortalFrames_ = new Node(bPortalRoot_);
-	//bPortalFrames_->setFather(nullptr);
+	//bPortalFrames_->removeFather();
 	bPortalFrames_->setLocalScale(glm::vec3(1.5, 1.5, 1));
 	bPortalFrames_->scale(0.25f);
 	float separation = 1.5f / bPortalFrames_->getLocalScaleX();
@@ -243,8 +243,8 @@ bool SampleScene::init() {
 	rPortalFramesBot_ = rPortalFrames_->getChildren().back();
 
 	//default non active
-	bPortalFramesBot_->setFather(nullptr);
-	rPortalFramesBot_->setFather(nullptr);
+	bPortalFramesBot_->removeFather();
+	rPortalFramesBot_->removeFather();
 
 	//FORWARD POINT FOR PORTALS
 	////Blue
@@ -260,7 +260,7 @@ bool SampleScene::init() {
 
 	//SCENE OBJECTS
 	wall_ = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
-	wall_->setFather(nullptr);
+	wall_->removeFather();
 	wall_->setLocalPos(bPortalRoot_->getLocalPos());
 	//wall_->translateX(5);
 	wall_->translateZ(-0.45);
@@ -295,13 +295,13 @@ bool SampleScene::init() {
 	slizableMat_ = new SolidMaterial(grayCheckerMat->color_, &checkersTex_);
 
 	playerBody_ = new ShapeNode(player_, cubeMesh_, slizableMat_);
-	//playerBody_->setFather(nullptr);
+	//playerBody_->removeFather();
 	playerBody_->scale(minPlayerWidth_);
 	//playerBody_->setLocalScaleZ(4); //test longer slice
 
 	//COPY for slicing
 	playerCopy_ = new Node(world_node_);
-	playerCopy_->setFather(nullptr);
+	playerCopy_->removeFather();
 	playerBodyCopy_ = (ShapeNode*)playerBody_->getCopy();
 	playerCopy_->addChild(playerBodyCopy_);
 	//separated copy material
@@ -316,6 +316,17 @@ bool SampleScene::init() {
 	//INPUT
 	movController_ = new InputFreeMovement(world_node_, player_, cam_, false);
 	rotController_ = new InputFreeRotation(world_node_, cam_);
+
+	rPortalController_ = new InputFreeMovement(nullptr, rPortalRoot_, rPortalRoot_, false);
+	bPortalController_ = new InputFreeMovement(nullptr, bPortalRoot_, bPortalRoot_, false);
+	topDownController_ = new InputFreeMovement(nullptr, topDownCam_, topDownCam_, false);
+
+	//interesing points
+	movController_->setCoolTrans({ player_->getLocalPos() + glm::vec3(0.f, 0.f, -4.f), Transformation::BASE_ROT, Transformation::BASE_SCALE });
+	rPortalController_->setCoolTrans({ rPortalRoot_->getLocalPos() + glm::vec3(-10.f, 0.f, 3.f), Transformation::BASE_ROT, Transformation::BASE_SCALE });
+	bPortalController_->setCoolTrans({ bPortalRoot_->getLocalPos() + glm::vec3(0.f, 0.f, -3.f), Transformation::BASE_ROT, Transformation::BASE_SCALE });
+	//topDownController_->setCoolTrans({ glm::vec3(19.455059f, 20.734728f, 27.141794f), glm::quat(0.830934f, -0.303777f, 0.261075f, -0.092868f), Transformation::BASE_SCALE });
+	topDownController_->setCoolTrans({glm::vec3(27.712460, 20.734728, 34.419983), glm::quat(0.831990, -0.242491, 0.318808, 0.082880), Transformation::BASE_SCALE });
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -426,11 +437,25 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (key == GlobalConfig::ACTION_switchControl) {
-		movController_->setRotating(false);
+		//InputFreeMovement *movController_, *rPortalController_, *bPortalController_, *topDownController_;
 
-		if (movController_->getTarget() == player_) movController_->setTarget(rPortalRoot_, rPortalRoot_);
-		else if (movController_->getTarget() == rPortalRoot_) movController_->setTarget(bPortalRoot_, bPortalRoot_);
-		else movController_->setTarget(player_, cam_);
+		if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
+			if (topDownController_->getFather() == nullptr) {
+				topDownController_->setInitialTrans(world_node_);
+				movController_->removeFather();
+				rPortalController_->removeFather();
+				bPortalController_->removeFather();
+			}
+			else movController_->setInitialTrans(topDownController_->removeFather());
+		}
+
+		else if (movController_->getFather() != nullptr) rPortalController_->setInitialTrans(movController_->removeFather());
+		else if (rPortalController_->getFather() != nullptr) bPortalController_->setInitialTrans(rPortalController_->removeFather());
+		else {
+			bPortalController_->removeFather();
+			topDownController_->removeFather();
+			movController_->setInitialTrans(world_node_);
+		}
 	}
 	//switch between camera positions
 	else if (key == GlobalConfig::ACTION_cycleBlueCamPos) {
@@ -467,7 +492,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			printf("(disable) UNclone\n");
 			bSideOld_ = 0;
 			rSideOld_ = 0;
-			playerCopy_->setFather(nullptr);
+			playerCopy_->removeFather();
 			slizableMat_->option_ = 0;
 			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 			bPortalSurface_->setLocalPosZ(0);
@@ -678,7 +703,7 @@ void SampleScene::updatePortalTravellers() {
 		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		bPortalSurface_->setLocalPosZ(0);
 		printf("blue UNclone\n");
-		playerCopy_->setFather(nullptr);
+		playerCopy_->removeFather();
 		slizableMat_->option_ = 0;
 	}
 
@@ -743,7 +768,7 @@ void SampleScene::updatePortalTravellers() {
 		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		rPortalSurface_->setLocalPosZ(0);
 		printf("red UNclone\n");
-		playerCopy_->setFather(nullptr);
+		playerCopy_->removeFather();
 		slizableMat_->option_ = 0;
 	}
 }
@@ -766,7 +791,7 @@ void SampleScene::update() {
 
 	//check objects entering portal zone: handle tp
 		//atm separated from player - handle portal scale to avoid camera near clip
-	if (movController_->getTarget() == player_ && bPortalSurface_->getFather() != nullptr) updatePortalTravellers();
+	if (movController_->getFather() != nullptr && bPortalSurface_->getFather() != nullptr) updatePortalTravellers();
 
 	//update camera matrices
 	updatePortalCamerasTrans();
