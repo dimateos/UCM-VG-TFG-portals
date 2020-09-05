@@ -26,12 +26,17 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveLEFT) !rotating_ ? xAxis_.push_front(LEFT) : rot_yAxis_.push_front(LEFT);
 		else if (key == GlobalConfig::ACTION_moveBACK) !rotating_ ? zAxis_.push_front(BACK) : rot_xAxis_.push_front(BACK);
 		else if (key == GlobalConfig::ACTION_moveFORE) !rotating_ ? zAxis_.push_front(FORE) : rot_xAxis_.push_front(FORE);
-		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.push_front(UP);
-		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.push_front(DOWN);
+		else if (key == GlobalConfig::ACTION_moveUP) !CFG_independetAxisY_ ? yAxis_.push_front(UP) : yGAxis_.push_front(UP);
+		else if (key == GlobalConfig::ACTION_moveDOWN) !CFG_independetAxisY_ ? yAxis_.push_front(DOWN) : yGAxis_.push_front(DOWN);
+		else if (key == GlobalConfig::ACTION_moveGLOBALRIGHT) xGAxis_.push_front(RIGHT);
+		else if (key == GlobalConfig::ACTION_moveGLOBALLEFT) xGAxis_.push_front(LEFT);
+		else if (key == GlobalConfig::ACTION_moveGLOBALBACK) zGAxis_.push_front(BACK);
+		else if (key == GlobalConfig::ACTION_moveGLOBALFORE) zGAxis_.push_front(FORE);
 		//rotation
 		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? !rotating_ : true);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.push_front(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.push_front(LEFT);
+
 		//modifiers
 		else if (key == GlobalConfig::ACTION_FASTtransform) {
 			fast_ = (CFG_toggleSpeed_ ? !fast_ : true);
@@ -57,12 +62,17 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveLEFT) !rotating_ ? xAxis_.remove(LEFT) : rot_yAxis_.remove(LEFT);
 		else if (key == GlobalConfig::ACTION_moveBACK) !rotating_ ? zAxis_.remove(BACK) : rot_xAxis_.remove(BACK);
 		else if (key == GlobalConfig::ACTION_moveFORE) !rotating_ ? zAxis_.remove(FORE) : rot_xAxis_.remove(FORE);
-		else if (key == GlobalConfig::ACTION_moveUP) yAxis_.remove(UP);
-		else if (key == GlobalConfig::ACTION_moveDOWN) yAxis_.remove(DOWN);
+		else if (key == GlobalConfig::ACTION_moveUP) !CFG_independetAxisY_ ? yAxis_.remove(UP) : yGAxis_.remove(UP);
+		else if (key == GlobalConfig::ACTION_moveDOWN) !CFG_independetAxisY_ ? yAxis_.remove(DOWN) : yGAxis_.remove(DOWN);
+		else if (key == GlobalConfig::ACTION_moveGLOBALRIGHT) xGAxis_.remove(RIGHT);
+		else if (key == GlobalConfig::ACTION_moveGLOBALLEFT) xGAxis_.remove(LEFT);
+		else if (key == GlobalConfig::ACTION_moveGLOBALBACK) zGAxis_.remove(BACK);
+		else if (key == GlobalConfig::ACTION_moveGLOBALFORE) zGAxis_.remove(FORE);
 		//rotation
 		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? rotating_ : false);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.remove(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.remove(LEFT);
+
 		//modifiers
 		else if (key == GlobalConfig::ACTION_FASTtransform && !CFG_toggleSpeed_) currentSpeedMultiplier_ = 1.0f;
 		else if (key == GlobalConfig::ACTION_SLOWtransform && !CFG_toggleSpeed_) currentSpeedMultiplier_ = 1.0f;
@@ -76,8 +86,13 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 }
 
 void InputFreeMovement::update() {
+	frame_velocity_ = glm::vec3(0);
+	frame_Gvelocity_ = glm::vec3(0);
+
 	if (rotating_) applyFrameRotation();
-	else applyFrameTranslation();
+	else calculateFrameTranslation();
+
+	applyFrameGLOBALTranslation();
 }
 
 void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
@@ -105,7 +120,7 @@ void InputFreeMovement::applyFrameRotation() {
 	}
 
 	//apply rotation if non zero
-	if (frame_rotation_.x != 0 || frame_rotation_.z != 0 || frame_rotation_.y != 0) {
+	if (glm::length2(frame_rotation_) > EPSILON * EPSILON) {
 		frame_rotation_ = glm::normalize(frame_rotation_) * baseRotSpeed_;
 		frame_rotation_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
 
@@ -114,9 +129,7 @@ void InputFreeMovement::applyFrameRotation() {
 	}
 }
 
-void InputFreeMovement::applyFrameTranslation() {
-	frame_velocity_ = glm::vec3(0);
-
+void InputFreeMovement::calculateFrameTranslation() {
 	if (!xAxis_.empty()) {
 		if (xAxis_.front() == RIGHT) frame_velocity_.x = 1;
 		else frame_velocity_.x = -1;
@@ -129,18 +142,41 @@ void InputFreeMovement::applyFrameTranslation() {
 		if (yAxis_.front() == UP) frame_velocity_.y = 1;
 		else frame_velocity_.y = -1;
 	}
+}
 
-	//apply velocity if non zero
-	if (frame_velocity_.x != 0 || frame_velocity_.z != 0 || frame_velocity_.y != 0) {
-		frame_velocity_ = glm::normalize(frame_velocity_) * baseSpeed_;
+void InputFreeMovement::applyFrameGLOBALTranslation() {
+	if (!xGAxis_.empty()) {
+		if (xGAxis_.front() == RIGHT) frame_Gvelocity_.x = 1;
+		else frame_Gvelocity_.x = -1;
+	}
+	if (!zGAxis_.empty()) {
+		if (zGAxis_.front() == FORE) frame_Gvelocity_.z = -1;
+		else frame_Gvelocity_.z = 1;
+	}
+	if (!yGAxis_.empty()) {
+		if (yGAxis_.front() == UP) frame_Gvelocity_.y = 1;
+		else frame_Gvelocity_.y = -1;
+	}
+
+	bool local = glm::length2(frame_velocity_) > EPSILON * EPSILON;
+	bool global = glm::length2(frame_Gvelocity_) > EPSILON * EPSILON;
+
+	//half the speeds in case of both movements
+	float frameSpeed_ = baseSpeed_ * (local && global) ? 0.5 : 1.0;
+
+	//local translation
+	if (local) {
+		frame_velocity_ = glm::normalize(frame_velocity_) * frameSpeed_;
 		frame_velocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
-
-		if (CFG_independetAxisY_) {
-			target_->translateY(frame_velocity_.y);
-			frame_velocity_.y = 0;
-		}
-
-		//directly add
+		//rotate by rotation
 		target_->translate(rotationReference_->getLocalRot() * frame_velocity_);
+	}
+
+	//global translation
+	if (global) {
+		frame_Gvelocity_ = glm::normalize(frame_Gvelocity_) * frameSpeed_;
+		frame_Gvelocity_ *= currentSpeedMultiplier_ * Platform_SDL::getDeltaTimef();
+		//directly add (no orientation so global)
+		target_->translate(frame_Gvelocity_);
 	}
 }

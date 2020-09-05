@@ -406,7 +406,8 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	//switch main cameras (fps or top-down)
 	else if (key == GlobalConfig::ACTION_switchMainCameras) {
 		renderMainTopDown_ = !renderMainTopDown_;
-		movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
+		//movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
+		if (renderMainTopDown_) rendeMiniView_ = true;
 	}
 	else if (key == GlobalConfig::ACTION_toggleMiniView) {
 		rendeMiniView_ = !rendeMiniView_;

@@ -26,15 +26,17 @@ protected:
 
 	bool disable_rotation_; //maybe separated node?
 	void applyFrameRotation();
-	void applyFrameTranslation();
+	void calculateFrameTranslation();
+	void applyFrameGLOBALTranslation();
 
-	float baseSpeed_ = 2, baseRotSpeed_ = 50;
-	float fastSpeedMuliplier_ = 4.0f, slowSpeedMuliplier_ = 0.25, currentSpeedMultiplier_ = 1.0f;
+	float baseSpeed_ = 5, baseRotSpeed_ = 50;
+	float fastSpeedMuliplier_ = 3.0f, slowSpeedMuliplier_ = 0.3, currentSpeedMultiplier_ = 1.0f;
 
 	bool CFG_toggleSpeed_ = false, CFG_toggleRotation_ = true, CFG_independetAxisY_ = true;
 
 	bool fast_ = false, slow_ = false, rotating_ = false;
-	glm::vec3 frame_velocity_, frame_rotation_;
+	glm::vec3 frame_velocity_, frame_Gvelocity_, frame_rotation_;
 	std::list<Direction> xAxis_, zAxis_, yAxis_;
+	std::list<Direction> xGAxis_, zGAxis_, yGAxis_;
 	std::list<Direction> rot_xAxis_, rot_zAxis_, rot_yAxis_;
 };

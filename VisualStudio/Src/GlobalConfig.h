@@ -20,6 +20,10 @@ public:
 		ACTION_moveLEFT,
 		ACTION_moveBACK,
 		ACTION_moveFORE,
+		ACTION_moveGLOBALRIGHT,		//global movement
+		ACTION_moveGLOBALLEFT,
+		ACTION_moveGLOBALBACK,
+		ACTION_moveGLOBALFORE,
 		ACTION_moveUP,
 		ACTION_moveDOWN,
 		ACTION_rotENABLE,			//rotation
