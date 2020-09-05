@@ -10,7 +10,8 @@ public:
 		ACTION_captureCursor,		//switch free amd hidden cursor
 		ACTION_screenPostFilter,	//Switch post-processing effect (hold and press 1-9)
 		ACTION_switchMainCameras,	//switch main cameras (fps or top-down)
-		ACTION_toggleExtraView,
+		ACTION_toggleMiniView,
+		ACTION_editMiniViewScale,
 		ACTION_editTopDownZoom,
 
 		ACTION_moveRIGHT,			//movement
@@ -28,7 +29,8 @@ public:
 		ACTION_editPlayerWidth,			//change width of player
 
 		ACTION_switchControl,			//start/stop controling the portal to move/rotate it locally
-		ACTION_cycleCamerasPositions,	//switch between camera positions
+		ACTION_cycleBlueCamPos,			//switch between camera positions
+		ACTION_cycleRedCamPos,			//switch between camera positions
 		ACTION_togglePortalCameraAxis,	//show/hide virtual xportal cameras axes
 
 		ACTION_switchPortalRenderModes,	//switch portal rendering options

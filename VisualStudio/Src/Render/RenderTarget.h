@@ -13,6 +13,7 @@ public:
 	bool setDefault(Viewport* vp);
 
 	void bind(bool enableDepthTest);
+	void bind(bool enableDepthTest, Viewport* otherVP);
 	void unbind();
 	void clear(float r, float g, float b, int flags);
 

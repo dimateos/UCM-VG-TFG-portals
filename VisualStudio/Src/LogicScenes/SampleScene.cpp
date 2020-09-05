@@ -46,6 +46,7 @@ bool SampleScene::init() {
 
 	//TARGETS
 	screenVP_ = new Viewport(Window_SDL_GL::getWidth(), Window_SDL_GL::getHeight());
+	miniViewVP_ = new Viewport(Window_SDL_GL::getWidth() * miniViewScale_, Window_SDL_GL::getHeight() * miniViewScale_);
 	float resPF = 2.0f; //PostFiltering multi/down sampling
 	postProcessVP_ = new Viewport(Window_SDL_GL::getWidth() * resPF, Window_SDL_GL::getHeight() * resPF);
 
@@ -216,6 +217,7 @@ bool SampleScene::init() {
 	bPortalBorderU->setLocalScaleX(rescale);
 	bPortalFramesBot_ = bPortalBorderU->getCopy();
 	bPortalFramesBot_->translate(2.0f * -Transformation::BASE_UP * separation);
+	bPortalFramesBot_->setFather(nullptr);
 
 	//RED PORTAL (mostly copies)
 	rPortalPanelRT_ = new RenderTarget();
@@ -394,11 +396,17 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (key == GlobalConfig::ACTION_editPlayerWidth) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalRec) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalWidth) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editTopDownZoom) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editMiniViewScale) lastKey_ = key;
 
 	//switch main cameras (fps or top-down)
 	else if (key == GlobalConfig::ACTION_switchMainCameras) {
 		renderMainTopDown_ = !renderMainTopDown_;
 		movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
+	}
+	else if (key == GlobalConfig::ACTION_toggleMiniView) {
+		rendeMiniView_ = !rendeMiniView_;
+		//movController_->setTarget(player_, renderMainTopDown_ ? player_ : cam_);
 	}
 
 	//start/stop controling the portal to move/rotate it locally
@@ -410,9 +418,12 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		else movController_->setTarget(player_, cam_);
 	}
 	//switch between camera positions
-	else if (key == GlobalConfig::ACTION_cycleCamerasPositions) {
-		if (Node::ROOT_CAM == cam_) Node::ROOT_CAM = bPortalCam_;
-		else if (Node::ROOT_CAM == bPortalCam_) Node::ROOT_CAM = rPortalCam_;
+	else if (key == GlobalConfig::ACTION_cycleBlueCamPos) {
+		if (Node::ROOT_CAM != bPortalCam_) Node::ROOT_CAM = bPortalCam_;
+		else Node::ROOT_CAM = cam_;
+	}
+	else if (key == GlobalConfig::ACTION_cycleRedCamPos) {
+		if (Node::ROOT_CAM != rPortalCam_) Node::ROOT_CAM = rPortalCam_;
 		else Node::ROOT_CAM = cam_;
 	}
 
@@ -472,11 +483,12 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		if (lastKey_ == GlobalConfig::ACTION_editPlayerWidth) {
 			minPlayerWidth_ += s * minPlayerIncrement_;
 			if (minPlayerWidth_ < HARD_LIMIT_minPlayerWidth_) minPlayerWidth_ = HARD_LIMIT_minPlayerWidth_;
+			//printf("scene - w: %f\n", minPlayerWidth_);
+
 			playerBody_->setLocalScaleZ(minPlayerWidth_);
 			playerBodyCopy_->setLocalScaleZ(minPlayerWidth_);
 			sqCloseDistance_ = bPortalSurface_->getLocalScaleX() * 0.6 + minPlayerWidth_ * 0.6;
 			sqCloseDistance_ *= sqCloseDistance_;
-			printf("scene - w: %f\n", minPlayerWidth_);
 		}
 
 		//change amount of recursion
@@ -490,11 +502,29 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		else if (lastKey_ == GlobalConfig::ACTION_editPortalWidth) {
 			minPortalWidth_ += s*minPortalIncrement_;
 			if (minPortalWidth_ < HARD_LIMIT_minPortalWidth_) minPortalWidth_ = HARD_LIMIT_minPortalWidth_;
+			//printf("scene - w: %f\n", minPortalWidth_);
+
 			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
-			//printf("scene - w: %f\n", minPortalWidth_);
 		}
 
+		//change topdown zoom
+		else if (lastKey_ == GlobalConfig::ACTION_editTopDownZoom) {
+			topDownZoom_ += -s * viewScalesIncrement_;
+			if (minPortalWidth_ < viewScalesIncrement_) minPortalWidth_ = viewScalesIncrement_;
+			//printf("scene - w: %f\n", topDownZoom_);
+
+			((OrthoProjection*)topDownProj_)->zoom = topDownZoom_;
+			topDownProj_->updateProjMatrix();
+		}
+		//change mini view scale
+		else if (lastKey_ == GlobalConfig::ACTION_editMiniViewScale) {
+			miniViewScale_ += s * viewScalesIncrement_;
+			if (miniViewScale_ < viewScalesIncrement_) miniViewScale_ = viewScalesIncrement_;
+			//printf("scene - w: %f\n", miniViewScale_);
+
+			miniViewVP_->setSize(Window_SDL_GL::getWidth() * miniViewScale_, Window_SDL_GL::getHeight() * miniViewScale_);
+		}
 	}
 
 	else handled = false;
@@ -752,6 +782,16 @@ void SampleScene::render() {
 
 	//SCREEN PASS - with the postfilters
 	screenRT_->bind(false); //3d depth test disable (no need to clear the depth buffer)
+	screenPP_->render(scenePPoption_);
+
+	//MINI VIEW PASS
+	if (!rendeMiniView_) return;
+
+	if (renderMainTopDown_) render_FPS();
+	else render_TOPDOWN();
+
+	//SCREEN PASS - with the postfilters
+	screenRT_->bind(false, miniViewVP_); //3d depth test d
 	screenPP_->render(scenePPoption_);
 }
 

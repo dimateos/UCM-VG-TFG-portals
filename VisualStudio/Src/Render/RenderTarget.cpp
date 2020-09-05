@@ -28,8 +28,13 @@ bool RenderTarget::setDefault(Viewport * vp) {
 
 void RenderTarget::bind(bool enableDepthTest) {
 	glBindFramebuffer(GL_FRAMEBUFFER, ID_);
-	vp_->set();
 	enableDepthTest ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+	vp_->set();
+}
+void RenderTarget::bind(bool enableDepthTest, Viewport * otherVP) {
+	glBindFramebuffer(GL_FRAMEBUFFER, ID_);
+	enableDepthTest ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+	otherVP->set();
 }
 void RenderTarget::unbind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

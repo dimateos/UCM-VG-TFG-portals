@@ -41,10 +41,12 @@ protected:
 	//GENERAL RENDER
 	Projection *proj_, *topDownProj_;
 	Camera *cam_, *topDownCam_;
-	float projFov_ = 75.0f, projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0, topDownZoom_ = 1.0;
+	float projFov_ = 75.0f, projNear_ = 0.1, projFar_ = 75.0, topDownW_ = 22.0;
 	glm::vec3 topDownPos_ = glm::vec3(5,20,4);
 	glm::vec3 clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
-	bool renderMainTopDown_ = false;
+	bool renderMainTopDown_ = false, rendeMiniView_ = false;
+	float topDownZoom_ = 1.0, miniViewScale_ = 0.25, viewScalesIncrement_ = 0.025;
+	//const float HARD_LIMIT_topDownZoom_ = 0.6;
 
 	unsigned int uniformModel_, uniformView_, uniformProj_;
 	virtual void render_FPS();
@@ -52,7 +54,7 @@ protected:
 	virtual void render_rec(Node* n);
 
 	//viewports and postfiltering
-	Viewport *screenVP_, *postProcessVP_;
+	Viewport *screenVP_, *postProcessVP_, *miniViewVP_;
 	RenderTarget *screenRT_, *postProcessRT_;
 	ScreenPostProcessing *screenPP_;
 	int scenePPoption_ = 0, scenePPoption_pre_ = -1;
