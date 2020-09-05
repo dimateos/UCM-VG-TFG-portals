@@ -57,7 +57,7 @@ protected:
 	Viewport *screenVP_, *postProcessVP_, *miniViewVP_;
 	RenderTarget *screenRT_, *postProcessRT_;
 	ScreenPostProcessing *screenPP_;
-	int scenePPoption_ = 0, scenePPoption_pre_ = -1;
+	int scenePPoption_ = 0, scenePPoption_pre_ = -1, sceneMiniViewOption_ = 5;
 
 	//PLAYER AND CONTROL
 	Node *player_;

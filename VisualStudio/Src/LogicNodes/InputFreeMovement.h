@@ -22,7 +22,7 @@ public:
 
 protected:
 	Node *target_, *rotationReference_;
-	Transformation initialTrans_;
+	Transformation initialTrans_, hardInitialTrans_;
 
 	bool disable_rotation_; //maybe separated node?
 	void applyFrameRotation();

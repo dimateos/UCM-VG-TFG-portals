@@ -10,6 +10,7 @@ InputFreeMovement::InputFreeMovement(Node * father, Node * target, Node * rotati
 	Platform_SDL::keyEventEmitter_.registerListener(this);
 
 	setTarget(target, rotationReference);
+	hardInitialTrans_ = initialTrans_;
 }
 
 InputFreeMovement::~InputFreeMovement() {}
@@ -42,6 +43,9 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		}
 		else if (key == GlobalConfig::ACTION_RESETtransform) {
 			!rotating_ ? target_->setLocalPos(initialTrans_.postion) : target_->setLocalRot(initialTrans_.rotation);
+		}
+		else if (key == GlobalConfig::ACTION_HARDRESETtransform) {
+			!rotating_ ? target_->setLocalPos(hardInitialTrans_.postion) : target_->setLocalRot(hardInitialTrans_.rotation);
 		}
 		else handled = false;
 	}
@@ -79,7 +83,7 @@ void InputFreeMovement::update() {
 void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
 	target_ = target;
 	rotationReference_ = rotationReference;
-	initialTrans_.postion = target_->getLocalPos();
+	initialTrans_ = target_->getLocalTrans();
 }
 
 void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }

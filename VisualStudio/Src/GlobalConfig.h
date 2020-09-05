@@ -6,10 +6,12 @@ class GlobalConfig
 {
 public:
 	static SDL_Keycode
-		ACTION_escape,				//exit application
-		ACTION_captureCursor,		//switch free amd hidden cursor
-		ACTION_screenPostFilter,	//Switch post-processing effect (hold and press 1-9)
-		ACTION_switchMainCameras,	//switch main cameras (fps or top-down)
+		ACTION_escape,					//exit application
+		ACTION_captureCursor,			//switch free amd hidden cursor
+		ACTION_screenPostFilterPortal,	//Switch post-processing effect (hold and press 1-9)
+		ACTION_screenPostFilterGlobal,
+		ACTION_screenPostFilterFrame,	//simplified shortcut
+		ACTION_switchMainCameras,		//switch main cameras (fps or top-down)
 		ACTION_toggleMiniView,
 		ACTION_editMiniViewScale,
 		ACTION_editTopDownZoom,
@@ -26,6 +28,7 @@ public:
 		ACTION_FASTtransform,		//modifiers
 		ACTION_SLOWtransform,
 		ACTION_RESETtransform,
+		ACTION_HARDRESETtransform,
 		ACTION_editPlayerWidth,			//change width of player
 
 		ACTION_switchControl,			//start/stop controling the portal to move/rotate it locally

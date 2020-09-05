@@ -2,11 +2,13 @@
 
 SDL_Keycode GlobalConfig::ACTION_escape = SDLK_ESCAPE;
 SDL_Keycode GlobalConfig::ACTION_captureCursor = SDLK_LALT;
-SDL_Keycode GlobalConfig::ACTION_screenPostFilter = SDLK_p; //hold + 1-9
+SDL_Keycode GlobalConfig::ACTION_screenPostFilterPortal = SDLK_p;	//hold + 1-9
+SDL_Keycode GlobalConfig::ACTION_screenPostFilterGlobal = SDLK_b;	//hold + 1-9
+SDL_Keycode GlobalConfig::ACTION_screenPostFilterFrame = SDLK_v;
 SDL_Keycode GlobalConfig::ACTION_switchMainCameras = SDLK_n;
 SDL_Keycode GlobalConfig::ACTION_toggleMiniView = SDLK_m;
-SDL_Keycode GlobalConfig::ACTION_editMiniViewScale = SDLK_PERIOD;
-SDL_Keycode GlobalConfig::ACTION_editTopDownZoom = SDLK_COMMA;
+SDL_Keycode GlobalConfig::ACTION_editMiniViewScale = SDLK_PERIOD;	//+-
+SDL_Keycode GlobalConfig::ACTION_editTopDownZoom = SDLK_COMMA;		//+-
 
 SDL_Keycode GlobalConfig::ACTION_moveRIGHT = SDLK_d;
 SDL_Keycode GlobalConfig::ACTION_moveLEFT = SDLK_a;
@@ -20,7 +22,8 @@ SDL_Keycode GlobalConfig::ACTION_rotLEFT = SDLK_q;
 SDL_Keycode GlobalConfig::ACTION_FASTtransform = SDLK_LSHIFT;
 SDL_Keycode GlobalConfig::ACTION_SLOWtransform = SDLK_LCTRL;
 SDL_Keycode GlobalConfig::ACTION_RESETtransform = SDLK_t;
-SDL_Keycode GlobalConfig::ACTION_editPlayerWidth = SDLK_f;
+SDL_Keycode GlobalConfig::ACTION_HARDRESETtransform = SDLK_y;
+SDL_Keycode GlobalConfig::ACTION_editPlayerWidth = SDLK_f;			//+-
 
 SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;
 SDL_Keycode GlobalConfig::ACTION_cycleBlueCamPos = SDLK_x;
@@ -28,8 +31,8 @@ SDL_Keycode GlobalConfig::ACTION_cycleRedCamPos = SDLK_z;
 SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 
 SDL_Keycode GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;
-SDL_Keycode GlobalConfig::ACTION_editPortalRec = SDLK_l;
-SDL_Keycode GlobalConfig::ACTION_editPortalWidth = SDLK_k;
+SDL_Keycode GlobalConfig::ACTION_editPortalRec = SDLK_l;			//+-
+SDL_Keycode GlobalConfig::ACTION_editPortalWidth = SDLK_k;			//+-
 
 SDL_Keycode GlobalConfig::ACTION_togglePortalSurfaces = SDLK_1;
 SDL_Keycode GlobalConfig::ACTION_togglePortalFrames = SDLK_2;

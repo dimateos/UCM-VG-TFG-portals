@@ -217,7 +217,6 @@ bool SampleScene::init() {
 	bPortalBorderU->setLocalScaleX(rescale);
 	bPortalFramesBot_ = bPortalBorderU->getCopy();
 	bPortalFramesBot_->translate(2.0f * -Transformation::BASE_UP * separation);
-	bPortalFramesBot_->setFather(nullptr);
 
 	//RED PORTAL (mostly copies)
 	rPortalPanelRT_ = new RenderTarget();
@@ -242,6 +241,10 @@ bool SampleScene::init() {
 	rPortalFrames_ = (ShapeNode*)childs.back();
 	for (auto & n : rPortalFrames_->getChildren()) ((ShapeNode*)n)->mat_ = redCheckerMat_;
 	rPortalFramesBot_ = rPortalFrames_->getChildren().back();
+
+	//default non active
+	bPortalFramesBot_->setFather(nullptr);
+	rPortalFramesBot_->setFather(nullptr);
 
 	//FORWARD POINT FOR PORTALS
 	////Blue
@@ -391,8 +394,9 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 
 	//event requiring multiple keys
-	if (lastKey_ == GlobalConfig::ACTION_screenPostFilter) return false;
-	else if (key == GlobalConfig::ACTION_screenPostFilter) lastKey_ = key;
+	if (lastKey_ == GlobalConfig::ACTION_screenPostFilterPortal) return false;
+	else if (key == GlobalConfig::ACTION_screenPostFilterPortal) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_screenPostFilterGlobal) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPlayerWidth) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalRec) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalWidth) lastKey_ = key;
@@ -408,6 +412,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		rendeMiniView_ = !rendeMiniView_;
 		//movController_->setTarget(player_, renderMainTopDown_ ? player_ : cam_);
 	}
+	//global postprocessing (0-9 numbers)
+	else if (key >= SDLK_0 && key <= SDLK_9 && lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
+		scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
+		scenePPoption_pre_ = -1;
+	}
+	else if (key == GlobalConfig::ACTION_screenPostFilterFrame) {
+		scenePPoption_ = 5 == scenePPoption_ ? 0 : 5;
+		scenePPoption_pre_ = -1;
+	}
+
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (key == GlobalConfig::ACTION_switchControl) {
@@ -792,7 +806,7 @@ void SampleScene::render() {
 
 	//SCREEN PASS - with the postfilters
 	screenRT_->bind(false, miniViewVP_); //3d depth test d
-	screenPP_->render(scenePPoption_);
+	screenPP_->render(sceneMiniViewOption_);
 }
 
 void SampleScene::render_FPS() {

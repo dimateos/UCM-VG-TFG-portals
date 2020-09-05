@@ -28,7 +28,8 @@ ScreenPostProcessing::~ScreenPostProcessing() {
 }
 
 void ScreenPostProcessing::setOption(int n) {
-	option_ = n;
+	if (option_ == n) option_ = 0;
+	else option_ = n;
 	postFilterShader_.bind();
 	postFilterShader_.setInt("option", option_);
 }
