@@ -36,7 +36,7 @@ SDL_Keycode GlobalConfig::ACTION_cycleBlueCamPos = SDLK_x;
 SDL_Keycode GlobalConfig::ACTION_cycleRedCamPos = SDLK_z;
 SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 
-SDL_Keycode GlobalConfig::ACTION_switchPortalRenderModes = SDLK_o;
+SDL_Keycode GlobalConfig::ACTION_switchPortalProblems = SDLK_o;		//hold + 1-9
 SDL_Keycode GlobalConfig::ACTION_editPortalRec = SDLK_l;			//+-
 SDL_Keycode GlobalConfig::ACTION_editPortalWidth = SDLK_k;			//+-
 

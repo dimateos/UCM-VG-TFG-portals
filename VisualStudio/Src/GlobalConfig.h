@@ -42,7 +42,7 @@ public:
 		ACTION_cycleRedCamPos,			//switch between camera positions
 		ACTION_togglePortalCameraAxis,	//show/hide virtual xportal cameras axes
 
-		ACTION_switchPortalRenderModes,	//switch portal rendering options
+		ACTION_switchPortalProblems,	//switch portal rendering options
 		ACTION_editPortalRec,			//change amount of recursion
 		ACTION_editPortalWidth,			//change width of portal surfacesç
 

@@ -392,6 +392,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_MIDDLE) {
 		((PerspectiveProjection*)proj_)->fov = projFov_ = 80.0f;
 		proj_->updateProjMatrix();
+		printf("MOUSE - reset zoom\n");
 	}
 
 	//mouse wheel zoom
@@ -429,6 +430,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (key == GlobalConfig::ACTION_editPortalWidth) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editTopDownZoom) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editMiniViewScale) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_switchPortalProblems) lastKey_ = key;
 
 	//switch main cameras (fps or top-down)
 	else if (key == GlobalConfig::ACTION_switchMainCameras) {
@@ -445,12 +447,29 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (key >= SDLK_0 && key <= SDLK_9 && lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
 		scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
 		scenePPoption_pre_ = -1;
+		printf("SCREEN - set postprocessing %i\n", scenePPoption_);
 	}
 	else if (key == GlobalConfig::ACTION_screenPostFilterFrame) {
 		scenePPoption_ = 5 == scenePPoption_ ? 0 : 5;
 		scenePPoption_pre_ = -1;
+		printf("SCREEN - set postprocessing %i\n", scenePPoption_);
 	}
 
+	//switch portal problems (show effects and fixes)
+	else if (lastKey_ == GlobalConfig::ACTION_switchPortalProblems) {
+		//key >= SDLK_0 && key <= SDLK_9
+		if (key == SDLK_1) {
+			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
+			rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
+			printf("PORTAL - toggle rendering screen coords [%s]\n", bPortalMat_->option_ == 1 ? "TRUE" : "FALSE");
+		}
+		else if (key == SDLK_2) {
+			avoidCameraClip_ = !avoidCameraClip_;
+			printf("PORTAL - toggle camera clip fix [%s]\n", avoidCameraClip_ ? "TRUE" : "FALSE");
+		}
+
+		else return false;
+	}
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (key == GlobalConfig::ACTION_switchControl) {
@@ -481,10 +500,12 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 	//switch between camera positions
 	else if (key == GlobalConfig::ACTION_cycleBlueCamPos) {
+		printf("CAM - toggle BLUE cam position\n");
 		if (Node::ROOT_CAM != bPortalCam_) Node::ROOT_CAM = bPortalCam_;
 		else Node::ROOT_CAM = cam_;
 	}
 	else if (key == GlobalConfig::ACTION_cycleRedCamPos) {
+		printf("CAM - toggle RED cam position\n");
 		if (Node::ROOT_CAM != rPortalCam_) Node::ROOT_CAM = rPortalCam_;
 		else Node::ROOT_CAM = cam_;
 	}
@@ -497,21 +518,18 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		bPortalCam_->toggleDrawingAxis();
 		bPortalFrames_->toggleDrawingAxis();
 		rPortalFrames_->toggleDrawingAxis();
-	}
-	//switch portal rendering options (pink is disabled atm: overrode in render)
-	else if (key == GlobalConfig::ACTION_switchPortalRenderModes) {
-		bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
-		rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
+		printf("AXIS - toggle showing axis [%s]\n", cam_->isDrawingAxis() ? "TRUE" : "FALSE");
 	}
 
 	//toggle objects
 	else if (key == GlobalConfig::ACTION_togglePortalSurfaces) {
 		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
+		printf("PORTAL - toggle active surfaces [%s]\n", bPortalSurface_->getFather() != nullptr ? "TRUE" : "FALSE");
 
 		//cancel current TP
 		if (bPortalSurface_->getFather() == nullptr) {
-			printf("(disable) UNclone\n");
+			printf("PORTAL TP - cancel (disabled any sliced clone)\n");
 			bSideOld_ = 0;
 			rSideOld_ = 0;
 			playerCopy_->removeFather();
@@ -525,20 +543,24 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	else if (key == GlobalConfig::ACTION_togglePortalFrames) {
 		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
 		rPortalFrames_->setFather(rPortalFrames_->getFather() == nullptr ? rPortalRoot_ : nullptr);
+		printf("OBJECT - toggle portal frames [%s]\n", bPortalFrames_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
 	else if (key == GlobalConfig::ACTION_togglePortalCube) {
 		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
+		printf("OBJECT - toggle redcube portal material [%s]\n", redCube_->mat_ == rPortalMat_ ? "TRUE" : "FALSE");
 	}
 	else if (key == GlobalConfig::ACTION_togglePortalWall) {
 		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
+		printf("OBJECT - toggle wall [%s]\n", wall_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
 	else if (key == GlobalConfig::ACTION_togglePortalBottom) {
 		rPortalFramesBot_->setFather(rPortalFramesBot_->getFather() == nullptr ? rPortalFrames_ : nullptr);
 		bPortalFramesBot_->setFather(bPortalFramesBot_->getFather() == nullptr ? bPortalFrames_ : nullptr);
+		printf("OBJECT - toggle portal bot frame [%s]\n", rPortalFramesBot_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
 
 	//Increase / decrease
-	else if (key == SDLK_KP_PLUS || key == SDLK_KP_MINUS || key == SDLK_PLUS || key == SDLK_COMMA) {
+	else if (key == SDLK_KP_PLUS || key == SDLK_KP_MINUS || key == SDLK_PLUS || key == SDLK_MINUS) {
 		float s = (key == SDLK_KP_PLUS || key == SDLK_PLUS) ? 1.0f : -1.0f;
 
 		//change player width
@@ -675,7 +697,7 @@ void SampleScene::updatePortalTravellers() {
 		//diff sides so tp
 		if (side * bSideOld_ == -1) {
 			onPortalTravel();
-			printf("%i - TP blue \n", ++tpc);
+			printf("PORTAL TP - tp blue (%i)\n", ++tpc);
 			//player_->setLocalPos(rPortalRoot_->getLocalPos() + bPortalOffset); //no correct rotation atm
 
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
@@ -692,10 +714,12 @@ void SampleScene::updatePortalTravellers() {
 
 			//correct linked portal panel scale
 			rSideOld_ = sgn(glm::dot(playerPos - rPortalRoot_->getLocalPos(), -rPortalRoot_->back()));
-			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-			rPortalSurface_->setLocalPosZ(rSideOld_ * rPortalSurface_->getLocalScaleZ() / 2);
+			if (avoidCameraClip_) {
+				rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
+				rPortalSurface_->setLocalPosZ(rSideOld_ * rPortalSurface_->getLocalScaleZ() / 2);
+			}
 			//make player copy
-			printf("red clone + undo blue\n");
+			printf("PORTAL TP - red clone + disabled blue clone\n");
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(rSideOld_) * -rPortalRoot_->back(), normalCopy = float(rSideOld_) * bPortalRoot_->back();
@@ -705,11 +729,13 @@ void SampleScene::updatePortalTravellers() {
 		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 			bSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-			bPortalSurface_->setLocalPosZ(side * bPortalSurface_->getLocalScaleZ() / 2);
+			if (avoidCameraClip_) {
+				bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
+				bPortalSurface_->setLocalPosZ(side * bPortalSurface_->getLocalScaleZ() / 2);
+			}
 
 			//make player copy
-			printf("blue clone\n");
+			printf("PORTAL TP - blue clone\n");
 			playerCopy_->setFather(world_node_);
 			slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
@@ -724,7 +750,7 @@ void SampleScene::updatePortalTravellers() {
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
 		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		bPortalSurface_->setLocalPosZ(0);
-		printf("blue UNclone\n");
+		printf("PORTAL TP - disabled blue clone\n");
 		playerCopy_->removeFather();
 		slizableMat_->option_ = 0;
 	}
@@ -743,7 +769,7 @@ void SampleScene::updatePortalTravellers() {
 		//diff sides so tp
 		if (side * rSideOld_ == -1) {
 			onPortalTravel();
-			printf("%i - TP red \n", ++tpc);
+			printf("PORTAL TP - tp blue (%i)\n", ++tpc);
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
 			Transformation t = Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
 			playerPos = t.postion - cam_->getLocalPos();
@@ -757,10 +783,12 @@ void SampleScene::updatePortalTravellers() {
 
 			//correct linked portal panel scale
 			bSideOld_ = sgn(glm::dot(playerPos - bPortalRoot_->getLocalPos(), -bPortalRoot_->back()));
-			bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-			bPortalSurface_->setLocalPosZ(bSideOld_ * bPortalSurface_->getLocalScaleZ() / 2);
+			if (avoidCameraClip_) {
+				bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
+				bPortalSurface_->setLocalPosZ(bSideOld_ * bPortalSurface_->getLocalScaleZ() / 2);
+			}
 			//make player copy
-			printf("blue clone + undo red\n");
+			printf("PORTAL TP - blue clone + disabled red clone\n");
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(bSideOld_) * -bPortalRoot_->back(), normalCopy = float(bSideOld_) * rPortalRoot_->back();
@@ -770,11 +798,13 @@ void SampleScene::updatePortalTravellers() {
 		else if (rSideOld_ == 0) { //store new valid side - just entered the zone
 			rSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
-			rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-			rPortalSurface_->setLocalPosZ(side * rPortalSurface_->getLocalScaleZ() / 2);
+			if (avoidCameraClip_) {
+				rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
+				rPortalSurface_->setLocalPosZ(side * rPortalSurface_->getLocalScaleZ() / 2);
+			}
 
 			//make player copy
-			printf("red clone\n");
+			printf("PORTAL TP - red clone\n");
 			playerCopy_->setFather(world_node_);
 			slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
@@ -789,7 +819,7 @@ void SampleScene::updatePortalTravellers() {
 		//avoid clip strategy B - modify portal scale to fit clipping near plane
 		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
 		rPortalSurface_->setLocalPosZ(0);
-		printf("red UNclone\n");
+		printf("PORTAL TP - disabled red clone\n");
 		playerCopy_->removeFather();
 		slizableMat_->option_ = 0;
 	}

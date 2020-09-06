@@ -83,6 +83,8 @@ protected:
 
 	// PORTALS /////////////////////////////////////////////////////////////
 
+	bool avoidCameraClip_ = true;
+
 	//blue portal
 	Camera *bPortalCam_;
 	RenderTarget *bPortalRT_;

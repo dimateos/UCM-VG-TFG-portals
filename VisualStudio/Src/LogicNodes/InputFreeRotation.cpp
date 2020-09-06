@@ -33,6 +33,7 @@ bool InputFreeRotation::handleEvent(SDL_Event const & e) {
 		focus_ = !focus_;
 		SDL_SetRelativeMouseMode(focus_ ? SDL_TRUE : SDL_FALSE);
 		frame_yaw_ = frame_pitch_ = 0;
+		printf("MOUSE - toggle cursor capture\n");
 	}
 	else handled = false;
 
