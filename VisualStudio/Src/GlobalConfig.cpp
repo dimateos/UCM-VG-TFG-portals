@@ -38,10 +38,12 @@ SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
 
 SDL_Keycode GlobalConfig::ACTION_switchPortalProblems = SDLK_o;		//hold + 1-9
 SDL_Keycode GlobalConfig::ACTION_editPortalRec = SDLK_l;			//+-
-SDL_Keycode GlobalConfig::ACTION_editPortalWidth = SDLK_k;			//+-
+SDL_Keycode GlobalConfig::ACTION_editPortalRecSteps = SDLK_k;		//+-
+SDL_Keycode GlobalConfig::ACTION_editPortalWidth = SDLK_j;			//+-
 
 SDL_Keycode GlobalConfig::ACTION_togglePortalSurfaces = SDLK_1;
 SDL_Keycode GlobalConfig::ACTION_togglePortalFrames = SDLK_2;
-SDL_Keycode GlobalConfig::ACTION_togglePortalCube = SDLK_3;
-SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_4;
-SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_5;
+SDL_Keycode GlobalConfig::ACTION_toggleRedCubeAxis = SDLK_3;
+SDL_Keycode GlobalConfig::ACTION_toggleRedCubePortal = SDLK_4;
+SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_5;
+SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_6;

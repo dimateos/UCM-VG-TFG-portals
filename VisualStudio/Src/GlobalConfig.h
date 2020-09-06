@@ -44,12 +44,14 @@ public:
 
 		ACTION_switchPortalProblems,	//switch portal rendering options
 		ACTION_editPortalRec,			//change amount of recursion
+		ACTION_editPortalRecSteps,		//skip recursion steps
 		ACTION_editPortalWidth,			//change width of portal surfacesç
 
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames
-		ACTION_togglePortalCube,		//toggle cube to render as a portal
-		ACTION_togglePortalWall,			//toggle wall
+		ACTION_toggleRedCubeAxis,	//toggle cube axis
+		ACTION_toggleRedCubePortal,		//toggle cube to render as a portal
+		ACTION_togglePortalWall,		//toggle wall
 		ACTION_togglePortalBottom
 		;
 

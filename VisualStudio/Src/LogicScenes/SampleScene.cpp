@@ -415,18 +415,21 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		//Camera movement + capture/free cursor
 		//Switch post-processing effect
 
-	//not handling any up
+	//not handling any up atm
 	if (!down) {
 		if (e.type == SDL_KEYUP && key == lastKey_) lastKey_ = 0; //reset last key on up
 		return false;
 	}
 
-	//event requiring multiple keys
+	//postprocess control
 	if (lastKey_ == GlobalConfig::ACTION_screenPostFilterPortal) return false;
 	else if (key == GlobalConfig::ACTION_screenPostFilterPortal) lastKey_ = key;
+
+	//other event requiring multiple keys
 	else if (key == GlobalConfig::ACTION_screenPostFilterGlobal) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPlayerWidth) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalRec) lastKey_ = key;
+	else if (key == GlobalConfig::ACTION_editPortalRecSteps) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editPortalWidth) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editTopDownZoom) lastKey_ = key;
 	else if (key == GlobalConfig::ACTION_editMiniViewScale) lastKey_ = key;
@@ -457,7 +460,6 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//switch portal problems (show effects and fixes)
 	else if (lastKey_ == GlobalConfig::ACTION_switchPortalProblems) {
-		//key >= SDLK_0 && key <= SDLK_9
 		if (key == SDLK_1) {
 			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 			rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
@@ -467,8 +469,21 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			avoidCameraClip_ = !avoidCameraClip_;
 			printf("PORTAL - toggle camera clip fix [%s]\n", avoidCameraClip_ ? "TRUE" : "FALSE");
 		}
-
-		else return false;
+		else if (key == SDLK_3) {
+			useObliqueProjection_ = !useObliqueProjection_;
+			printf("PORTAL - toggle oblique projection clipping [%s]\n", useObliqueProjection_ ? "TRUE" : "FALSE");
+		}
+		else if (key == SDLK_4) {
+			useSliceCopy_ = !useSliceCopy_;
+			printf("PORTAL - toggle slice copy [%s]\n", useSliceCopy_ ? "TRUE" : "FALSE");
+			playerBodyCopy_->setFather(useSliceCopy_ ? playerCopy_ : nullptr);
+		}
+		else if (key == SDLK_5) {
+			cutSliceCopy_ = !cutSliceCopy_;
+			printf("PORTAL - toggle slice copy [%s]\n", cutSliceCopy_ ? "TRUE" : "FALSE");
+			slizableMatCopy_->option_ = cutSliceCopy_ ? 2 : 0;
+			slizableMat_->option_ = cutSliceCopy_ ? 2 : 0;
+		}
 	}
 
 	//start/stop controling the portal to move/rotate it locally
@@ -545,7 +560,11 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		rPortalFrames_->setFather(rPortalFrames_->getFather() == nullptr ? rPortalRoot_ : nullptr);
 		printf("OBJECT - toggle portal frames [%s]\n", bPortalFrames_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
-	else if (key == GlobalConfig::ACTION_togglePortalCube) {
+	else if (key == GlobalConfig::ACTION_toggleRedCubeAxis) {
+		redCube_->toggleDrawingAxis();
+		printf("OBJECT - toggle redcube axis [%s]\n", redCube_->isDrawingAxis() ? "TRUE" : "FALSE");
+	}
+	else if (key == GlobalConfig::ACTION_toggleRedCubePortal) {
 		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
 		printf("OBJECT - toggle redcube portal material [%s]\n", redCube_->mat_ == rPortalMat_ ? "TRUE" : "FALSE");
 	}
@@ -580,6 +599,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			recLimit_ += s;
 			if (recLimit_ > REC_HARD_LIMIT) recLimit_ = REC_HARD_LIMIT;
 			else if (recLimit_ == 0) recLimit_ = 1;
+
+			recSteps_ += s;
+			if (recSteps_ > recLimit_) recSteps_ = recLimit_;
+			else if (recSteps_ == 0) recSteps_ = 1;
+		}
+		//change amount of recursion
+		else if (lastKey_ == GlobalConfig::ACTION_editPortalRecSteps) {
+			recSteps_ += s;
+			if (recSteps_ > recLimit_) recSteps_ = recLimit_;
+			else if (recSteps_ == 0) recSteps_ = 1;
 		}
 
 		//change portal width
@@ -612,6 +641,9 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 
 	else handled = false;
+
+	//control postprocess (capture unhandled number keys events)
+	if (key >= SDLK_0 && key <= SDLK_9) return true;
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return handled;
@@ -737,7 +769,7 @@ void SampleScene::updatePortalTravellers() {
 			//make player copy
 			printf("PORTAL TP - blue clone\n");
 			playerCopy_->setFather(world_node_);
-			slizableMat_->option_ = 2;
+			if (cutSliceCopy_) slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(side) * -bPortalRoot_->back(), normalCopy = float(side) * rPortalRoot_->back();
@@ -806,7 +838,7 @@ void SampleScene::updatePortalTravellers() {
 			//make player copy
 			printf("PORTAL TP - red clone\n");
 			playerCopy_->setFather(world_node_);
-			slizableMat_->option_ = 2;
+			if (cutSliceCopy_) slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(side) * -rPortalRoot_->back(), normalCopy = float(side) * bPortalRoot_->back();
@@ -890,7 +922,10 @@ void SampleScene::render() {
 void SampleScene::render_FPS() {
 	rPortalSurface_->mesh_ = nullptr;
 	bPortalSurface_->mesh_ = cubeMesh_;
+
 	bPortalSurface_->mat_ = pinkMat_;
+	//bPortalSurface_->mat_ = bPortalMat_;
+	//bPortalMat_->option_ = 0;
 
 	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
 	for (size_t i = 0; i < recLimit_; i++) {
@@ -903,10 +938,13 @@ void SampleScene::render_FPS() {
 		bPortalCam_->setLocalTrans(recTrans_[i]);
 
 		//calculate oblique plane
-		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
-		//load the matrix and the restore it
-		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
-		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+		if (useObliqueProjection_) {
+			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
+			//load the matrix and the restore it
+			glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
+			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+		}
+		else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
 		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
 		Scene::render(); //edited virtual render_rec
@@ -916,16 +954,23 @@ void SampleScene::render_FPS() {
 		screenPP_->render();
 
 		//pink only for final iteration
-		if (i == 0) bPortalSurface_->mat_ = bPortalMat_;
+		if (i == 0) {
+			bPortalSurface_->mat_ = bPortalMat_;
+			//bPortalMat_->option_ = 1;
+		}
+		if (i == recSteps_-1) break;
 	}
 
 	//BLUE PORTAL pass - draw scene in the reused postfilter buffer
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
-	obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+	if (useObliqueProjection_) {
+		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
+		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
+		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+	}
+	else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
 	postProcessRT_->bind(true); //3d depth test enabled

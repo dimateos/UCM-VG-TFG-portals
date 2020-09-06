@@ -83,7 +83,7 @@ protected:
 
 	// PORTALS /////////////////////////////////////////////////////////////
 
-	bool avoidCameraClip_ = true;
+	bool avoidCameraClip_ = true, useObliqueProjection_ = true, useSliceCopy_ = true, cutSliceCopy_ = true;
 
 	//blue portal
 	Camera *bPortalCam_;
@@ -117,7 +117,7 @@ protected:
 	void modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane);
 
 	//portal recursion
-	int recLimit_ = 1, startIndex_ = 0;
+	int recLimit_ = 1, startIndex_ = 0, recSteps_ = recLimit_;
 	const int REC_HARD_LIMIT = 16;
 	std::vector<Transformation> recTrans_;
 
