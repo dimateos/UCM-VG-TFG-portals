@@ -12,6 +12,7 @@ uniform vec4 clipPlane;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 preModel;
 
 void main()
 {
@@ -39,4 +40,15 @@ void main()
         TexCoord = aTexCoord;
         gl_ClipDistance[0] = dot (worldPos, clipPlane);
     }
+
+    //screen coordinates from previous POS as uv output to fragment
+    else if (option == 3) {
+        vec4 prePos = projection * view * preModel * vec4(aPos, 1.0);
+
+        //just normalize from [-w, w] to [0, w]
+        TexCoord = (prePos.xy + prePos.w) / 2.0;
+        w = prePos.w;
+    }
+
+    else TexCoord = aTexCoord;
 }

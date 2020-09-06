@@ -53,11 +53,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_HARDRESETtransform) {
 			!rotating_ ? target_->setLocalPos(hardInitialTrans_.postion) : target_->setLocalRot(hardInitialTrans_.rotation);
 		}
-		else if (key == GlobalConfig::ACTION_COOLtransform) {
-			coolTrans_.toBuffer(loggingBuffer_);
-			printf("SET cool T: %s\n", loggingBuffer_);
-			target_->setLocalTrans(coolTrans_);
-		}
+		else if (key == GlobalConfig::ACTION_COOLtransform) gotoCoolTrans();
 		else if (key == GlobalConfig::ACTION_storeCOOLtransform) {
 			coolTrans_.toBuffer(loggingBuffer_);
 			printf("OLD cool T: %s\n", loggingBuffer_);
@@ -124,6 +120,12 @@ void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
 void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }
 
 void InputFreeMovement::setCoolTrans(Transformation const & trans) { coolTrans_ = trans; }
+
+void InputFreeMovement::gotoCoolTrans() {
+	coolTrans_.toBuffer(loggingBuffer_);
+	printf("GOTO cool T: %s\n", loggingBuffer_);
+	target_->setLocalTrans(coolTrans_);
+}
 
 void InputFreeMovement::applyFrameRotation() {
 	frame_rotation_ = glm::vec3(0);

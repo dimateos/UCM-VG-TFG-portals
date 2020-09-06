@@ -113,6 +113,12 @@ bool SampleScene::init() {
 	uniformModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("model");
 	uniformView_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("view");
 	uniformProj_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection");
+	uniformPreModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("preModel");
+
+	printf("UNIFORM - uniformModel_ %i\n", uniformModel_);
+	printf("UNIFORM - uniformView_ %i\n", uniformView_);
+	printf("UNIFORM - uniformProj_ %i\n", uniformProj_);
+	printf("UNIFORM - uniformPreModel_ %i\n", uniformPreModel_);
 
 	//COMMON meshes and materials
 	cubeMesh_ = new CubeMesh();
@@ -447,10 +453,17 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 	}
 
 	//global postprocessing (0-9 numbers)
-	else if (key >= SDLK_0 && key <= SDLK_9 && lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
-		scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
-		scenePPoption_pre_ = -1;
-		printf("SCREEN - set postprocessing %i\n", scenePPoption_);
+	else if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
+		if (key >= SDLK_0 && key <= SDLK_9) {
+			scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
+			scenePPoption_pre_ = -1;
+			printf("SCREEN - set postprocessing %i\n", scenePPoption_);
+		}
+		else if (key == GlobalConfig::ACTION_COOLtransform) {
+			movController_->gotoCoolTrans();
+			rPortalController_->gotoCoolTrans();
+			bPortalController_->gotoCoolTrans();
+		}
 	}
 	else if (key == GlobalConfig::ACTION_screenPostFilterFrame) {
 		scenePPoption_ = 5 == scenePPoption_ ? 0 : 5;
@@ -483,6 +496,18 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			printf("PORTAL - toggle slice copy [%s]\n", cutSliceCopy_ ? "TRUE" : "FALSE");
 			slizableMatCopy_->option_ = cutSliceCopy_ ? 2 : 0;
 			slizableMat_->option_ = cutSliceCopy_ ? 2 : 0;
+		}
+		else if (key == SDLK_6) {
+			recMode_ = recMode_ == MAPWHOLE ? STANDARD : MAPWHOLE;
+			printf("PORTAL - render rec set to [%s]\n", recMode_ == STANDARD ? "STANDARD" : "MAPWHOLE");
+		}
+		else if (key == SDLK_7) {
+			recMode_ = recMode_ == MAPFIX ? STANDARD : MAPFIX;
+			printf("PORTAL - render rec set to [%s]\n", recMode_ == STANDARD ? "STANDARD" : "MAPFIX");
+		}
+		else if (key == SDLK_8) {
+			recMode_ = recMode_ == MAPPREV ? STANDARD : MAPPREV;
+			printf("PORTAL - render rec set to [%s]\n", recMode_ == STANDARD ? "STANDARD" : "MAPPREV");
 		}
 	}
 
@@ -923,9 +948,13 @@ void SampleScene::render_FPS() {
 	rPortalSurface_->mesh_ = nullptr;
 	bPortalSurface_->mesh_ = cubeMesh_;
 
-	bPortalSurface_->mat_ = pinkMat_;
-	//bPortalSurface_->mat_ = bPortalMat_;
-	//bPortalMat_->option_ = 0;
+	//some recursion modes (show errors)
+	if (recMode_ == STANDARD) bPortalSurface_->mat_ = pinkMat_;
+	else {
+		bPortalSurface_->mat_ = bPortalMat_;
+		bPortalMat_->option_ = recMode_;
+		if (recMode_ == MAPPREV) glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, bPortalSurface_->getModelMatrix_ptr());
+	}
 
 	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
 	for (size_t i = 0; i < recLimit_; i++) {
@@ -953,11 +982,16 @@ void SampleScene::render_FPS() {
 		bPortalRT_->bind(false);
 		screenPP_->render();
 
-		//pink only for final iteration
-		if (i == 0) {
-			bPortalSurface_->mat_ = bPortalMat_;
-			//bPortalMat_->option_ = 1;
+		//pink only for final iteration + other recursion modes
+		if (recMode_ == STANDARD) {
+			if(i == 0) bPortalSurface_->mat_ = bPortalMat_;
 		}
+		else {
+			bPortalMat_->option_ = 1;
+			//break;
+		}
+
+		//rec steps quick exit to show distant recursions only
 		if (i == recSteps_-1) break;
 	}
 

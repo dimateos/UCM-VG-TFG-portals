@@ -20,6 +20,7 @@ public:
 
 	void setRotating(bool rotating);
 	void setCoolTrans(Transformation const& trans);
+	void gotoCoolTrans();
 
 
 protected:

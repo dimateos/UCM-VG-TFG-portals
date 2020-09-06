@@ -48,7 +48,7 @@ protected:
 	float projFov_ = 80.0f, topDownZoom_ = 1.0, miniViewScale_ = 0.25, viewScalesIncrement_ = 0.025, fovIncrement_ = 2.0;
 	const float HARD_MAX_projFov_ = 120.0f, HARD_MIN_projFov_ = 10.0f;
 
-	unsigned int uniformModel_, uniformView_, uniformProj_;
+	unsigned int uniformModel_, uniformView_, uniformProj_, uniformPreModel_;
 	virtual void render_FPS();
 	virtual void render_TOPDOWN();
 	virtual void render_rec(Node* n);
@@ -84,6 +84,8 @@ protected:
 	// PORTALS /////////////////////////////////////////////////////////////
 
 	bool avoidCameraClip_ = true, useObliqueProjection_ = true, useSliceCopy_ = true, cutSliceCopy_ = true;
+	enum recModes { MAPWHOLE, MAPFIX, STANDARD, MAPPREV }; //some recursion modes (show errors)
+	recModes recMode_ = STANDARD;
 
 	//blue portal
 	Camera *bPortalCam_;

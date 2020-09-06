@@ -33,4 +33,16 @@ void main()
         FragColor = texture(texture0, uv);
         FragColor *= vec4(1-color, 1.0);
     }
+
+    //screen coordinates from previous POS as uv output to fragment
+    if (option == 3) {
+        uv /= w;
+        FragColor = texture(texture0, uv);
+        FragColor *= vec4(color, 1.0);
+    }
+
+   else {
+        FragColor = texture(texture0, uv);
+        FragColor *= vec4(color, 1.0);
+    }
 }
