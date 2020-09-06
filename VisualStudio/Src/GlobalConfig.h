@@ -52,7 +52,8 @@ public:
 		ACTION_toggleRedCubeAxis,	//toggle cube axis
 		ACTION_toggleRedCubePortal,		//toggle cube to render as a portal
 		ACTION_togglePortalWall,		//toggle wall
-		ACTION_togglePortalBottom
+		ACTION_togglePortalBottom,
+		ACTION_toggleRenderPanel
 		;
 
 private:

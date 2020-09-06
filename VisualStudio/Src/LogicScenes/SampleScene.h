@@ -76,10 +76,10 @@ protected:
 	SolidMaterial *pinkMat_, *redCheckerMat_;
 
 	//render panel with real time screenshot (non-activated)
-	//RenderTarget *renderPanelRT_;
-	//Texture *renderTex_;
-	//SolidMaterial *renderMat_;
-	//ShapeNode* renderPanel_;
+	RenderTarget *renderPanelRT_;
+	Texture *renderTex_;
+	SolidMaterial *renderMat_;
+	ShapeNode* renderPanel_;
 
 	// PORTALS /////////////////////////////////////////////////////////////
 

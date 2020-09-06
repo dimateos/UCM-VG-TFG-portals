@@ -119,6 +119,8 @@ bool SampleScene::init() {
 	printf("UNIFORM - uniformView_ %i\n", uniformView_);
 	printf("UNIFORM - uniformProj_ %i\n", uniformProj_);
 	printf("UNIFORM - uniformPreModel_ %i\n", uniformPreModel_);
+	printf("UNIFORM - SolidMaterial::UNIFORM_COLOR %i\n", SolidMaterial::UNIFORM_COLOR);
+	printf("UNIFORM - SolidMaterial::UNIFORM_OPTION %i\n", SolidMaterial::UNIFORM_OPTION);
 
 	//COMMON meshes and materials
 	cubeMesh_ = new CubeMesh();
@@ -154,20 +156,16 @@ bool SampleScene::init() {
 	//whiteFloor->setLocalScale(glm::vec3(15.0f, 0.1f, 15.0f));
 	//whiteFloor->setLocalPos(glm::vec3(5.0f, -0.5f, 18.0f));
 
-	//renderPanelRT_ = new RenderTarget();
-	//renderPanelRT_->create(postProcessVP_);
-	//renderTex_ = new Texture();
-	//renderTex_->createRenderTargetTexture(renderPanelRT_);
+	renderPanelRT_ = new RenderTarget();
+	renderPanelRT_->create(postProcessVP_);
+	renderTex_ = new Texture();
+	renderTex_->createRenderTargetTexture(renderPanelRT_);
+	renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
 
-	//renderMat_ = new SolidMaterial(glm::vec3(0.9f), renderTex_);
-
-	//renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
-	//renderPanel_->removeFather();
-	//renderPanel_->setLocalPos(whiteFloor->getLocalPos());
-	//renderPanel_->translateZ(5);
-	//renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
-	//renderPanel_->translateY(2);
-	////renderPanel->pitch(90);
+	renderPanel_ = new ShapeNode(world_node_, planeMesh_, renderMat_);
+	renderPanel_->removeFather();
+	renderPanel_->setLocalPos(glm::vec3(5, 2, -4));
+	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
 
 	//OTHER TESTING OBJECTS
 	//simple cube
@@ -493,7 +491,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		}
 		else if (key == SDLK_5) {
 			cutSliceCopy_ = !cutSliceCopy_;
-			printf("PORTAL - toggle slice copy [%s]\n", cutSliceCopy_ ? "TRUE" : "FALSE");
+			printf("PORTAL - toggle CUT slice copy [%s]\n", cutSliceCopy_ ? "TRUE" : "FALSE");
 			slizableMatCopy_->option_ = cutSliceCopy_ ? 2 : 0;
 			slizableMat_->option_ = cutSliceCopy_ ? 2 : 0;
 		}
@@ -601,6 +599,10 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		rPortalFramesBot_->setFather(rPortalFramesBot_->getFather() == nullptr ? rPortalFrames_ : nullptr);
 		bPortalFramesBot_->setFather(bPortalFramesBot_->getFather() == nullptr ? bPortalFrames_ : nullptr);
 		printf("OBJECT - toggle portal bot frame [%s]\n", rPortalFramesBot_->getFather() != nullptr ? "TRUE" : "FALSE");
+	}
+	else if (key == GlobalConfig::ACTION_toggleRenderPanel) {
+		renderPanel_->setFather(renderPanel_->getFather() == nullptr ? world_node_ : nullptr);
+		printf("OBJECT - toggle render panel [%s]\n", renderPanel_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
 
 	//Increase / decrease
@@ -948,12 +950,21 @@ void SampleScene::render_FPS() {
 	rPortalSurface_->mesh_ = nullptr;
 	bPortalSurface_->mesh_ = cubeMesh_;
 
+	//char loggingBuffer_[200];
+	//bPortalSurface_->getLocalTrans().toBuffer(loggingBuffer_);
+	//printf("bPortalSurface_ T: %s\n", loggingBuffer_);
+	//rPortalSurface_->getLocalTrans().toBuffer(loggingBuffer_);
+	//printf("rPortalSurface_ T: %s\n", loggingBuffer_);
+
 	//some recursion modes (show errors)
 	if (recMode_ == STANDARD) bPortalSurface_->mat_ = pinkMat_;
 	else {
 		bPortalSurface_->mat_ = bPortalMat_;
 		bPortalMat_->option_ = recMode_;
-		if (recMode_ == MAPPREV) glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, bPortalSurface_->getModelMatrix_ptr());
+		if (recMode_ == MAPPREV) {
+			SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
+			glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, rPortalSurface_->getModelMatrix_ptr());
+		}
 	}
 
 	//atm only 1 portal has recursion (and atm do all recursions event outside screen)
@@ -983,12 +994,9 @@ void SampleScene::render_FPS() {
 		screenPP_->render();
 
 		//pink only for final iteration + other recursion modes
-		if (recMode_ == STANDARD) {
-			if(i == 0) bPortalSurface_->mat_ = bPortalMat_;
-		}
-		else {
-			bPortalMat_->option_ = 1;
-			//break;
+		if (i == 0) {
+			if (recMode_ != STANDARD) bPortalMat_->option_ = 1;
+			else bPortalSurface_->mat_ = bPortalMat_;
 		}
 
 		//rec steps quick exit to show distant recursions only
@@ -1036,8 +1044,8 @@ void SampleScene::render_FPS() {
 
 	//EXTRA PASS - copy texture for the render panel (avoid writing and reading same buffer)
 	//no need of model uniform in the shaders - nor camera matrices
-	//renderPanelRT_->bind(false);
-	//screenPP_->render();
+	renderPanelRT_->bind(false);
+	screenPP_->render();
 }
 
 void SampleScene::render_TOPDOWN() {

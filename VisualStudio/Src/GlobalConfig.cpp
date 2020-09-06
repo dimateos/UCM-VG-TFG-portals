@@ -47,3 +47,4 @@ SDL_Keycode GlobalConfig::ACTION_toggleRedCubeAxis = SDLK_3;
 SDL_Keycode GlobalConfig::ACTION_toggleRedCubePortal = SDLK_4;
 SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_5;
 SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_6;
+SDL_Keycode GlobalConfig::ACTION_toggleRenderPanel = SDLK_7;

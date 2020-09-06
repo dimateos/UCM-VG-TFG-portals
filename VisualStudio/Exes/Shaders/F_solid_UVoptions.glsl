@@ -18,7 +18,7 @@ void main()
     }
 
     //atm some options for tex coords
-    if (option == 1) {
+    else if (option == 1) {
         uv /= w;
         // w is interpolated too
         // float f = 1024.0f / 100.0f;
@@ -29,20 +29,20 @@ void main()
     }
 
     //just visually inverse color
-    if (option == 2) {
+    else if (option == 2) {
         FragColor = texture(texture0, uv);
-        FragColor *= vec4(1-color, 1.0);
+        FragColor *= vec4(1.0-color, 1.0);
     }
 
     //screen coordinates from previous POS as uv output to fragment
-    if (option == 3) {
+    else if (option == 3) {
         uv /= w;
         FragColor = texture(texture0, uv);
         FragColor *= vec4(color, 1.0);
     }
 
-   else {
-        FragColor = texture(texture0, uv);
-        FragColor *= vec4(color, 1.0);
-    }
+    // else {
+    //     FragColor = texture(texture0, uv);
+    //     FragColor *= vec4(color, 1.0);
+    // }
 }
