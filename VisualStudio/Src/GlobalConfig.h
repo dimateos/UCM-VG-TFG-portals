@@ -8,9 +8,10 @@ public:
 	static SDL_Keycode
 		ACTION_escape,					//exit application
 		ACTION_captureCursor,			//switch free amd hidden cursor
+		//ACTION_blockCamera,
 		ACTION_screenPostFilterPortal,	//Switch post-processing effect (hold and press 1-9)
 		ACTION_screenPostFilterGlobal,
-		ACTION_screenPostFilterFrame,	//simplified shortcut
+		ACTION_screenPostFilterFrame,	//simplified shortcut to put frames + block camera rotation
 		ACTION_switchMainCameras,		//switch main cameras (fps or top-down)
 		ACTION_toggleMiniView,
 		ACTION_editMiniViewScale,
@@ -45,7 +46,7 @@ public:
 		ACTION_switchPortalProblems,	//switch portal rendering options
 		ACTION_editPortalRec,			//change amount of recursion
 		ACTION_editPortalRecSteps,		//skip recursion steps
-		ACTION_editPortalWidth,			//change width of portal surfacesç
+		ACTION_editPortalWidth,			//change width of portal surfacesï¿½
 
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames

@@ -2,6 +2,7 @@
 
 SDL_Keycode GlobalConfig::ACTION_escape = SDLK_ESCAPE;
 SDL_Keycode GlobalConfig::ACTION_captureCursor = SDLK_LALT;
+//SDL_Keycode GlobalConfig::ACTION_blockCamera = SDLK_LALT;
 SDL_Keycode GlobalConfig::ACTION_screenPostFilterPortal = SDLK_p;	//hold + 1-9
 SDL_Keycode GlobalConfig::ACTION_screenPostFilterGlobal = SDLK_b;	//hold + 1-9
 SDL_Keycode GlobalConfig::ACTION_screenPostFilterFrame = SDLK_v;

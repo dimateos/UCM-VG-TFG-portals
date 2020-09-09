@@ -21,6 +21,7 @@ InputFreeRotation::InputFreeRotation(Node* father, Node * target) : Node(father)
 InputFreeRotation::~InputFreeRotation() {}
 
 bool InputFreeRotation::handleEvent(SDL_Event const & e) {
+	if (blocked_) return false;
 	bool handled = true;
 
 	if (e.type == SDL_MOUSEMOTION) {
@@ -42,7 +43,7 @@ bool InputFreeRotation::handleEvent(SDL_Event const & e) {
 }
 
 void InputFreeRotation::update() {
-	if (!focus_) return;
+	if (!focus_ || blocked_) return;
 	if (frame_yaw_ == 0 && frame_pitch_ == 0) return;
 
 	//limit the vertical rotation (x axis)
@@ -108,6 +109,13 @@ void InputFreeRotation::setInputRot(glm::quat const & q) {
 	target_->setLocalRot(Transformation::BASE_ROT);
 	target_->yaw(total_yaw_);
 	target_->pitch(total_pitch_);
+}
+
+void InputFreeRotation::setBlocked(bool b) {
+	blocked_ = b;
+}
+void InputFreeRotation::toggleBlocked() {
+	blocked_ = !blocked_;
 }
 
 void InputFreeRotation::capPitch() {
