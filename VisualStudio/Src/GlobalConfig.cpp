@@ -28,11 +28,11 @@ SDL_Keycode GlobalConfig::ACTION_FASTtransform = SDLK_LSHIFT;
 SDL_Keycode GlobalConfig::ACTION_SLOWtransform = SDLK_LCTRL;
 SDL_Keycode GlobalConfig::ACTION_RESETtransform = SDLK_t;
 SDL_Keycode GlobalConfig::ACTION_HARDRESETtransform = SDLK_y;
-SDL_Keycode GlobalConfig::ACTION_COOLtransform = SDLK_h;
+SDL_Keycode GlobalConfig::ACTION_COOLtransform = SDLK_h;			//+holding b :: set 3 objects to cool pos
 SDL_Keycode GlobalConfig::ACTION_storeCOOLtransform = SDLK_g;
 SDL_Keycode GlobalConfig::ACTION_editPlayerWidth = SDLK_f;			//+-
 
-SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;			//holding b + control topdown cam
+SDL_Keycode GlobalConfig::ACTION_switchControl = SDLK_TAB;			//+holding b :: control topdown cam
 SDL_Keycode GlobalConfig::ACTION_cycleBlueCamPos = SDLK_x;
 SDL_Keycode GlobalConfig::ACTION_cycleRedCamPos = SDLK_z;
 SDL_Keycode GlobalConfig::ACTION_togglePortalCameraAxis = SDLK_i;
@@ -46,6 +46,9 @@ SDL_Keycode GlobalConfig::ACTION_togglePortalSurfaces = SDLK_1;
 SDL_Keycode GlobalConfig::ACTION_togglePortalFrames = SDLK_2;
 SDL_Keycode GlobalConfig::ACTION_toggleRedCubeAxis = SDLK_3;
 SDL_Keycode GlobalConfig::ACTION_toggleRedCubePortal = SDLK_4;
-SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_5;
-SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_6;
-SDL_Keycode GlobalConfig::ACTION_toggleRenderPanel = SDLK_7;
+SDL_Keycode GlobalConfig::ACTION_togglePortalBottom = SDLK_5;
+
+SDL_Keycode GlobalConfig::ACTION_togglePortalWall = SDLK_6;
+SDL_Keycode GlobalConfig::ACTION_toggleMidWall = SDLK_7;
+SDL_Keycode GlobalConfig::ACTION_toggleRenderPanel = SDLK_8;
+SDL_Keycode GlobalConfig::ACTION_toggleAxis = SDLK_9;

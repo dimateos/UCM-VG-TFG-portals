@@ -168,6 +168,12 @@ bool SampleScene::init() {
 	renderPanel_->setLocalScale(glm::vec3(2, 2, 1));
 
 	//OTHER TESTING OBJECTS
+
+	axis_ = new Node(world_node_);
+	axis_->setLocalPos(glm::vec3(14, -0.5, 10.));
+	axis_->scale(0.75);
+	axis_->setDrawingAxis();
+
 	//simple cube
 	//auto cube = new ShapeNode(world_node_);
 	//cube->setLocalPos(glm::vec3(2.f, 0.f, 0.f));
@@ -270,6 +276,12 @@ bool SampleScene::init() {
 	//wall_->translateX(5);
 	wall_->translateZ(-0.45);
 	wall_->setLocalScale(glm::vec3(10.0f, 10.0f, 0.5f));
+
+	midWall_ = new ShapeNode(world_node_, cubeMesh_, whiteCheckerMat);
+	midWall_->removeFather();
+	midWall_->setLocalPos(bPortalRoot_->getLocalPos());
+	midWall_->translateX(5);
+	midWall_->setLocalScale(glm::vec3(0.5f, 10.0f, 16.0f));
 
 	redCube_ = new ShapeNode(world_node_, cubeMesh_, redCheckerMat_);
 	//redCube_->translateZ(1.0f);
@@ -450,28 +462,52 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		//movController_->setTarget(player_, renderMainTopDown_ ? player_ : cam_);
 	}
 
-	//global postprocessing (0-9 numbers)
+	//global postprocessing (0-9 numbers) and other actions holding screen key
 	else if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
 		if (key >= SDLK_0 && key <= SDLK_9) {
 			scenePPoption_ = key - SDLK_0 == scenePPoption_ ? 0 : key - SDLK_0;
 			scenePPoption_pre_ = -1;
 			printf("SCREEN - set postprocessing %i\n", scenePPoption_);
 		}
+		//move 3 objects to cool pos
 		else if (key == GlobalConfig::ACTION_COOLtransform) {
 			movController_->gotoCoolTrans();
 			rPortalController_->gotoCoolTrans();
 			bPortalController_->gotoCoolTrans();
 		}
+		//start/stop controling the top down view
+		else if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
+				if (topDownController_->getFather() == nullptr) {
+					printf("control set to TOPDOWN CAM\n");
+					topDownController_->setInitialTrans(world_node_);
+					movController_->removeFather();
+					rPortalController_->removeFather();
+					bPortalController_->removeFather();
+				}
+				else {
+					printf("control set to PLAYER\n");
+					movController_->setInitialTrans(topDownController_->removeFather());
+				}
+			}
 	}
 	else if (key == GlobalConfig::ACTION_screenPostFilterFrame) {
-		scenePPoption_ = 5 == scenePPoption_ ? 0 : 5;
+		scenePPoption_ = scenePPoption_ == 5 ? 0 : 5;
 		scenePPoption_pre_ = -1;
 		printf("SCREEN - set postprocessing %i\n", scenePPoption_);
+		rotController_->setBlocked(scenePPoption_ == 5);
 	}
 
 	//switch portal problems (show effects and fixes)
 	else if (lastKey_ == GlobalConfig::ACTION_switchPortalProblems) {
-		if (key == SDLK_1) {
+		//show/hide virtual portal cameras axes
+		if (key == GlobalConfig::ACTION_togglePortalCameraAxis) {
+			cam_->toggleDrawingAxis();
+			rPortalCam_->toggleDrawingAxis();
+			bPortalCam_->toggleDrawingAxis();
+			printf("AXIS - toggle cam showing axis [%s]\n", cam_->isDrawingAxis() ? "TRUE" : "FALSE");
+		}
+
+		else if (key == SDLK_1) {
 			bPortalMat_->option_ == 0 ? bPortalMat_->option_ = 1 : bPortalMat_->option_ = 0;
 			rPortalMat_->option_ == 0 ? rPortalMat_->option_ = 1 : rPortalMat_->option_ = 0;
 			printf("PORTAL - toggle rendering screen coords [%s]\n", bPortalMat_->option_ == 1 ? "TRUE" : "FALSE");
@@ -511,23 +547,7 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (key == GlobalConfig::ACTION_switchControl) {
-		//InputFreeMovement *movController_, *rPortalController_, *bPortalController_, *topDownController_;
-
-		if (lastKey_ == GlobalConfig::ACTION_screenPostFilterGlobal) {
-			if (topDownController_->getFather() == nullptr) {
-				printf("control set to TOPDOWN CAM\n");
-				topDownController_->setInitialTrans(world_node_);
-				movController_->removeFather();
-				rPortalController_->removeFather();
-				bPortalController_->removeFather();
-			}
-			else {
-				printf("control set to PLAYER\n");
-				movController_->setInitialTrans(topDownController_->removeFather());
-			}
-		}
-
-		else if (movController_->getFather() != nullptr) rPortalController_->setInitialTrans(movController_->removeFather());
+		if (movController_->getFather() != nullptr) rPortalController_->setInitialTrans(movController_->removeFather());
 		else if (rPortalController_->getFather() != nullptr) bPortalController_->setInitialTrans(rPortalController_->removeFather());
 		else {
 			printf("control set to PLAYER\n");
@@ -541,42 +561,26 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		printf("CAM - toggle BLUE cam position\n");
 		if (Node::ROOT_CAM != bPortalCam_) Node::ROOT_CAM = bPortalCam_;
 		else Node::ROOT_CAM = cam_;
+		setActivePortalSurfaces(Node::ROOT_CAM != bPortalCam_);
 	}
 	else if (key == GlobalConfig::ACTION_cycleRedCamPos) {
 		printf("CAM - toggle RED cam position\n");
 		if (Node::ROOT_CAM != rPortalCam_) Node::ROOT_CAM = rPortalCam_;
 		else Node::ROOT_CAM = cam_;
+		setActivePortalSurfaces(Node::ROOT_CAM != rPortalCam_);
 	}
 
 	//show/hide virtual portal cameras axes
 	else if (key == GlobalConfig::ACTION_togglePortalCameraAxis) {
-		cam_->toggleDrawingAxis();
 		playerBody_->toggleDrawingAxis();
-		rPortalCam_->toggleDrawingAxis();
-		bPortalCam_->toggleDrawingAxis();
 		bPortalFrames_->toggleDrawingAxis();
 		rPortalFrames_->toggleDrawingAxis();
-		printf("AXIS - toggle showing axis [%s]\n", cam_->isDrawingAxis() ? "TRUE" : "FALSE");
+		printf("AXIS - toggle objects showing axis [%s]\n", playerBody_->isDrawingAxis() ? "TRUE" : "FALSE");
 	}
 
 	//toggle objects
 	else if (key == GlobalConfig::ACTION_togglePortalSurfaces) {
-		bPortalSurface_->setFather(bPortalSurface_->getFather() == nullptr ? bPortalRoot_ : nullptr);
-		rPortalSurface_->setFather(rPortalSurface_->getFather() == nullptr ? rPortalRoot_ : nullptr);
-		printf("PORTAL - toggle active surfaces [%s]\n", bPortalSurface_->getFather() != nullptr ? "TRUE" : "FALSE");
-
-		//cancel current TP
-		if (bPortalSurface_->getFather() == nullptr) {
-			printf("PORTAL TP - cancel (disabled any sliced clone)\n");
-			bSideOld_ = 0;
-			rSideOld_ = 0;
-			playerCopy_->removeFather();
-			slizableMat_->option_ = 0;
-			bPortalSurface_->setLocalScaleZ(minPortalWidth_);
-			bPortalSurface_->setLocalPosZ(0);
-			rPortalSurface_->setLocalScaleZ(minPortalWidth_);
-			rPortalSurface_->setLocalPosZ(0);
-		}
+		setActivePortalSurfaces(bPortalSurface_->getFather() == nullptr);
 	}
 	else if (key == GlobalConfig::ACTION_togglePortalFrames) {
 		bPortalFrames_->setFather(bPortalFrames_->getFather() == nullptr ? bPortalRoot_ : nullptr);
@@ -591,18 +595,26 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		redCube_->mat_ = redCube_->mat_ == redCheckerMat_ ? rPortalMat_ : redCheckerMat_;
 		printf("OBJECT - toggle redcube portal material [%s]\n", redCube_->mat_ == rPortalMat_ ? "TRUE" : "FALSE");
 	}
-	else if (key == GlobalConfig::ACTION_togglePortalWall) {
-		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
-		printf("OBJECT - toggle wall [%s]\n", wall_->getFather() != nullptr ? "TRUE" : "FALSE");
-	}
 	else if (key == GlobalConfig::ACTION_togglePortalBottom) {
 		rPortalFramesBot_->setFather(rPortalFramesBot_->getFather() == nullptr ? rPortalFrames_ : nullptr);
 		bPortalFramesBot_->setFather(bPortalFramesBot_->getFather() == nullptr ? bPortalFrames_ : nullptr);
 		printf("OBJECT - toggle portal bot frame [%s]\n", rPortalFramesBot_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
+	else if (key == GlobalConfig::ACTION_togglePortalWall) {
+		wall_->setFather(wall_->getFather() == nullptr ? world_node_ : nullptr);
+		printf("OBJECT - toggle portal wall [%s]\n", wall_->getFather() != nullptr ? "TRUE" : "FALSE");
+	}
+	else if (key == GlobalConfig::ACTION_toggleMidWall) {
+		midWall_->setFather(midWall_->getFather() == nullptr ? world_node_ : nullptr);
+		printf("OBJECT - toggle mid wall [%s]\n", midWall_->getFather() != nullptr ? "TRUE" : "FALSE");
+	}
 	else if (key == GlobalConfig::ACTION_toggleRenderPanel) {
 		renderPanel_->setFather(renderPanel_->getFather() == nullptr ? world_node_ : nullptr);
 		printf("OBJECT - toggle render panel [%s]\n", renderPanel_->getFather() != nullptr ? "TRUE" : "FALSE");
+	}
+	else if (key == GlobalConfig::ACTION_toggleAxis) {
+		axis_->setFather(axis_->getFather() == nullptr ? world_node_ : nullptr);
+		printf("OBJECT - toggle axis [%s]\n", axis_->getFather() != nullptr ? "TRUE" : "FALSE");
 	}
 
 	//Increase / decrease
@@ -674,6 +686,25 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//else printf("scene - ignored event type: %i\n", e.type);
 	return handled;
+}
+
+void SampleScene::setActivePortalSurfaces(bool active) {
+	bPortalSurface_->setFather(active ? bPortalRoot_ : nullptr);
+	rPortalSurface_->setFather(active ? rPortalRoot_ : nullptr);
+	printf("PORTAL - toggle active surfaces [%s]\n", active ? "TRUE" : "FALSE");
+
+	//cancel current TP
+	if (!active) {
+		printf("PORTAL TP - cancel (disabled any sliced clone)\n");
+		bSideOld_ = 0;
+		rSideOld_ = 0;
+		playerCopy_->removeFather();
+		slizableMat_->option_ = 0;
+		bPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		bPortalSurface_->setLocalPosZ(0);
+		rPortalSurface_->setLocalScaleZ(minPortalWidth_);
+		rPortalSurface_->setLocalPosZ(0);
+	}
 }
 
 void SampleScene::avoidCameraClip() {

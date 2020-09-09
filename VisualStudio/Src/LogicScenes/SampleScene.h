@@ -60,7 +60,7 @@ protected:
 	int scenePPoption_ = 0, scenePPoption_pre_ = -1, sceneMiniViewOption_ = 5;
 
 	//PLAYER AND CONTROLERS
-	Node *player_;
+	Node *player_, *axis_;
 	ShapeNode *playerBody_;
 	InputFreeMovement *movController_, *rPortalController_, *bPortalController_, *topDownController_;
 	InputFreeRotation *rotController_;
@@ -68,7 +68,7 @@ protected:
 	const float HARD_LIMIT_minPlayerWidth_ = 0.6;
 
 	//OTHER DYNAMIC SCENE OBJETCTS
-	ShapeNode *redCube_, *wall_;
+	ShapeNode *redCube_, *wall_, *midWall_;
 
 	//common meshes and materials edited by key events
 	Mesh *planeMesh_, *cubeMesh_;
@@ -86,6 +86,7 @@ protected:
 	bool avoidCameraClip_ = true, useObliqueProjection_ = true, useSliceCopy_ = true, cutSliceCopy_ = true;
 	enum recModes { MAPWHOLE, MAPFIX, STANDARD, MAPPREV }; //some recursion modes (show errors)
 	recModes recMode_ = STANDARD;
+	void setActivePortalSurfaces(bool active = true);
 
 	//blue portal
 	Camera *bPortalCam_;
