@@ -572,10 +572,16 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//show/hide virtual portal cameras axes
 	else if (key == GlobalConfig::ACTION_togglePortalCameraAxis) {
-		playerBody_->toggleDrawingAxis();
-		bPortalFrames_->toggleDrawingAxis();
-		rPortalFrames_->toggleDrawingAxis();
-		printf("AXIS - toggle objects showing axis [%s]\n", playerBody_->isDrawingAxis() ? "TRUE" : "FALSE");
+		if (lastKey_ == GlobalConfig::ACTION_editPlayerWidth) {
+			playerBody_->setFather(playerBody_->getFather() == nullptr ? player_ : nullptr);
+			printf("PLAYER - hidden body [%s]\n", playerBody_->getFather() == nullptr ? "TRUE" : "FALSE");
+		}
+		else {
+			playerBody_->toggleDrawingAxis();
+			bPortalFrames_->toggleDrawingAxis();
+			rPortalFrames_->toggleDrawingAxis();
+			printf("AXIS - toggle objects showing axis [%s]\n", playerBody_->isDrawingAxis() ? "TRUE" : "FALSE");
+		}
 	}
 
 	//toggle objects
@@ -1101,25 +1107,32 @@ void SampleScene::render_rec(Node * n) {
 	for (auto c : n->getChildren()) render_rec(c);
 }
 
-//http://terathon.com/code/oblique.html - edited for glm matrix layout and opengl version
-void SampleScene::modifyProjectionMatrixOptPers(glm::mat4 & proj, glm::vec4 const & clipPlane) {
-	// Calculate the clip-space corner point opposite the clipping plane as (fsgn(clipPlane.x), fsgn(clipPlane.y), 1, 1)
-	// and transform it into camera space by multiplying it by the inverse of the projection matrix
-	glm::vec4 q;
-	q.x = (fsgn(clipPlane.x) + proj[2][0]) / proj[0][0]; //optimized multiplying by inverse
-	q.y = (fsgn(clipPlane.y) + proj[2][1]) / proj[1][1];
-	q.z = -1.0F;
-	q.w = (1.0F + proj[2][2]) / proj[3][2];
+	//http://terathon.com/code/oblique.html
+		//edited for glm matrix layout and opengl version
+	void SampleScene::modifyProjectionMatrixOptPers(
+		glm::mat4 & proj, glm::vec4 const & clipPlane) {
 
-	// Calculate the scaled plane vector
-	glm::vec4 c = clipPlane * (2.0F / glm::dot(clipPlane, q));
+		// Calculate the clip-space corner point opposite the
+			// clipping plane: (fsgn(clipPlane.x),fsgn(clipPlane.y),1,1)
+			// and transform it into camera space by multiplying it
+				//by the inverse of the projection matrix
 
-	// Replace the third row of the projection matrix
-	proj[0][2] = c.x;
-	proj[1][2] = c.y;
-	proj[2][2] = c.z + 1.0F;
-	proj[3][2] = c.w;
-}
+		glm::vec4 q;
+		//optimized multiplying by inverse:
+		q.x = (fsgn(clipPlane.x) + proj[2][0]) / proj[0][0];
+		q.y = (fsgn(clipPlane.y) + proj[2][1]) / proj[1][1];
+		q.z = -1.0F;
+		q.w = (1.0F + proj[2][2]) / proj[3][2];
+
+		// Calculate the scaled plane vector
+		glm::vec4 c = clipPlane * (2.0F / glm::dot(clipPlane, q));
+
+		// Replace the third row of the projection matrix
+		proj[0][2] = c.x;
+		proj[1][2] = c.y;
+		proj[2][2] = c.z + 1.0F;
+		proj[3][2] = c.w;
+	}
 
 void SampleScene::modifyProjectionMatrix(glm::mat4 & proj, glm::vec4 const & clipPlane) {
 	glm::vec4 q = glm::inverse(proj) * glm::vec4(

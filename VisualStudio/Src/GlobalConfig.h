@@ -41,7 +41,7 @@ public:
 		ACTION_switchControl,			//start/stop controling the portal to move/rotate it locally
 		ACTION_cycleBlueCamPos,			//switch between camera positions
 		ACTION_cycleRedCamPos,			//switch between camera positions
-		ACTION_togglePortalCameraAxis,	//show/hide virtual xportal cameras axes
+		ACTION_togglePortalCameraAxis,	//show/hide virtual axes (+hold O for portals) (+hold f to make player invisible)
 
 		ACTION_switchPortalProblems,	//switch portal rendering options
 		ACTION_editPortalRec,			//change amount of recursion

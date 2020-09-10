@@ -26,13 +26,15 @@ void main()
 
     //screen coordinates as uv output to fragment
     else if (option == 1) {
-        //just normalize from [-w, w] to [0, w]
+        //just normalize xy coordinates from [-w, w] to [0, w]
         TexCoord = (gl_Position.xy + gl_Position.w) / 2.0;
         w = gl_Position.w;
 
         //do not normalize to [0, 1] screen per vertex
-            //it only works if polygons are facing the camera
-        // TexCoord /= w; //w needs interpolation
+            //this could only work with polygons facing the camera
+            //w needs to be interpolated for each fragment
+                //send w as OUT to the fragment shader
+                //OUT variables get interpolated
     }
 
     //user defined clipping plane
