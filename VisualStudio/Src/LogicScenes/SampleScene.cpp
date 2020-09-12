@@ -1016,10 +1016,10 @@ void SampleScene::render_FPS() {
 
 		//calculate oblique plane
 		if (useObliqueProjection_) {
+			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
 			//load the matrix and the restore it
 			glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
-			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 		}
 		else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
@@ -1045,9 +1045,9 @@ void SampleScene::render_FPS() {
 
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
 	if (useObliqueProjection_) {
+		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
 		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
-		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 	}
 	else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
@@ -1066,7 +1066,11 @@ void SampleScene::render_FPS() {
 
 	//FPS camera active
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
-	glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
+	if (Node::ROOT_CAM == cam_) glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
+	else {
+		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
+		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+	}
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
 	bPortalSurface_->mesh_ = cubeMesh_;

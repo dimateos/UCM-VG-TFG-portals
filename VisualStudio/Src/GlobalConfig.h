@@ -50,7 +50,7 @@ public:
 
 		ACTION_togglePortalSurfaces,	//toggle portal surfaces
 		ACTION_togglePortalFrames,		//toggle portal frames
-		ACTION_toggleRedCubeAxis,	//toggle cube axis
+		ACTION_toggleRedCubeAxis,		//toggle cube axis
 		ACTION_toggleRedCubePortal,		//toggle cube to render as a portal
 		ACTION_togglePortalBottom,
 		ACTION_togglePortalWall,		//toggle wall
