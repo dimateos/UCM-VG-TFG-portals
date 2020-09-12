@@ -98,11 +98,22 @@ protected:
 
 	//red portal
 	Camera *rPortalCam_;
-	RenderTarget *rPortalPanelRT_;
+	RenderTarget *rPortalRT_;
 	Texture *rPortalTex_;
 	SolidMaterial *rPortalMat_;
 	Node *rPortalRoot_, *rPortalFrames_, *rPortalFramesBot_;
 	ShapeNode *rPortalSurface_;
+
+	//portal data struct (code should be adjusted to only use the struct)
+	struct portalData {
+		Camera *cam_;
+		RenderTarget *rt_;
+		//Texture *tex_;
+		SolidMaterial *mat_;
+		Node *root_;// , *bPortalFrames_, *bPortalFramesBot_;
+		ShapeNode *surface_;
+	};
+	portalData bData_, rData_, *firstData_, *secondData_;
 
 	//portal teleporting
 	float sqCloseDistance_;

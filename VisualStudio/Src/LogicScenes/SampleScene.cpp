@@ -230,10 +230,10 @@ bool SampleScene::init() {
 	bPortalFramesBot_->translate(2.0f * -Transformation::BASE_UP * separation);
 
 	//RED PORTAL (mostly copies)
-	rPortalPanelRT_ = new RenderTarget();
-	rPortalPanelRT_->create(screenVP_);
+	rPortalRT_ = new RenderTarget();
+	rPortalRT_->create(postProcessVP_);
 	rPortalTex_ = new Texture();
-	rPortalTex_->createRenderTargetTexture(rPortalPanelRT_);
+	rPortalTex_->createRenderTargetTexture(rPortalRT_);
 	rPortalMat_ = new SolidMaterial(glm::vec3(1.0f), rPortalTex_);
 	rPortalMat_->option_ = 1;
 
@@ -392,6 +392,21 @@ bool SampleScene::init() {
 	rPortalCam_->setFather(bPortalRoot_);
 	rPortalCam_->setDrawingAxis(false);
 
+	//ASSING PORTAL DATA
+	bData_.cam_ = bPortalCam_;
+	bData_.mat_ = bPortalMat_;
+	bData_.rt_ = bPortalRT_;
+	bData_.root_ = bPortalRoot_;
+	bData_.surface_ = bPortalSurface_;
+	firstData_ = &bData_;
+
+	rData_.cam_ = rPortalCam_;
+	rData_.mat_ = rPortalMat_;
+	rData_.rt_ = rPortalRT_;
+	rData_.root_ = rPortalRoot_;
+	rData_.surface_ = rPortalSurface_;
+	secondData_ = &rData_;
+
 	return true;
 }
 
@@ -543,6 +558,18 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			recMode_ = recMode_ == MAPPREV ? STANDARD : MAPPREV;
 			printf("PORTAL - render rec set to [%s]\n", recMode_ == STANDARD ? "STANDARD" : "MAPPREV");
 		}
+		else if (key == SDLK_9) {
+			if (firstData_ == &bData_) {
+				firstData_ = &rData_;
+				secondData_ = &bData_;
+			}
+			else {
+				firstData_ = &bData_;
+				secondData_ = &rData_;
+			}
+			printf("PORTAL - render order set to first [%s]\n", firstData_ == &bData_ ? "BLUE" : "RED");
+		}
+
 	}
 
 	//start/stop controling the portal to move/rotate it locally
@@ -752,15 +779,15 @@ void SampleScene::updatePortalCamerasTrans() {
 		//cam matrix by inverse of portal matrix
 	//set position and rotation (decomposed from matrices atm) - ignoring scale atm
 		//just set local cause atm the red portal cam is already child of blue portal
-	rPortalCam_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+	secondData_->cam_->setLocalTrans(Transformation::getDescomposed(secondData_->root_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 
 	//calculate recursion positions and rotations - for just 1 portal atm
-	glm::mat4 camMat = cam_->getModelMatrix(), portalMat_inv = bPortalRoot_->getModelMatrix_Inversed(), portalMat_base = rPortalRoot_->getModelMatrix();
+	glm::mat4 camMat = cam_->getModelMatrix(), portalMat_inv = firstData_->root_->getModelMatrix_Inversed(), portalMat_base = secondData_->root_->getModelMatrix();
 
 	//first recursion (last recursive trans) is the base one
 	glm::mat4 combinedTrans = portalMat_inv * camMat;
 	recTrans_[recLimit_ - 1] = Transformation::getDescomposed(combinedTrans);
-	bPortalCam_->setLocalTrans(recTrans_[recLimit_ - 1]);
+	firstData_->cam_->setLocalTrans(recTrans_[recLimit_ - 1]);
 
 	for (size_t i = 1; i < recLimit_; i++) {
 		int renderOrderIndex = recLimit_ - i - 1; //inversed order - from back to front
@@ -984,8 +1011,8 @@ void SampleScene::render() {
 }
 
 void SampleScene::render_FPS() {
-	rPortalSurface_->mesh_ = nullptr;
-	bPortalSurface_->mesh_ = cubeMesh_;
+	secondData_->surface_->mesh_ = nullptr;
+	firstData_->surface_->mesh_ = cubeMesh_;
 
 	//char loggingBuffer_[200];
 	//bPortalSurface_->getLocalTrans().toBuffer(loggingBuffer_);
@@ -994,13 +1021,13 @@ void SampleScene::render_FPS() {
 	//printf("rPortalSurface_ T: %s\n", loggingBuffer_);
 
 	//some recursion modes (show errors)
-	if (recMode_ == STANDARD) bPortalSurface_->mat_ = pinkMat_;
+	if (recMode_ == STANDARD) firstData_->surface_->mat_ = pinkMat_;
 	else {
-		bPortalSurface_->mat_ = bPortalMat_;
-		bPortalMat_->option_ = recMode_;
+		firstData_->surface_->mat_ = firstData_->mat_;
+		firstData_->mat_->option_ = recMode_;
 		if (recMode_ == MAPPREV) {
 			SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
-			glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, rPortalSurface_->getModelMatrix_ptr());
+			glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, secondData_->surface_->getModelMatrix_ptr());
 		}
 	}
 
@@ -1012,28 +1039,28 @@ void SampleScene::render_FPS() {
 		postProcessRT_->clear(clearColor.x, clearColor.y, clearColor.z, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the transformation in order
-		bPortalCam_->setLocalTrans(recTrans_[i]);
+		firstData_->cam_->setLocalTrans(recTrans_[i]);
 
 		//calculate oblique plane
 		if (useObliqueProjection_) {
 			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
-			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(rPortalRoot_->getLocalTrans(), bPortalCam_->getLocalTrans()));
+			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(secondData_->root_->getLocalTrans(), firstData_->cam_->getLocalTrans()));
 			//load the matrix and the restore it
 			glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
 		}
 		else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
-		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, bPortalCam_->getViewMatrixPtr());
+		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, firstData_->cam_->getViewMatrixPtr());
 		Scene::render(); //edited virtual render_rec
 
 		//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
-		bPortalRT_->bind(false);
+		firstData_->rt_->bind(false);
 		screenPP_->render();
 
 		//pink only for final iteration + other recursion modes
 		if (i == 0) {
-			if (recMode_ != STANDARD) bPortalMat_->option_ = 1;
-			else bPortalSurface_->mat_ = bPortalMat_;
+			if (recMode_ != STANDARD) firstData_->mat_->option_ = 1;
+			else firstData_->surface_->mat_ = firstData_->mat_;
 		}
 
 		//rec steps quick exit to show distant recursions only
@@ -1046,22 +1073,22 @@ void SampleScene::render_FPS() {
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
 	if (useObliqueProjection_) {
 		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
-		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(bPortalRoot_->getLocalTrans(), rPortalCam_->getLocalTrans()));
+		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(firstData_->root_->getLocalTrans(), secondData_->cam_->getLocalTrans()));
 		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
 	}
 	else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, rPortalCam_->getViewMatrixPtr());
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, secondData_->cam_->getViewMatrixPtr());
 	postProcessRT_->bind(true); //3d depth test enabled
 	postProcessRT_->clear(clearColor.x, clearColor.y, clearColor.z, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	bPortalSurface_->mesh_ = nullptr;
-	rPortalSurface_->mesh_ = cubeMesh_;
-	rPortalSurface_->mat_ = pinkMat_;
+	firstData_->surface_->mesh_ = nullptr;
+	secondData_->surface_->mesh_ = cubeMesh_;
+	secondData_->surface_->mat_ = pinkMat_;
 	Scene::render(); //edited virtual render_rec
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
-	rPortalPanelRT_->bind(false);
+	secondData_->rt_->bind(false);
 	screenPP_->render();
 
 	//FPS camera active
@@ -1074,8 +1101,8 @@ void SampleScene::render_FPS() {
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
 	bPortalSurface_->mesh_ = cubeMesh_;
-	rPortalSurface_->mesh_ = cubeMesh_;
 	bPortalSurface_->mat_ = bPortalMat_;
+	rPortalSurface_->mesh_ = cubeMesh_;
 	rPortalSurface_->mat_ = rPortalMat_;
 
 	//LAST PASS - all the portals have view textures
