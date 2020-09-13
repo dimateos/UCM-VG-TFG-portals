@@ -398,14 +398,14 @@ bool SampleScene::init() {
 	bData_.rt_ = bPortalRT_;
 	bData_.root_ = bPortalRoot_;
 	bData_.surface_ = bPortalSurface_;
-	firstData_ = &bData_;
+	firstPortalData_ = &bData_;
 
 	rData_.cam_ = rPortalCam_;
 	rData_.mat_ = rPortalMat_;
 	rData_.rt_ = rPortalRT_;
 	rData_.root_ = rPortalRoot_;
 	rData_.surface_ = rPortalSurface_;
-	secondData_ = &rData_;
+	secondPortalData_ = &rData_;
 
 	return true;
 }
@@ -559,15 +559,15 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 			printf("PORTAL - render rec set to [%s]\n", recMode_ == STANDARD ? "STANDARD" : "MAPPREV");
 		}
 		else if (key == SDLK_9) {
-			if (firstData_ == &bData_) {
-				firstData_ = &rData_;
-				secondData_ = &bData_;
+			if (firstPortalData_ == &bData_) {
+				firstPortalData_ = &rData_;
+				secondPortalData_ = &bData_;
 			}
 			else {
-				firstData_ = &bData_;
-				secondData_ = &rData_;
+				firstPortalData_ = &bData_;
+				secondPortalData_ = &rData_;
 			}
-			printf("PORTAL - render order set to first [%s]\n", firstData_ == &bData_ ? "BLUE" : "RED");
+			printf("PORTAL - render order set to first [%s]\n", firstPortalData_ == &bData_ ? "BLUE" : "RED");
 		}
 
 	}
@@ -775,27 +775,57 @@ void SampleScene::avoidCameraClip() {
 void SampleScene::updatePortalCamerasTrans() {
 	//printf("scene - updating cameras \n");
 
-	//get position in portal local coordinates of global player's (player camera position and rotation)
-		//cam matrix by inverse of portal matrix
-	//set position and rotation (decomposed from matrices atm) - ignoring scale atm
-		//just set local cause atm the red portal cam is already child of blue portal
-	secondData_->cam_->setLocalTrans(Transformation::getDescomposed(secondData_->root_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
+	// *** CALCULTATE BASIC TRANSFORMATION ***
+	// CASE A: blue portal cam is already a child of red portal
+	// (therefore we just need red portal local coordinates)
+		// blue VIRTUAL CAMERA Model Matrix = bluePortal Inversed M.M. * mainCam M.M.
+		// blueCam [T] = bluePortal [iT] * mainCam [T]
+	secondPortalData_->cam_->setLocalTrans(
+		Transformation::getDecomposed(secondPortalData_->root_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 
-	//calculate recursion positions and rotations - for just 1 portal atm
-	glm::mat4 camMat = cam_->getModelMatrix(), portalMat_inv = firstData_->root_->getModelMatrix_Inversed(), portalMat_base = secondData_->root_->getModelMatrix();
+	// CASE B: blue portal cam is a global scene object
+	// (add transformation to world from red portal local)
+		// blue VIRTUAL CAMERA Model Matrix = redPortal M.M. * bluePortal Inversed M.M. * mainCam M.M.
+		// blueCam [T] = redPortal [T] * bluePortal [iT] * mainCam [T]
+	//secondPortalData_->cam_->setLocalTrans(
+	//	Transformation::getDecomposed(firstPortalData_->root_->getModelMatrix()
+	//		* secondPortalData_->root_->getModelMatrix_Inversed() * cam_->getModelMatrix()));
 
-	//first recursion (last recursive trans) is the base one
-	glm::mat4 combinedTrans = portalMat_inv * camMat;
-	recTrans_[recLimit_ - 1] = Transformation::getDescomposed(combinedTrans);
-	firstData_->cam_->setLocalTrans(recTrans_[recLimit_ - 1]);
+
+	// *** CALCULTATE RECURSION TRANSFORMATIONS ***
+	// Between a pair of portals, only one is able to present recursion at a time
+	// + There must be a predefined recursion limit or conditions
+	glm::mat4 camMM = cam_->getModelMatrix(),
+		ownPortalMM_inv = firstPortalData_->root_->getModelMatrix_Inversed(),
+		linkedPortalMM_base = secondPortalData_->root_->getModelMatrix();
+
+	// Initial recursion is the basic one
+	// AGAIN: global player transformation to local space of its own portal
+	// + Stored as in local space of the linked portal (the camera is its child)
+	glm::mat4 combinedTrans = ownPortalMM_inv * camMM;
+
+	// IF the virtual camera is global, then add a final transformation to global space
+	//glm::mat4 combinedTrans = linkedPortalMM_base * ownPortalMM_inv * camMM;
+
+	// Texture based implementation: final transformations are applied in reverse order
+	// + Need for prealocated space for each transformation
+	// + Direclty store them in reverse order for a later easier iteration
+	// + In this case, initial recursion is stored as the last one
+	recTrans_[recLimit_ - 1] = Transformation::getDecomposed(combinedTrans);
+	firstPortalData_->cam_->setLocalTrans(recTrans_[recLimit_ - 1]);
 
 	for (size_t i = 1; i < recLimit_; i++) {
-		int renderOrderIndex = recLimit_ - i - 1; //inversed order - from back to front
-		startIndex_ = renderOrderIndex; //atm we do all the recursions
+		// Virtual camera transformation in local space of the linked portal
+			// To global space, and then to local space of its own portal
+			// Finally stored again as in local space of the linked portal (its child)
+		combinedTrans = ownPortalMM_inv * linkedPortalMM_base * combinedTrans;
 
-		//local coords in the base portal to global multiply by linked portal inverse and get again in local linked portal
-		combinedTrans = portalMat_inv * portalMat_base * combinedTrans;
-		recTrans_[renderOrderIndex] = Transformation::getDescomposed(combinedTrans);
+		//IF the virtual camera is global, the transformations order is switched
+		//combinedTrans = linkedPortalMM_base * ownPortalMM_inv * combinedTrans;
+
+		int renderOrderIndex = recLimit_ - i - 1;	//to store in reverse order
+		startIndex_ = renderOrderIndex;				//in case of premature ending
+		recTrans_[renderOrderIndex] = Transformation::getDecomposed(combinedTrans);
 	}
 }
 
@@ -815,7 +845,7 @@ void SampleScene::updatePortalTravellers() {
 		//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 		//set clone position accordingly
-		playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+		playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 
 		//diff sides so tp
 		if (side * bSideOld_ == -1) {
@@ -824,7 +854,7 @@ void SampleScene::updatePortalTravellers() {
 			//player_->setLocalPos(rPortalRoot_->getLocalPos() + bPortalOffset); //no correct rotation atm
 
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
-			Transformation t = Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+			Transformation t = Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
 			//update player pos (although atm no tp chaining)
 			playerPos = t.postion - cam_->getLocalPos();
 			player_->setLocalPos(playerPos);
@@ -843,7 +873,7 @@ void SampleScene::updatePortalTravellers() {
 			}
 			//make player copy
 			printf("PORTAL TP - red clone + disabled blue clone\n");
-			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			playerCopy_->setLocalTrans(Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(rSideOld_) * -rPortalRoot_->back(), normalCopy = float(rSideOld_) * bPortalRoot_->back();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalRoot_->getLocalPos()));
@@ -861,7 +891,7 @@ void SampleScene::updatePortalTravellers() {
 			printf("PORTAL TP - blue clone\n");
 			playerCopy_->setFather(world_node_);
 			if (cutSliceCopy_) slizableMat_->option_ = 2;
-			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(side) * -bPortalRoot_->back(), normalCopy = float(side) * rPortalRoot_->back();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalRoot_->getLocalPos()));
@@ -887,14 +917,14 @@ void SampleScene::updatePortalTravellers() {
 		//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
 
 		//set clone position accordingly
-		playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+		playerCopy_->setLocalTrans(Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 
 		//diff sides so tp
 		if (side * rSideOld_ == -1) {
 			onPortalTravel();
 			printf("PORTAL TP - tp blue (%i)\n", ++tpc);
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
-			Transformation t = Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+			Transformation t = Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
 			playerPos = t.postion - cam_->getLocalPos();
 			player_->setLocalPos(playerPos);
 			rotController_->setInputRot(t.rotation);
@@ -912,7 +942,7 @@ void SampleScene::updatePortalTravellers() {
 			}
 			//make player copy
 			printf("PORTAL TP - blue clone + disabled red clone\n");
-			playerCopy_->setLocalTrans(Transformation::getDescomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(bSideOld_) * -bPortalRoot_->back(), normalCopy = float(bSideOld_) * rPortalRoot_->back();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalRoot_->getLocalPos()));
@@ -930,7 +960,7 @@ void SampleScene::updatePortalTravellers() {
 			printf("PORTAL TP - red clone\n");
 			playerCopy_->setFather(world_node_);
 			if (cutSliceCopy_) slizableMat_->option_ = 2;
-			playerCopy_->setLocalTrans(Transformation::getDescomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
+			playerCopy_->setLocalTrans(Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
 			auto normal = float(side) * -rPortalRoot_->back(), normalCopy = float(side) * bPortalRoot_->back();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalRoot_->getLocalPos()));
@@ -1011,8 +1041,8 @@ void SampleScene::render() {
 }
 
 void SampleScene::render_FPS() {
-	secondData_->surface_->mesh_ = nullptr;
-	firstData_->surface_->mesh_ = cubeMesh_;
+	secondPortalData_->surface_->mesh_ = nullptr;
+	firstPortalData_->surface_->mesh_ = cubeMesh_;
 
 	//char loggingBuffer_[200];
 	//bPortalSurface_->getLocalTrans().toBuffer(loggingBuffer_);
@@ -1021,13 +1051,13 @@ void SampleScene::render_FPS() {
 	//printf("rPortalSurface_ T: %s\n", loggingBuffer_);
 
 	//some recursion modes (show errors)
-	if (recMode_ == STANDARD) firstData_->surface_->mat_ = pinkMat_;
+	if (recMode_ == STANDARD) firstPortalData_->surface_->mat_ = pinkMat_;
 	else {
-		firstData_->surface_->mat_ = firstData_->mat_;
-		firstData_->mat_->option_ = recMode_;
+		firstPortalData_->surface_->mat_ = firstPortalData_->mat_;
+		firstPortalData_->mat_->option_ = recMode_;
 		if (recMode_ == MAPPREV) {
 			SolidMaterial::SOLID_MAT_SHADER.bind(); //common shader
-			glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, secondData_->surface_->getModelMatrix_ptr());
+			glUniformMatrix4fv(uniformPreModel_, 1, GL_FALSE, secondPortalData_->surface_->getModelMatrix_ptr());
 		}
 	}
 
@@ -1039,28 +1069,28 @@ void SampleScene::render_FPS() {
 		postProcessRT_->clear(clearColor.x, clearColor.y, clearColor.z, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the transformation in order
-		firstData_->cam_->setLocalTrans(recTrans_[i]);
+		firstPortalData_->cam_->setLocalTrans(recTrans_[i]);
 
 		//calculate oblique plane
 		if (useObliqueProjection_) {
 			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
-			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(secondData_->root_->getLocalTrans(), firstData_->cam_->getLocalTrans()));
+			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(secondPortalData_->root_->getLocalTrans(), firstPortalData_->cam_->getLocalTrans()));
 			//load the matrix and the restore it
 			glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
 		}
 		else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
-		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, firstData_->cam_->getViewMatrixPtr());
+		glUniformMatrix4fv(uniformView_, 1, GL_FALSE, firstPortalData_->cam_->getViewMatrixPtr());
 		Scene::render(); //edited virtual render_rec
 
 		//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
-		firstData_->rt_->bind(false);
+		firstPortalData_->rt_->bind(false);
 		screenPP_->render();
 
 		//pink only for final iteration + other recursion modes
 		if (i == 0) {
-			if (recMode_ != STANDARD) firstData_->mat_->option_ = 1;
-			else firstData_->surface_->mat_ = firstData_->mat_;
+			if (recMode_ != STANDARD) firstPortalData_->mat_->option_ = 1;
+			else firstPortalData_->surface_->mat_ = firstPortalData_->mat_;
 		}
 
 		//rec steps quick exit to show distant recursions only
@@ -1073,22 +1103,22 @@ void SampleScene::render_FPS() {
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
 	if (useObliqueProjection_) {
 		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
-		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(firstData_->root_->getLocalTrans(), secondData_->cam_->getLocalTrans()));
+		modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(firstPortalData_->root_->getLocalTrans(), secondPortalData_->cam_->getLocalTrans()));
 		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
 	}
 	else glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 
-	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, secondData_->cam_->getViewMatrixPtr());
+	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, secondPortalData_->cam_->getViewMatrixPtr());
 	postProcessRT_->bind(true); //3d depth test enabled
 	postProcessRT_->clear(clearColor.x, clearColor.y, clearColor.z, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	firstData_->surface_->mesh_ = nullptr;
-	secondData_->surface_->mesh_ = cubeMesh_;
-	secondData_->surface_->mat_ = pinkMat_;
+	firstPortalData_->surface_->mesh_ = nullptr;
+	secondPortalData_->surface_->mesh_ = cubeMesh_;
+	secondPortalData_->surface_->mat_ = pinkMat_;
 	Scene::render(); //edited virtual render_rec
 
 	//EXTRA PASS - copy texture (draw to specific portal buffer + avoid writing and reading same buffer)
-	secondData_->rt_->bind(false);
+	secondPortalData_->rt_->bind(false);
 	screenPP_->render();
 
 	//FPS camera active

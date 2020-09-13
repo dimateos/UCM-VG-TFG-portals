@@ -113,7 +113,7 @@ protected:
 		Node *root_;// , *bPortalFrames_, *bPortalFramesBot_;
 		ShapeNode *surface_;
 	};
-	portalData bData_, rData_, *firstData_, *secondData_;
+	portalData bData_, rData_, *firstPortalData_, *secondPortalData_;
 
 	//portal teleporting
 	float sqCloseDistance_;

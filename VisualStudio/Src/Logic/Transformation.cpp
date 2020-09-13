@@ -36,7 +36,7 @@ glm::mat4 Transformation::matrix_Inversed() const {
 	return s * r * t;
 }
 
-Transformation Transformation::getDescomposed(glm::mat4 const & trans) {
+Transformation Transformation::getDecomposed(glm::mat4 const & trans) {
 	glm::vec3 scale;
 	glm::quat rotation;
 	glm::vec3 translation;
