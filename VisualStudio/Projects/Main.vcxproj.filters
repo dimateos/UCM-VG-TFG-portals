@@ -37,19 +37,19 @@
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareAnimated.cpp">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\SquareTextured.cpp">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Triangle.cpp">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\TriangleRGB.cpp">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\OldExamples\Cubes3D.cpp">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\LogicNodes\InputFreeMovement.cpp">
       <Filter>LogicNodes</Filter>
@@ -99,7 +99,7 @@
     <Filter Include="LogicScenes">
       <UniqueIdentifier>{bab30db9-4203-4362-8a1d-7164ac1dde2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LogicNodes\OldExamples">
+    <Filter Include="LogicNodes\OldExamples %28excluded from  build%29">
       <UniqueIdentifier>{f79150ca-0587-4481-96f2-d5679be05598}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -142,19 +142,19 @@
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareAnimated.h">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\SquareTextured.h">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Triangle.h">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\TriangleRGB.h">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\OldExamples\Cubes3D.h">
-      <Filter>LogicNodes\OldExamples</Filter>
+      <Filter>LogicNodes\OldExamples %28excluded from  build%29</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\LogicNodes\InputFreeMovement.h">
       <Filter>LogicNodes</Filter>

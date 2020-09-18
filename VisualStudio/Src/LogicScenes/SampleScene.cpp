@@ -793,7 +793,7 @@ void SampleScene::updatePortalCamerasTrans() {
 
 
 	// *** CALCULTATE RECURSION TRANSFORMATIONS ***
-	// Between a pair of portals, only one is able to present recursion at a time
+	// Recursion example for one portal
 	// + There must be a predefined recursion limit or conditions
 	glm::mat4 camMM = cam_->getModelMatrix(),
 		ownPortalMM_inv = firstPortalData_->root_->getModelMatrix_Inversed(),
@@ -1125,8 +1125,13 @@ void SampleScene::render_FPS() {
 	SolidMaterial::SOLID_MAT_SHADER.bind(); //need to rebind (post filter render binded its shader)
 	if (Node::ROOT_CAM == cam_) glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, proj_->getProjMatrixPtr());
 	else {
+		//show off oblique projection in case of rendering thorugh portal camera
+		if (Node::ROOT_CAM == firstPortalData_->cam_) { //recalculate oblique in case of first camera
+			obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+			modifyProjectionMatrixOptPers(obliquePorj_->computedProjMatrix_, getClipPlane(secondPortalData_->root_->getLocalTrans(), firstPortalData_->cam_->getLocalTrans()));
+		}
 		glUniformMatrix4fv(uniformProj_, 1, GL_FALSE, obliquePorj_->getProjMatrixPtr());
-		obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
+		//obliquePorj_->computedProjMatrix_ = proj_->computedProjMatrix_;
 	}
 	glUniformMatrix4fv(uniformView_, 1, GL_FALSE, Node::ROOT_CAM->getViewMatrixPtr());
 
