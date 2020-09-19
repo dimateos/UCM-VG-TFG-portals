@@ -21,7 +21,7 @@
 
 En la carpeta [`/docs`](./Docs) se puede encontrar la siguiente información:
 
-* [**RESUMEN**](./Docs/summary%20-%20EN.md) de la memoria (*Resumen, Introducción y Conclusiones*).
+* [**RESUMEN**](./Docs/summary%20-%20ES.md) de la memoria (*Resumen, Introducción y Conclusiones*).
 * Toda la [**memoria**](./Docs/memoria%20completa%20-%20ES.pdf) escrita (en español).
 * La [bibliografía](./Docs/bibliography.md) completa de la memoria.
 * La [asignación de teclas](./Docs/keyMapping%20-%20ES.md) de la aplicación para realizar tests y configuraciones en tiempo real.
@@ -33,7 +33,7 @@ Por favor considera crear un [`issue`](https://github.com/dimateos/TFG_Portals/i
 * Si tienes alguna sugerencia.
 * Si encuentras algun tipo de error (software bug o *errata*).
 
-> También puedes enviarme un [*mail*](dimateos@ucm.es) para cualquier consulta
+> También puedes enviarme un [*mail*](https://github.com/dimateos) para cualquier consulta
 
 ## Versiones de la aplicación (*releases*)
 
@@ -44,7 +44,7 @@ La última versión de la aplicación se puede encontrar en el apartado de [`rel
 
 ## Compilación y dependencias
 
-Este proyecto se ha desarrollado en una solución de [**`Visual Studio (2017)`**](https://visualstudio.microsoft.com/es/) que se encuentra dentro de la carpeta [`VisualStudio`](./VisualStudio).
+Este proyecto se ha desarrollado en una solución de [**`Visual Studio (2017)`**](https://visualstudio.microsoft.com/es/) que se encuentra dentro de la carpeta [`/VisualStudio`](./VisualStudio).
 
 > El archivo [readme](./VisualStudio/README.md) explica su estructura de carpetas y la instalación de dependencias.
 

@@ -32,7 +32,7 @@ Please consider openning an [`issue`](https://github.com/dimateos/TFG_Portals/is
 * If you have any suggestion.
 * If you find any kind of error (software bug or *typo*).
 
-> You may [*mail*](dimateos@ucm.es) me for any inquiries too
+> You may [*mail*](https://github.com/dimateos) me for any inquiries too
 
 ## App releases
 
@@ -43,7 +43,7 @@ The last version of the application can be found under the  [`releases`](https:/
 
 ## Build and dependencies
 
-This project was developed in a [**`Visual Studio (2017)`**](https://visualstudio.microsoft.com/es/) solution, which is inside the [`VisualStudio`](./VisualStudio) folder.
+This project was developed in a [**`Visual Studio (2017)`**](https://visualstudio.microsoft.com/es/) solution, which is inside the [`/VisualStudio`](./VisualStudio) folder.
 
 > The [readme](./VisualStudio/README.md) file explains its folder structure and installation of dependencies
 
