@@ -1,6 +1,6 @@
 # MOTOR GRÁFICO CON PORTALES PARA SIMULAR ESCENAS 3D NO EUCLIDIANAS
 
-* **Diego Mateos Arlanzón**
+* **Diego Mateos Arlanzón** *dimateos@ucm.es*
 * GRADO EN DESARROLLO DE VIDEOJUEGOS
 	* FACULTAD DE INFORMÁTICA /  UNIVERSIDAD COMPLUTENSE DE MADRID
 * Trabajo Fin de Grado en Desarrollo de Videojuegos

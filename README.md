@@ -2,7 +2,7 @@
 
 > **`ES`**: [Aquí](./README%20-%20ES.md) se puede encontrar la versión en español.
 
-* **Diego Mateos Arlanzón**
+* **Diego Mateos Arlanzón** *dimateos@ucm.es*
 * DEGREE IN VIDEOGAME DEVELOPMENT
 	* FACULTAD DE INFORMÁTICA /  UNIVERSIDAD COMPLUTENSE DE MADRID
 * Degree Final Dissertation in Videogames Development
@@ -14,12 +14,12 @@
 	- [Index](#index)
 	- [Documentation](#documentation)
 	- [Release](#release)
-	- [Instructions](#instructions)
+	- [Issues](#issues)
 	- [Dependencies](#dependencies)
 
 ## Documentation
 
-Under the [`docs`](https://github.com/dimateos/TFG_Portals/tree/master/Docs) folder you can find the following documentation:
+Under the [`docs`](./Docs) folder you can find the following documentation:
 
 * [Summary](./Docs/summary%20-%20EN.md) of the dissertation (*Abstract, Introduction and Conclusions*).
 * The whole written dissertation (*atm only in Spanish*).
@@ -28,8 +28,12 @@ Under the [`docs`](https://github.com/dimateos/TFG_Portals/tree/master/Docs) fol
 ## Release
 
 
-## Instructions
+## Issues
 
-any typo or error create and issue
+Please consider openning an [**issue**](https://github.com/dimateos/TFG_Portals/issues):
+* If you have any suggestion
+* If you find any kind of error (software bug or *typo*).
+
+
 
 ## Dependencies

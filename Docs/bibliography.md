@@ -1,6 +1,6 @@
 # GRAPHICS ENGINE WITH PORTALS TO SIMULATE NON-EUCLIDEAN 3D SCENES
 
-* **Diego Mateos Arlanzón**
+* **Diego Mateos Arlanzón** *dimateos@ucm.es*
 * DEGREE IN VIDEOGAME DEVELOPMENT
 	* FACULTAD DE INFORMÁTICA /  UNIVERSIDAD COMPLUTENSE DE MADRID
 * Degree Final Dissertation in Videogames Development
