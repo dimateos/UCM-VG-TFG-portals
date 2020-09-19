@@ -1,5 +1,5 @@
 # Final degree dissertation completed
-> [Aquí](https://github.com/dimateos/TFG_Portals/blob/master/ReleaseNotes/1-DissertationCompleted-ES.md) se puede encontrar la versión en español.
+> **`ES`**: [Aquí](https://github.com/dimateos/TFG_Portals/blob/master/ReleaseNotes/1-DissertationCompleted-ES.md) se puede encontrar la versión en español.
 
 * I suggest that you read the the main [README](https://github.com/dimateos/TFG_Portals) file beforehand in order to understand what this is all about.
 
@@ -13,4 +13,4 @@ This degree final dissertation has been completed. You can find it under the [do
 * Switch different interesting scene objects.
 * And more...
 
-> [Here](https://github.com/dimateos/TFG_Portals/blob/master/Docs/EN%20-%20keyMapping.md) you can find the complete list of keys mapped and their functions.
+> [Here](https://github.com/dimateos/TFG_Portals/blob/master/Docs/Mapping%20-%20EN.md) you can find the complete list of keys mapped and their functions.

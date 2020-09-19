@@ -1,5 +1,5 @@
 # Trabajo de fin de grado completado
-> [Here](https://github.com/dimateos/TFG_Portals/blob/master/ReleaseNotes/1-DissertationCompleted-EN.md) you can find the English version.
+> **`EN`**: [Here](https://github.com/dimateos/TFG_Portals/blob/master/ReleaseNotes/1-DissertationCompleted-EN.md) you can find the English version.
 
 * Sugiero que leas el [`README`](https://github.com/dimateos/TFG_Portals) principal antes de nada para entender de que va todo esto.
 
@@ -13,4 +13,4 @@ Este trabajo de fin de grado ha sido completado. La memoria se puede encontrar e
 * Activación y desactivación de objetos interesantes de la escena.
 * Y más...
 
-> [Aquí](https://github.com/dimateos/TFG_Portals/blob/master/Docs/ES%20-%20keyMapping.md) se puede encontrar la lista completa de teclas asignadas y sus funciones.
+> [Aquí](https://github.com/dimateos/TFG_Portals/blob/master/Docs/keyMapping%20-%20ES.md) se puede encontrar la lista completa de teclas asignadas y sus funciones.
