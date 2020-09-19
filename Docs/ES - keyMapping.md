@@ -8,14 +8,14 @@
 * **`V`**: bloquear / liberar rotación (y activar bordes naranjas).
 * **`M`**: activa / desactiva vista inferior.
 * **`N`**: intercambia vista cenital y primera persona.
-* **`Comma`** y **​`+/-`**​: edita el zoom de la cámara cenital.
-* **`Period`** y ​**`+/-`**​: edita el tamaño de la vista inferior.
+* **`Comma`** y `+/-`​: edita el zoom de la cámara cenital.
+* **`Period`** y ​`+/-`​: edita el tamaño de la vista inferior.
 
 > Propiedades de los portales:
 * **`1 hasta 9`** y **`O`**: activa / desactiva ​propiedades de los portales.
-* **`L`** y ​**`+/-`​**: edita la cantidad máxima de niveles de recursión.
-* **`K`** y **`​+/-`**​: edita la cantidad de niveles de recursión ​saltados.
-* **`J`** y ​**`+/-`**​: edita el grosor de los portales.
+* **`L`** y `+/-`: edita la cantidad máxima de niveles de recursión.
+* **`K`** y `+/-`​: edita la cantidad de niveles de recursión ​saltados.
+* **`J`** y `+/-`​: edita el grosor de los portales.
 
 > Movimiento y transformación:
 * **`WASD`** + **`movimiento del RATÓN`**: movimiento libre en primera persona.
@@ -38,7 +38,7 @@
 * **`1 hasta 9`** y **`B`**: selecciona el filtro de post-procesado de la escena completa.
 
 > Otros:
-* **`F`** y ​**`+/-​`**: edita el grosor del cuerpo del jugador.
+* **`F`** y `+/-`: edita el grosor del cuerpo del jugador.
 * **`X`** / **`Z`**: intercambia la cámara principal con las virtuales.
 * **`I`**: muestra / oculta ejes de coordenadas de jugador y portales.
 	* **`I`** y **`O`**: muestra / oculta ejes de coordenadas de las cámaras virtuales.

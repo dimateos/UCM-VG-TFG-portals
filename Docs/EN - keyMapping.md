@@ -8,14 +8,14 @@
 * **`V`**: block / free rotation (and add orange frame).
 * **`M`**: switch bottom view.
 * **`N`**: switch FPS between top-down view.
-* **`Comma`** y **​`+/-`**​: edit cenital zoom.
-* **`Period`** y ​**`+/-`**​: edit button view size.
+* **`Comma`** y ​`+/-`​: edit cenital zoom.
+* **`Period`** y ​`+/-`​: edit button view size.
 
 > Properties of the portals:
 * **`1 to 9`** y **`O`**: switch properties of the portals.
-* **`L`** y ​**`+/-`​**: edit max levels of recursion.
-* **`K`** y **`​+/-`**​: edit skipped levels of recursion.
-* **`J`** y ​**`+/-`**​: edit the width of the portals.
+* **`L`** y ​`+/-`​: edit max levels of recursion.
+* **`K`** y `+/-`​: edit skipped levels of recursion.
+* **`J`** y ​`+/-`​: edit the width of the portals.
 
 > Movements and transformations:
 * **`WASD`** + **`MOUSE movement`**: free movement in first person.
@@ -38,7 +38,7 @@
 * **`1 to 9`** y **`B`**: switch post-process filter for the whole portals.
 
 > Miscellaneous:
-* **`F`** y ​**`+/-​`**: edit player body width.
+* **`F`** y ​`+/-`: edit player body width.
 * **`X`** / **`Z`**: switch between the main camera and the virtual ones.
 * **`I`**: switch visibility of the portal and player axes.
 	* **`I`** y **`O`**: switch visibility of all the camera axes.
