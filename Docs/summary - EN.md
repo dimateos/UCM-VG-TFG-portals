@@ -55,7 +55,7 @@ The objectives of this project can be listed in order of priority. The probabili
 10. Develop more impressive scenes, using the portals in surprising and interesting ways.
 
 ### Structure of the memory
-> This section refers to the written part of the dissertation. You can find it under the [docs](https://github.com/dimateos/TFG_Portals/tree/master/Docs) folder.
+> This section refers to the written part of the dissertation. You can find it under the [docs](./.) folder.
 
 This document tries to be very accessible and therefore part of it may be redundant information for a person who already knows the subject. Specifically, chapters **`[2]`** and **`[4]`** referring to computer graphics, can be read over if an explanation of their state of the art and fundamentals is not required. Chapter **`[3]`** briefly details the architecture of the engine itself, if this is not of interest, it may be skipped and consulted in case of doubt. Finally, the extensive chapters **`[5]`** and **`[6]`** explain the state of the art of the portals and their inner workings and implementation completely.
 

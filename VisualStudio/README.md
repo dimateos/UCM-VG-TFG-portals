@@ -19,5 +19,5 @@ The visual studio solution is structured as follows:
 I provided an small `dependencies.zip` you can just unzip and merge all the folders to have the project compiling and running.
 
 Anyway you can add the dependencies yourself:
-* Add `glad` and `SDL2-2.0.10` inside `/Dependencies`
+* Add `glad`, `SDL2-2.0.10`, `glm` and `stb` inside `/Dependencies`
 * Add the corresponding SDL `.dll` to `/Exes/x64` and `/Exes/Win32`
