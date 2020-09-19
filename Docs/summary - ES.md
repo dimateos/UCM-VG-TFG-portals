@@ -55,7 +55,7 @@ Los objetivos de este proyecto se pueden listar ordenados por prioridad. Se tien
 10. Desarrollar escenas más impresionantes, que empleen los portales de formas sorprendentes e interesantes.
 
 ### Estructura de la memoria
-> Esta sección hace referencia a la parte escrita del trabajo. Se puede encontrar en la carpeta [docs](./.).
+> Esta sección hace referencia a la parte escrita del trabajo. Se puede encontrar en la carpeta [/docs](./.).
 
 Este documento trata de ser muy accesible y por ello parte del mismo puede ser información redundante para una persona que ya domine el tema. Concretamente los capítulos **`[2]`** y **`[4]`** referentes a la informática gráfica, se pueden leer por encima si no se requiere una explicación sobre su estado del arte y fundamentos. El capítulo **`[3]`** detalla brevemente la arquitectura del motor propio, si ésta no es de interés, puede ser saltado y consultado en caso de duda. Finalmente los relativamente extensos capítulos **`[5]`** y **`[6]`** explican el estado del arte de los portales y su funcionamiento e implementación completamente.
 

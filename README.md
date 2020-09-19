@@ -1,6 +1,6 @@
 # Graphics engine with portals to simulate non-euclidean 3D scenes
 
-> **`ES`**: [Aquí](./README%20-%20ES.md) se puede encontrar la versión en español.
+> > **`ES`**: [Aquí](./README%20-%20ES.md) se puede encontrar la versión en español.
 
 * **Diego Mateos Arlanzón** *dimateos@ucm.es*
 * DEGREE IN VIDEOGAME DEVELOPMENT
@@ -14,8 +14,8 @@
 		- [Index](#index)
 	- [Documentation](#documentation)
 	- [Issues](#issues)
-	- [Release](#release)
-	- [Build Dependencies](#build-dependencies)
+	- [App releases](#app-releases)
+	- [Build and dependencies](#build-and-dependencies)
 
 ## Documentation
 
@@ -34,14 +34,14 @@ Please consider openning an [`issue`](https://github.com/dimateos/TFG_Portals/is
 
 > You may [*mail*](dimateos@ucm.es) me for any inquiries too
 
-## Release
+## App releases
 
-You can find the last version of the application under the  [releases](https://github.com/dimateos/TFG_Portals/releases) tab (along with further information).
+The last version of the application can be found under the  [`releases`](https://github.com/dimateos/TFG_Portals/releases) tab (along with further information).
 
 ![sample0](./Docs/sample0.png)
 ![sample1](./Docs/sample1.png)
 
-## Build Dependencies
+## Build and dependencies
 
 This project was developed in a [**`Visual Studio (2017)`**](https://visualstudio.microsoft.com/es/) solution, which is inside the [`VisualStudio`](./VisualStudio) folder.
 
