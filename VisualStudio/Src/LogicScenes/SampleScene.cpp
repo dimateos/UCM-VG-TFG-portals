@@ -470,10 +470,12 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 		renderMainTopDown_ = !renderMainTopDown_;
 		//movController_->setTarget(player_, renderMainTopDown_? player_ : cam_);
 		if (renderMainTopDown_) rendeMiniView_ = true;
+		printf("VIEW - set main camera [%s]\n", renderMainTopDown_ ? "TOPDOWN" : "FPS");
 	}
 	else if (key == GlobalConfig::ACTION_toggleMiniView) {
 		rendeMiniView_ = !rendeMiniView_;
 		//movController_->setTarget(player_, renderMainTopDown_ ? player_ : cam_);
+		printf("VIEW - toggle buttom view [%s]\n", rendeMiniView_ ? "TRUE" : "FALSE");
 	}
 
 	//global postprocessing (0-9 numbers) and other actions holding screen key
@@ -573,13 +575,19 @@ bool SampleScene::handleEvent(SDL_Event const & e) {
 
 	//start/stop controling the portal to move/rotate it locally
 	else if (key == GlobalConfig::ACTION_switchControl) {
-		if (movController_->getFather() != nullptr) rPortalController_->setInitialTrans(movController_->removeFather());
-		else if (rPortalController_->getFather() != nullptr) bPortalController_->setInitialTrans(rPortalController_->removeFather());
+		if (movController_->getFather() != nullptr) {
+			rPortalController_->setInitialTrans(movController_->removeFather());
+			printf("now moving RED portal (press T to restore this initial POS/ROT)\n");
+		}
+		else if (rPortalController_->getFather() != nullptr) {
+			bPortalController_->setInitialTrans(rPortalController_->removeFather());
+			printf("now moving BLUE portal (press T to restore this initial POS/ROT)\n");
+		}
 		else {
-			printf("control set to PLAYER\n");
 			bPortalController_->removeFather();
 			topDownController_->removeFather();
 			movController_->setInitialTrans(world_node_);
+			printf("now moving PLAYER (press T to restore this initial POS/ROT)\n");
 		}
 	}
 	//switch between camera positions

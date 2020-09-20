@@ -34,7 +34,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveGLOBALBACK) zGAxis_.push_front(BACK);
 		else if (key == GlobalConfig::ACTION_moveGLOBALFORE) zGAxis_.push_front(FORE);
 		//rotation
-		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? !rotating_ : true);
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) setRotating(CFG_toggleRotation_ ? !rotating_ : true);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.push_front(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.push_front(LEFT);
 
@@ -49,17 +49,19 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		}
 		else if (key == GlobalConfig::ACTION_RESETtransform) {
 			!rotating_ ? target_->setLocalPos(initialTrans_.postion) : target_->setLocalRot(initialTrans_.rotation);
+			printf("RESTORED - initial [%s]\n", rotating_ ? "ROT" : "POS");
 		}
 		else if (key == GlobalConfig::ACTION_HARDRESETtransform) {
 			!rotating_ ? target_->setLocalPos(hardInitialTrans_.postion) : target_->setLocalRot(hardInitialTrans_.rotation);
+			printf("RESTORED - scene beginning [%s]\n", rotating_ ? "ROT" : "POS");
 		}
 		else if (key == GlobalConfig::ACTION_COOLtransform) gotoCoolTrans();
 		else if (key == GlobalConfig::ACTION_storeCOOLtransform) {
 			coolTrans_.toBuffer(loggingBuffer_);
-			printf("OLD cool T: %s\n", loggingBuffer_);
+			printf("DISCARDED %s\n", loggingBuffer_);
 			coolTrans_ = target_->getLocalTrans();
 			coolTrans_.toBuffer(loggingBuffer_);
-			printf("NEW cool T: %s\n", loggingBuffer_);
+			printf("NEW SAVED %s\n", loggingBuffer_);
 		}
 		else handled = false;
 	}
@@ -78,7 +80,7 @@ bool InputFreeMovement::handleEvent(SDL_Event const & e) {
 		else if (key == GlobalConfig::ACTION_moveGLOBALBACK) zGAxis_.remove(BACK);
 		else if (key == GlobalConfig::ACTION_moveGLOBALFORE) zGAxis_.remove(FORE);
 		//rotation
-		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_) rotating_ = (CFG_toggleRotation_ ? rotating_ : false);
+		else if (key == GlobalConfig::ACTION_rotENABLE && !disable_rotation_ && !CFG_toggleRotation_) setRotating(false);
 		else if (key == GlobalConfig::ACTION_rotRIGHT && rotating_) rot_zAxis_.remove(RIGHT);
 		else if (key == GlobalConfig::ACTION_rotLEFT&& rotating_) rot_zAxis_.remove(LEFT);
 
@@ -117,13 +119,16 @@ void InputFreeMovement::setTarget(Node * target, Node * rotationReference) {
 	setRotating(false);
 }
 
-void InputFreeMovement::setRotating(bool rotating) { rotating_ = rotating; }
+void InputFreeMovement::setRotating(bool rotating) {
+	rotating_ = rotating;
+	printf("MOVEMENT - enabled rotatiion [%s]\n", rotating_ ? "TRUE" : "FALSE");
+}
 
 void InputFreeMovement::setCoolTrans(Transformation const & trans) { coolTrans_ = trans; }
 
 void InputFreeMovement::gotoCoolTrans() {
 	coolTrans_.toBuffer(loggingBuffer_);
-	printf("GOTO cool T: %s\n", loggingBuffer_);
+	printf("GOTO saved %s\n", loggingBuffer_);
 	target_->setLocalTrans(coolTrans_);
 }
 

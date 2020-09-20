@@ -59,6 +59,6 @@ bool Transformation::operator!=(const Transformation & other) const {
 #include <iostream>
 void Transformation::toBuffer(char * buffer) const {
 	sprintf(buffer,
-		"T: { %f, %f, %f } R: { %f, %f, %f %f } S: { %f, %f, %f }",
+		"T:{%f,%f,%f} R:{%f,%f,%f,%f} S:{%f,%f,%f}",
 		postion.x, postion.y, postion.z, rotation.x, rotation.y, rotation.z, rotation.w, scale.x, scale.y, scale.z);
 }
