@@ -3,7 +3,7 @@
 
 * I suggest that you read the the main [README](./../README.md) file beforehand in order to understand what this is all about.
 
-This degree final dissertation has been completed. You can find it under the [docs](./../Docs) folder. Apart from improving the already existing implementation, the whole simulated scene is now more interactive. These are some of the new real time configurations:
+This degree final dissertation has been completed. You can find it under the [`/docs`](./../Docs) folder. Apart from improving the already existing implementation, the whole simulated scene is now more interactive. These are some of the new real time configurations:
 
 * Greatly improved movement and transformation options.
 * Multiple viewpoints options (top-down and FPS).
@@ -17,8 +17,8 @@ This degree final dissertation has been completed. You can find it under the [do
 
 ## Issues
 
-Please consider openning an [**issue**](https://github.com/dimateos/TFG_Portals/issues):
-* If you have any suggestion
+Please consider openning an [`issue`](https://github.com/dimateos/TFG_Portals/issues):
+* If you have any suggestion.
 * If you find any kind of error (software bug or *typo*).
 
-> You may [*mail*](dimateos@ucm.es) me for any inquiries too
+> You may [*mail*](https://github.com/dimateos) me for any inquiries too

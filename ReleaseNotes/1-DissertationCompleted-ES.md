@@ -3,7 +3,7 @@
 
 * Sugiero que leas el [`README`](./../README%20-%20ES.md) principal antes de nada para entender de que va todo esto.
 
-Este trabajo de fin de grado ha sido completado. La memoria se puede encontrar en la carpeta [`docs`](./../Docs). Además de mejorar la implementación ya existente, la simulación de la escena ahora es más interactiva. Estos son algunos de las nuevas opciones de configuración en tiempo real:
+Este trabajo de fin de grado ha sido completado. La memoria se puede encontrar en la carpeta [`/docs`](./../Docs). Además de mejorar la implementación ya existente, la simulación de la escena ahora es más interactiva. Estos son algunos de las nuevas opciones de configuración en tiempo real:
 
 * Gran mejora de opciones de movimiento y transformación.
 * Múltiples opciones de puntos de vista (cenital y primera persona)
@@ -15,10 +15,9 @@ Este trabajo de fin de grado ha sido completado. La memoria se puede encontrar e
 
 > [Aquí](./../Docs/keyMapping%20-%20ES.md) se puede encontrar la lista completa de teclas asignadas y sus funciones.
 
-## Issues
+Por favor considera crear un [`issue`](https://github.com/dimateos/TFG_Portals/issues):
 
-Please consider openning an [**issue**](https://github.com/dimateos/TFG_Portals/issues):
-* If you have any suggestion
-* If you find any kind of error (software bug or *typo*).
+* Si tienes alguna sugerencia.
+* Si encuentras algun tipo de error (software bug o *errata*).
 
-> You may [*mail*](dimateos@ucm.es) me for any inquiries too
+> También puedes enviarme un [*mail*](https://github.com/dimateos) para cualquier consulta
