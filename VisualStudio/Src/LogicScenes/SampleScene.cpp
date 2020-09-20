@@ -849,7 +849,8 @@ void SampleScene::updatePortalTravellers() {
 	//close enough
 	if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 		int side = sgn(glm::dot(bPortalOffset, -bPortalRoot_->backV()));
-		//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+		//printf(" blue S: %i - So: %i - (dot %f) - off: %f %f %f\n", side, bSideOld_,
+		//	glm::dot(bPortalOffset, -bPortalRoot_->backV()), bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 		//set clone position accordingly
 		playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
