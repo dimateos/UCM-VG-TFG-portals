@@ -33,7 +33,7 @@ void ScreenPostProcessing::setOption(int n) {
 	postFilterShader_.bind();
 	postFilterShader_.setInt("option", option_);
 
-	printf("PORTAL - set postprocessing %i\n", option_);
+	printf("Set postprocessing option %i\n", option_);
 }
 
 int ScreenPostProcessing::getOption() const {

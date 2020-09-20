@@ -97,9 +97,7 @@ bool SampleScene::init() {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//COMMON TEXTURES AND MATERIALS
-	//really badly placed here but for now
-
+	//COMMON TEXTURES AND MATERIALS / here atm for prototyping
 	Texture::setFlipVerticallyOnLoad(); //texture loading
 	checkersTex_.load("../Assets/checker_gray.bmp", GL_TEXTURE_2D);
 	blankTex_.load("../Assets/blank_white.bmp", GL_TEXTURE_2D);
@@ -115,6 +113,7 @@ bool SampleScene::init() {
 	uniformProj_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("projection");
 	uniformPreModel_ = SolidMaterial::SOLID_MAT_SHADER.getUniformLocation("preModel");
 
+	printf("\nSome important uniforms...\n", uniformModel_);
 	printf("UNIFORM - uniformModel_ %i\n", uniformModel_);
 	printf("UNIFORM - uniformView_ %i\n", uniformView_);
 	printf("UNIFORM - uniformProj_ %i\n", uniformProj_);
@@ -842,7 +841,7 @@ void SampleScene::updatePortalTravellers() {
 	//close enough
 	if (glm::length2(bPortalOffset) < sqCloseDistance_) {
 		int side = sgn(glm::dot(bPortalOffset, -bPortalRoot_->backV()));
-		printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+		//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 		//set clone position accordingly
 		playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));

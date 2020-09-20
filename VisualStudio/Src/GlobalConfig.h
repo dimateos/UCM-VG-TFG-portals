@@ -5,6 +5,8 @@
 class GlobalConfig
 {
 public:
+	static char* usage;
+
 	static SDL_Keycode
 		ACTION_escape,					//exit application
 		ACTION_captureCursor,			//switch free amd hidden cursor

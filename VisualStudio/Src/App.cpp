@@ -41,7 +41,7 @@ void App::release() {
 
 bool App::start() {
 	if (running_) return false;
-	printf("app - Start running\n");
+	printf("\napp - Start running\n");
 
 	running_ = true;
 	stopRequest_ = false;
@@ -51,7 +51,8 @@ bool App::start() {
 
 bool App::stop() {
 	if (running_ == false) return false; //not running
-	printf("app - Stop running\n");
+	printf("\n////////////////////////////////////////////////////////////////////\n");
+	printf("\napp - Stop running\n");
 
 	running_ = false;
 	stopRequest_ = true;
@@ -60,8 +61,17 @@ bool App::stop() {
 
 void App::loop() {
 	printf("app - Start loop\n");
-	Platform_SDL::startTimings();
 
+	//PRINT THE USAGE
+	printf("\n////////////////////////////////////////////////////////////////////\n");
+	printf("////////////////////////////////////////////////////////////////////\n");
+	printf("////////////////////////////////////////////////////////////////////\n");
+	printf("%s\n", GlobalConfig::usage);
+	printf("////////////////////////////////////////////////////////////////////\n");
+	printf("////////////////////////////////////////////////////////////////////\n");
+	printf("////////////////////////////////////////////////////////////////////\n\n");
+
+	Platform_SDL::startTimings();
 	while (!stopRequest_) {
 		//printf("app - loop\n");
 

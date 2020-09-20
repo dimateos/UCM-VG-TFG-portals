@@ -2,6 +2,7 @@
 #include "Node.h"
 
 Scene::Scene(App* app) : app_ (app), world_node_(&Node::ROOT) {
+	//required as Root transform was statically set and maybe loaded before Transformation::BASE (static too) existed
 	world_node_->setLocalTrans(Transformation::BASE);
 }
 Scene::~Scene() {

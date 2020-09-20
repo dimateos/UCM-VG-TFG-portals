@@ -1,5 +1,60 @@
 #include "GlobalConfig.h"
 
+char* GlobalConfig::usage =
+	"/// USAGE"
+
+	"\n"
+	"\nGeneral and view:"
+	"\n	ESC: exit app."
+	"\n	ALT : captura / free cursor."
+	"\n	V : block / free rotation(and add orange frame)."
+	"\n	M : switch bottom view."
+	"\n	N : switch FPS between top - down view."
+	"\n	Comma y + / -: edit cenital zoom."
+	"\n	Period y + / -: edit button view size."
+
+	"\n"
+	"\nProperties of the portals :"
+	"\n	1 to 9 y O : switch properties of the portals."
+	"\n	L y + / -: edit max levels of recursion."
+	"\n	K y + / -: edit skipped levels of recursion."
+	"\n	J y + / -: edit the width of the portals."
+
+	"\n"
+	"\nMovements and transformations :"
+	"\n	WASD + MOUSE movement : free movement in first person."
+	"\n		MOUSE wheel : main camera zoom(click resets the zoom)."
+	"\n	TAB : switch between controlable objects(player and portals)"
+	"\n		TAB y B : switch control between player and cenital camera."
+	"\n	FLECHAS : movement over global XZ plane(controlled object)."
+	"\n	ESPACIO / C : movement over global Y plane(controlled object)."
+	"\n	R + Q / E : enable rotation plus ROLL controlled object."
+	"\n		When rotation enabled WASD applies PITCH and YAW"
+	"\n	SHIFT / CONTROL : speed modificaros for movement / rotation."
+	"\n	T : reset movement / rotation(controlled object) to the start of its control."
+	"\n	Y : reset movement / rotation(controlled object) to the start of the scene."
+	"\n	G / H : store and load full transformation of the controlled object."
+	"\n		H y B at the same time : load the saved transformation onto all the objects."
+
+	"\n"
+	"\nSwitch elements of the scene and post - processing :"
+	"\n	1 to 9 : switch scene elements."
+	"\n	1 to 9 y P : switch post - process filter for the portals."
+	"\n	1 to 9 y B : switch post - process filter for the whole portals."
+
+	"\n"
+	"\nMiscellaneous :"
+	"\n	F y + / -: edit player body width."
+	"\n	X / Z : switch between the main camera and the virtual ones."
+	"\n	I : switch visibility of the portal and player axes."
+	"\n		I y O : switch visibility of all the camera axes."
+	"\n		I y F : switch visibility of the player whole body."
+
+	"\n"
+	"\n"
+	"/// USAGE"
+	;
+
 SDL_Keycode GlobalConfig::ACTION_escape = SDLK_ESCAPE;
 SDL_Keycode GlobalConfig::ACTION_captureCursor = SDLK_LALT;
 //SDL_Keycode GlobalConfig::ACTION_blockCamera = SDLK_LALT;
