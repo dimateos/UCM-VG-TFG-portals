@@ -77,7 +77,7 @@ bool SampleScene::init() {
 
 	//calculating all plane points (do not need all the info but atm nice to check)
 	float fovY = ((PerspectiveProjection*)proj_)->fov;
-	float angleYHalf = glm::radians(fovY) / 2;
+	float angleYHalf = glm::radians(fovY) / 2.0f;
 
 	//nearTop / near = tan(angleYHalf) and then aspect ratio to get nearRight
 	float nearTop = tanf(angleYHalf) * initialNear_;
@@ -87,7 +87,7 @@ bool SampleScene::init() {
 
 	//calculate fov X: nearRight / near = tan(angleXHalf) so angleXHalf = atan(nearRight / near)
 	float angleXHalf = atanf(nearRight / initialNear_);
-	float fovX = glm::degrees(angleXHalf * 2);
+	float fovX = glm::degrees(angleXHalf * 2.0f);
 
 	//maximun possible near corner distance + a little epsilon
 	initialNearCornerDistance_ = glm::length(glm::vec3(nearTop, nearRight, initialNear_)) + 10*EPSILON;
@@ -353,7 +353,7 @@ bool SampleScene::init() {
 	//camBody_->setLocalPos(glm::vec3(0.f, 0.f, -5.f));
 	//camBody_->yaw(89);
 
-	//auto fore = -camBody_->back();
+	//auto fore = -camBody_->backV();
 	//auto clipPlane = glm::vec4(
 	//	fore.x, fore.y, fore.z, glm::dot(-fore, camBody_->getLocalPos())
 	//);
@@ -751,7 +751,7 @@ void SampleScene::avoidCameraClip() {
 
 	//check distance to portals
 	glm::vec3 rCamOffset = player_->getLocalPos() + cam_->getLocalPos() - bPortalRoot_->getLocalPos();
-	float rCamDot = glm::dot(rCamOffset, bPortalRoot_->back());
+	float rCamDot = glm::dot(rCamOffset, bPortalRoot_->backV());
 
 	float rCamDistance = glm::abs(rCamDot);
 	float diff = rCamDistance - initialNearCornerDistance_;
@@ -834,15 +834,15 @@ void SampleScene::updatePortalTravellers() {
 	static int tpc = 0;
 
 	//atm we ignore scale
-	auto playerPos = player_->getLocalPos();
+	glm::vec3 playerPos = player_->getLocalPos();
 
 	//blue portal
-	auto bPortalPos = bPortalRoot_->getLocalPos();
+	glm::vec3 bPortalPos = bPortalRoot_->getLocalPos();
 	glm::vec3 bPortalOffset = playerPos - bPortalPos;
 	//close enough
 	if (glm::length2(bPortalOffset) < sqCloseDistance_) {
-		int side = sgn(glm::dot(bPortalOffset, -bPortalRoot_->back()));
-		//printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
+		int side = sgn(glm::dot(bPortalOffset, -bPortalRoot_->backV()));
+		printf(" blue S: %i - So: %i - off: %f %f %f\n", side, bSideOld_, bPortalOffset.x, bPortalOffset.y, bPortalOffset.z);
 
 		//set clone position accordingly
 		playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
@@ -855,6 +855,7 @@ void SampleScene::updatePortalTravellers() {
 
 			//set correct position and rotation (decomposed from matrices for now) - ignoring scale
 			Transformation t = Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * cam_->getModelMatrix());
+
 			//update player pos (although atm no tp chaining)
 			playerPos = t.postion - cam_->getLocalPos();
 			player_->setLocalPos(playerPos);
@@ -866,25 +867,28 @@ void SampleScene::updatePortalTravellers() {
 			bPortalSurface_->setLocalPosZ(0);
 
 			//correct linked portal panel scale
-			rSideOld_ = sgn(glm::dot(playerPos - rPortalRoot_->getLocalPos(), -rPortalRoot_->back()));
+			rSideOld_ = sgn(glm::dot(playerPos - rPortalRoot_->getLocalPos(), -rPortalRoot_->backV()));
 			if (avoidCameraClip_) {
 				rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-				rPortalSurface_->setLocalPosZ(rSideOld_ * rPortalSurface_->getLocalScaleZ() / 2);
+				rPortalSurface_->setLocalPosZ(rSideOld_ * rPortalSurface_->getLocalScaleZ() / 2.0f);
 			}
 			//make player copy
 			printf("PORTAL TP - red clone + disabled blue clone\n");
 			playerCopy_->setLocalTrans(Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
-			auto normal = float(rSideOld_) * -rPortalRoot_->back(), normalCopy = float(rSideOld_) * bPortalRoot_->back();
+			glm::vec3 normal = float(rSideOld_) * -rPortalRoot_->backV(), normalCopy = float(rSideOld_) * bPortalRoot_->backV();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalRoot_->getLocalPos()));
 			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, bPortalRoot_->getLocalPos()));
+			//printf("clipPlane_ %f %f %f %f  - clipPlane_Copy %f %f %f %f\n",
+			//	slizableMat_->clipPlane_.x, slizableMat_->clipPlane_.y, slizableMat_->clipPlane_.z, slizableMat_->clipPlane_.w,
+			//	slizableMatCopy_->clipPlane_.x, slizableMatCopy_->clipPlane_.y, slizableMatCopy_->clipPlane_.z, slizableMatCopy_->clipPlane_.w);
 		}
 		else if (bSideOld_ == 0) { //store new valid side - just entered the zone
 			bSideOld_ = side;
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
 			if (avoidCameraClip_) {
 				bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-				bPortalSurface_->setLocalPosZ(side * bPortalSurface_->getLocalScaleZ() / 2);
+				bPortalSurface_->setLocalPosZ(side * bPortalSurface_->getLocalScaleZ() / 2.0f);
 			}
 
 			//make player copy
@@ -893,7 +897,7 @@ void SampleScene::updatePortalTravellers() {
 			if (cutSliceCopy_) slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
-			auto normal = float(side) * -bPortalRoot_->back(), normalCopy = float(side) * rPortalRoot_->back();
+			glm::vec3 normal = float(side) * -bPortalRoot_->backV(), normalCopy = float(side) * rPortalRoot_->backV();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalRoot_->getLocalPos()));
 			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, rPortalRoot_->getLocalPos()));
 		}
@@ -909,11 +913,11 @@ void SampleScene::updatePortalTravellers() {
 	}
 
 	//red portal
-	auto rPortalPos = rPortalRoot_->getLocalPos();
+	glm::vec3 rPortalPos = rPortalRoot_->getLocalPos();
 	glm::vec3 rPortalOffset = playerPos - rPortalPos;
 	//close enough
 	if (glm::length2(rPortalOffset) < sqCloseDistance_) {
-		int side = sgn(glm::dot(rPortalOffset, -rPortalRoot_->back()));
+		int side = sgn(glm::dot(rPortalOffset, -rPortalRoot_->backV()));
 		//printf(" red S: %i - So: %i - off: %f %f %f\n", side, rSideOld_, rPortalOffset.x, rPortalOffset.y, rPortalOffset.z);
 
 		//set clone position accordingly
@@ -935,16 +939,17 @@ void SampleScene::updatePortalTravellers() {
 			rPortalSurface_->setLocalPosZ(0);
 
 			//correct linked portal panel scale
-			bSideOld_ = sgn(glm::dot(playerPos - bPortalRoot_->getLocalPos(), -bPortalRoot_->back()));
+			bSideOld_ = sgn(glm::dot(playerPos - bPortalRoot_->getLocalPos(), -bPortalRoot_->backV()));
 			if (avoidCameraClip_) {
 				bPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-				bPortalSurface_->setLocalPosZ(bSideOld_ * bPortalSurface_->getLocalScaleZ() / 2);
+				bPortalSurface_->setLocalPosZ(bSideOld_ * bPortalSurface_->getLocalScaleZ() / 2.0f);
 			}
 			//make player copy
 			printf("PORTAL TP - blue clone + disabled red clone\n");
 			playerCopy_->setLocalTrans(Transformation::getDecomposed(rPortalRoot_->getModelMatrix() * bPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
-			auto normal = float(bSideOld_) * -bPortalRoot_->back(), normalCopy = float(bSideOld_) * rPortalRoot_->back();
+			glm::vec3 normal = float(bSideOld_) * -bPortalRoot_->backV(), normalCopy = float(bSideOld_) * rPortalRoot_->backV();
+
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, bPortalRoot_->getLocalPos()));
 			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, rPortalRoot_->getLocalPos()));
 		}
@@ -953,7 +958,7 @@ void SampleScene::updatePortalTravellers() {
 			//avoid clip strategy B - modify portal scale to fit clipping near plane
 			if (avoidCameraClip_) {
 				rPortalSurface_->setLocalScaleZ(initialNearCornerDistance_ + minPortalWidth_);
-				rPortalSurface_->setLocalPosZ(side * rPortalSurface_->getLocalScaleZ() / 2);
+				rPortalSurface_->setLocalPosZ(side * rPortalSurface_->getLocalScaleZ() / 2.0f);
 			}
 
 			//make player copy
@@ -962,7 +967,7 @@ void SampleScene::updatePortalTravellers() {
 			if (cutSliceCopy_) slizableMat_->option_ = 2;
 			playerCopy_->setLocalTrans(Transformation::getDecomposed(bPortalRoot_->getModelMatrix() * rPortalRoot_->getModelMatrix_Inversed() * player_->getModelMatrix()));
 			//set both clipPlanes (world pos)
-			auto normal = float(side) * -rPortalRoot_->back(), normalCopy = float(side) * bPortalRoot_->back();
+			glm::vec3 normal = float(side) * -rPortalRoot_->backV(), normalCopy = float(side) * bPortalRoot_->backV();
 			slizableMat_->clipPlane_ = glm::vec4(normal.x, normal.y, normal.z, glm::dot(-normal, rPortalRoot_->getLocalPos()));
 			slizableMatCopy_->clipPlane_ = glm::vec4(normalCopy.x, normalCopy.y, normalCopy.z, glm::dot(-normalCopy, bPortalRoot_->getLocalPos()));
 		}
@@ -1004,11 +1009,11 @@ void SampleScene::update() {
 
 glm::vec4 SampleScene::getClipPlane(Transformation const & panelT, Transformation const & camT) {
 	//oblique near plane for each portal camera (camera is child of plane - so just inverse values atm)
-	//auto planeN = -rPortalRoot_->back(); //camera is child of plane so acually no
+	//auto planeN = -rPortalRoot_->backV(); //camera is child of plane so acually no
 	auto planeN = -Transformation::BASE_BACK;
 
 	//camera must always be behind plane so check so check dot
-	//float side = fsgn(glm::dot(planeN, -bPortalCam_->back()));
+	//float side = fsgn(glm::dot(planeN, -bPortalCam_->backV()));
 	float side = fsgn(glm::dot(planeN, -camT.postion));
 
 	//plane normal and position - use position to calculate Q

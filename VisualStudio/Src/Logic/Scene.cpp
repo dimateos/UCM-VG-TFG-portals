@@ -1,7 +1,9 @@
 #include "Scene.h"
 #include "Node.h"
 
-Scene::Scene(App* app) : app_ (app), world_node_(&Node::ROOT) {}
+Scene::Scene(App* app) : app_ (app), world_node_(&Node::ROOT) {
+	world_node_->setLocalTrans(Transformation::BASE);
+}
 Scene::~Scene() {
 	if (!world_node_->getChildren().empty()) printf("Scene - WARNING destroyed while scene not empty\n");
 }

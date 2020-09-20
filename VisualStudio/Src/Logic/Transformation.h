@@ -7,8 +7,9 @@
 enum Direction { RIGHT, LEFT, DOWN, UP, BACK, FORE }; //ordered as SDL enums
 
 //epsilon used for comparisons
-const float EPSILON = 1E-6; //same precision as vector
-//sign using custom EPSILON
+const float EPSILON = 1E-6; //same precision as glm vector
+
+//signs using custom EPSILON
 inline float fsgn(float f) {
 	if (f > EPSILON) return (1.0F);
 	if (f < -EPSILON) return (-1.0F);
@@ -18,6 +19,11 @@ inline int sgn(float f) {
 	if (f > EPSILON) return 1;
 	if (f < -EPSILON) return -1;
 	return 0;
+}
+inline bool almostEqual(float f1, float f2) {
+	if (f1 - f2 < EPSILON && f1 - f2 > -EPSILON) return true;
+	if (f2 - f1 < EPSILON && f2 - f1 > -EPSILON) return true;
+	return false;
 }
 
 //common vectors

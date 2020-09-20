@@ -19,9 +19,8 @@ public:
 	const glm::f32* getModelMatrix_Inversed_ptr();
 
 	//temporary manually set matrix
-	void setLocalModelMatrix(glm::mat4 const& mat);
-	void setLocalModelMatrix_Inversed(glm::mat4 const& mat);
-
+	//void setLocalModelMatrix(glm::mat4 const& mat);
+	//void setLocalModelMatrix_Inversed(glm::mat4 const& mat);
 
 	//whole transformation interface
 	inline Transformation const& getLocalTrans() const { return local_trans_; }
@@ -77,9 +76,9 @@ public:
 	inline void scale(float s) { local_trans_.scale *= s; setOutDated(); }
 
 	//relative directions
-	inline glm::vec3 const& right() const { return local_trans_.rotation * Transformation::BASE_RIGHT; }
-	inline glm::vec3 const& up() const { return local_trans_.rotation * Transformation::BASE_UP; }
-	inline glm::vec3 const& back() const { return local_trans_.rotation * Transformation::BASE_BACK; }
+	inline glm::vec3 const& rightV() const { return local_trans_.rotation * Transformation::BASE_RIGHT; }
+	inline glm::vec3 const& upV() const { return local_trans_.rotation * Transformation::BASE_UP; }
+	inline glm::vec3 const& backV() const { return local_trans_.rotation * Transformation::BASE_BACK; }
 
 	//GLOBAL TRANFORMATION
 	//comparisons, copy constrs, OPERATIONS
@@ -93,7 +92,7 @@ private:
 	Transformable* father_transform_;
 
 	//keep the values up to date when requested
-	bool manualMatrix_ = false; //temporary use externally set matrix
+	const bool manualMatrix_ = false; //temporary use externally set matrix
 	enum Flag { MATRIX, MATRIX_INVERSED, _enum_Flag_COUNT_ };
 	bool outdated_flags_[_enum_Flag_COUNT_];
 	inline void setOutDated() { for (size_t i = 0; i < _enum_Flag_COUNT_; i++) outdated_flags_[i] = true; }

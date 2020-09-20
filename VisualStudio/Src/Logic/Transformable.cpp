@@ -11,7 +11,7 @@ Transformable::~Transformable() {}
 
 void Transformable::forceUpdateTransformable() {
 	setOutDated();
-	if (father_transform_ == nullptr) return;
+	//if (father_transform_ == nullptr) return;
 	getModelMatrix();
 	getModelMatrix_Inversed();
 }
@@ -47,14 +47,14 @@ const glm::f32 * Transformable::getModelMatrix_Inversed_ptr() {
 	return glm::value_ptr(getModelMatrix_Inversed());
 }
 
-void Transformable::setLocalModelMatrix(glm::mat4 const & mat) {
-	manualMatrix_ = true;
-	local_computedMatrix_ = mat;
-}
-
-void Transformable::setLocalModelMatrix_Inversed(glm::mat4 const & mat) {
-	manualMatrix_ = true;
-	local_computedMatrix_Inversed_ = mat;
-}
+//void Transformable::setLocalModelMatrix(glm::mat4 const & mat) {
+//	manualMatrix_ = true;
+//	local_computedMatrix_ = mat;
+//}
+//
+//void Transformable::setLocalModelMatrix_Inversed(glm::mat4 const & mat) {
+//	manualMatrix_ = true;
+//	local_computedMatrix_Inversed_ = mat;
+//}
 
 
