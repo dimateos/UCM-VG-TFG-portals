@@ -32,6 +32,8 @@ SampleScene::~SampleScene() {
 }
 
 bool SampleScene::init() {
+	printf("WARNING - Beware of Win32 Debug build misbehaving due precision errors on glm::dot\n\n");
+
 	Scene::init();
 	glDepthFunc(GL_LESS);
 
